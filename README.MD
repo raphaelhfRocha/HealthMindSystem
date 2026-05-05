@@ -1,4 +1,4 @@
-# 🧠 HealthMind - Sua Plataforma de Saúde Mental
+# 🧠 HealthMind - Sistema de gerenciamento para psicologos e recepcionistas
 
 
 [![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow.svg)]()
