@@ -1,0 +1,55 @@
+﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Infrastructure.Persistence;
+using MongoDB.Driver;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace HealthMindBackend.Infrastructure.Repositories
+{
+    public class RecepcionistaRepository : IRecepcionistaRepository
+    {
+        private readonly IMongoCollection<Recepcionista> _collection;
+
+        public RecepcionistaRepository(MongoDbContext context)
+        {
+            _collection = context.Database.GetCollection<Recepcionista>("USUARIO");
+        }
+
+        public async Task<Recepcionista> CadastrarRecepcionista(Recepcionista recepcionista)
+        {
+            await _collection.InsertOneAsync(recepcionista);
+            return recepcionista;
+        }
+
+        public async Task<Recepcionista> EditarRecepcionista(String id, Recepcionista usuario)
+        {
+            await _collection.ReplaceOneAsync(u => u.Id == id, usuario);
+            return usuario;
+        }
+
+        public async Task ExcluirRecepcionista(String id)
+        {
+            await _collection.DeleteOneAsync(u => u.Id == id);
+        }
+
+        public async Task<IEnumerable<Recepcionista>> GetAllRecepcionistas()
+        {
+            return await _collection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<Recepcionista> GetRecepcionistaById(String id)
+        {
+            return await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
+        }
+
+        //public async Task<IEnumerable<Usuario>> GetUsuarioByStatusCargo(StatusCargoEnum statusCargo)
+        //{
+        //    return await _collection.Find(u => u.StatusCargo == statusCargo).ToListAsync();
+        //}
+    }
+}

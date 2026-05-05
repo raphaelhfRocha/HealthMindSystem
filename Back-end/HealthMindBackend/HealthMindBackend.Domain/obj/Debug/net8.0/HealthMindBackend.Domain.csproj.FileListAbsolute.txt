@@ -1,0 +1,12 @@
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.csproj.AssemblyReference.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.GeneratedMSBuildEditorConfig.editorconfig
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.AssemblyInfoInputs.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.AssemblyInfo.cs
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.csproj.CoreCompileInputs.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\bin\Debug\net8.0\HealthMindBackend.Domain.deps.json
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\bin\Debug\net8.0\HealthMindBackend.Domain.dll
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\bin\Debug\net8.0\HealthMindBackend.Domain.pdb
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.dll
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\refint\HealthMindBackend.Domain.dll
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\HealthMindBackend.Domain.pdb
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Domain\obj\Debug\net8.0\ref\HealthMindBackend.Domain.dll

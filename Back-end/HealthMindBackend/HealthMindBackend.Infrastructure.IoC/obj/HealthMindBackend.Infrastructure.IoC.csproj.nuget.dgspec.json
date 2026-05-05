@@ -1,0 +1,322 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure.IoC\\HealthMindBackend.Infrastructure.IoC.csproj": {}
+  },
+  "projects": {
+    "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\HealthMindBackend.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\HealthMindBackend.Application.csproj",
+        "projectName": "HealthMindBackend.Application",
+        "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\HealthMindBackend.Application.csproj",
+        "packagesPath": "C:\\Users\\LUCILA FONTAN\\.nuget\\packages\\",
+        "outputPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\LUCILA FONTAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj": {
+                "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "AutoMapper": {
+              "target": "Package",
+              "version": "[16.1.1, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[14.1.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj",
+        "projectName": "HealthMindBackend.Domain",
+        "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj",
+        "packagesPath": "C:\\Users\\LUCILA FONTAN\\.nuget\\packages\\",
+        "outputPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\LUCILA FONTAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.8.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure.IoC\\HealthMindBackend.Infrastructure.IoC.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure.IoC\\HealthMindBackend.Infrastructure.IoC.csproj",
+        "projectName": "HealthMindBackend.Infrastructure.IoC",
+        "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure.IoC\\HealthMindBackend.Infrastructure.IoC.csproj",
+        "packagesPath": "C:\\Users\\LUCILA FONTAN\\.nuget\\packages\\",
+        "outputPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure.IoC\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\LUCILA FONTAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\HealthMindBackend.Application.csproj": {
+                "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Application\\HealthMindBackend.Application.csproj"
+              },
+              "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj": {
+                "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj"
+              },
+              "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\HealthMindBackend.Infrastructure.csproj": {
+                "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\HealthMindBackend.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.IdentityModel.Tokens": {
+              "target": "Package",
+              "version": "[8.18.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[10.1.7, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.18.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\HealthMindBackend.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\HealthMindBackend.Infrastructure.csproj",
+        "projectName": "HealthMindBackend.Infrastructure",
+        "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\HealthMindBackend.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\LUCILA FONTAN\\.nuget\\packages\\",
+        "outputPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\LUCILA FONTAN\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj": {
+                "projectPath": "C:\\PI\\HeathMind\\Back-end\\HealthMindBackend\\HealthMindBackend.Domain\\HealthMindBackend.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.300"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "MongoDB.Driver": {
+              "target": "Package",
+              "version": "[3.8.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.300/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
