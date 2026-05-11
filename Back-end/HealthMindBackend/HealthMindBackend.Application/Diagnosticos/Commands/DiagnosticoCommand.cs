@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Diagnosticos.Commands
 {
-    public class DiagnosticoCommand : IRequest<Diagnostico>
+    public abstract class DiagnosticoCommand : IRequest<Diagnostico>
     {
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }

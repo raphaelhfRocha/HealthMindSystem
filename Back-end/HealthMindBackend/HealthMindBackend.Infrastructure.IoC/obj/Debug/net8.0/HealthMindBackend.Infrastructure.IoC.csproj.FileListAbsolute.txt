@@ -1,8 +1,3 @@
-C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.csproj.AssemblyReference.cache
-C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.GeneratedMSBuildEditorConfig.editorconfig
-C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.AssemblyInfoInputs.cache
-C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.AssemblyInfo.cs
-C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.csproj.CoreCompileInputs.cache
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.deps.json
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.dll
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.pdb
@@ -12,6 +7,12 @@ C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Application.pdb
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Domain.pdb
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\bin\Debug\net8.0\HealthMindBackend.Infrastructure.pdb
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.csproj.AssemblyReference.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.GeneratedMSBuildEditorConfig.editorconfig
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.AssemblyInfoInputs.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.AssemblyInfo.cs
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.csproj.CoreCompileInputs.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.sourcelink.json
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMi.DB644C97.Up2Date
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\HealthMindBackend.Infrastructure.IoC.dll
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Infrastructure.IoC\obj\Debug\net8.0\refint\HealthMindBackend.Infrastructure.IoC.dll

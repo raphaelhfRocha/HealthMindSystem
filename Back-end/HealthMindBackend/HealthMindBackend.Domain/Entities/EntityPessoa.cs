@@ -11,15 +11,15 @@ namespace HealthMindBackend.Domain.Entities
     {
         public String Nome { get; protected set; }
         public String Email { get; protected set; }
-        public CpfCnpj CpfCnpj { get; protected set; }
+        public String CpfCnpj { get; protected set; }
 
         public EntityPessoa()
         {
         }
 
-        public EntityPessoa(String id, String nome, String email, CpfCnpj cpfCnpj)
+        public EntityPessoa(String id, String nome, String email, String cpfCnpj)
         {
-            Id = id;
+            DefinirId(id);
             Nome = nome;
             Email = email;
             CpfCnpj = cpfCnpj;

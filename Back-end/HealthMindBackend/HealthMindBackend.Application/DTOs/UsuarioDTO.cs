@@ -11,7 +11,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class UsuarioDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         [MinLength(8)]
         [MaxLength(120)]
         [Required(ErrorMessage = "Nome usuário obrigatório")]
@@ -21,7 +21,7 @@ namespace HealthMindBackend.Application.DTOs
         //[MinLength(11)]
         //[MaxLength(14)]
         [Required(ErrorMessage = "CPF/CNPJ obrigatório")]
-        public CpfCnpj CpfCnpj { get; set; }
+        public String CpfCnpj { get; set; }
         [Required(ErrorMessage = "Cargo obrigatório")]
         public StatusCargoEnum StatusCargo { get; set; }
         [Required(ErrorMessage = "Role obrigatória")]

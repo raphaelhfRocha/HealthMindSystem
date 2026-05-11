@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson;
+﻿using HealthMindBackend.Domain.Validations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -11,15 +12,17 @@ namespace HealthMindBackend.Domain.Entities
     public abstract class Identity
     {
         [BsonId]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public String Id { get; protected set; }
+        public String? Id { get; protected set; }
 
-        public Identity()
+        protected Identity()
         {
         }
-        public Identity(String prefix)
+        
+        public void DefinirId(String id)
         {
-            Id = $"{prefix}-000{Guid.NewGuid().ToString("N")}";
+            DomainExceptionValidation.Validate(String.IsNullOrWhiteSpace(id), "Id inválido.");
+
+            Id = id;
         }
     }
 }

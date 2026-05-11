@@ -1,7 +1,7 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
-using HealthMindBackend.Infrastructure.Persistence;
+using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
@@ -13,15 +13,19 @@ namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class RecepcionistaRepository : IRecepcionistaRepository
     {
+        private const string SequenceName = "RECEPCIONISTA";
         private readonly IMongoCollection<Recepcionista> _collection;
+        private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
-        public RecepcionistaRepository(MongoDbContext context)
+        public RecepcionistaRepository(IMongoDbContext context, ISequentialIdGenerator sequentialIdGenerator)
         {
             _collection = context.Database.GetCollection<Recepcionista>("USUARIO");
+            _sequentialIdGenerator = sequentialIdGenerator;
         }
 
         public async Task<Recepcionista> CadastrarRecepcionista(Recepcionista recepcionista)
         {
+            recepcionista.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Recepcionista));
             await _collection.InsertOneAsync(recepcionista);
             return recepcionista;
         }

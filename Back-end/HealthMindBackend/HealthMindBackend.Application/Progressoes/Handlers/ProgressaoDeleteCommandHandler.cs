@@ -25,16 +25,6 @@ namespace HealthMindBackend.Application.Progressoes.Handlers
 
         public async Task<Progressao> Handle(ProgressaoDeleteCommand request, CancellationToken cancellationToken)
         {
-            var pacienteFound = await _pacienteRepository.GetPacienteById(request.PacienteId);
-
-            if (pacienteFound == null)
-                throw new KeyNotFoundException("Paciente não encontrado");
-
-            var prontuarioFound = await _prontuarioRepository.GetProntuarioById(request.ProntuarioId);
-
-            if (prontuarioFound == null)
-                throw new KeyNotFoundException("Prontuario não encontrado");
-
             var progressaoFound = await _progressaoRepository.GetProgressaoById(request.Id);
 
             if (progressaoFound == null)

@@ -2,7 +2,6 @@
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Progressoes.Commands;
-using HealthMindBackend.Application.Progressoes.Handlers;
 using HealthMindBackend.Application.Progressoes.Query;
 using MediatR;
 using System;
@@ -26,13 +25,13 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AdicionarProgressao(ProgressaoDTO progressaoDto)
         {
-            var progressaoCreateCommand = _mapper.Map<ProgressaoCreateCommandHandler>(progressaoDto);
+            var progressaoCreateCommand = _mapper.Map<ProgressaoCreateCommand>(progressaoDto);
             await _mediator.Send(progressaoCreateCommand);
         }
 
-        public async Task ExcluirProgressao(String progressaoId, String pacienteId, String prontuarioId)
+        public async Task ExcluirProgressao(String progressaoId)
         {
-            var progressaoDeleteCommand = new ProgressaoDeleteCommand(progressaoId, pacienteId, prontuarioId);
+            var progressaoDeleteCommand = new ProgressaoDeleteCommand(progressaoId);
             await _mediator.Send(progressaoDeleteCommand);
         }
 
@@ -41,6 +40,13 @@ namespace HealthMindBackend.Application.Services
             var getAllProgressoesQuery = new GetAllProgressoesQuery();
             var result = await _mediator.Send(getAllProgressoesQuery);
             return _mapper.Map<IEnumerable<ProgressaoDTO>>(result);
+        }
+
+        public async Task<List<ProgressaoDTO>> GetProgressoesByProntuarioId(String prontuarioId)
+        {
+            var getProgressoesByProntuarioIdQuery = new GetProgressoesByProntuarioIdQuery(prontuarioId);
+            var result = await _mediator.Send(getProgressoesByProntuarioIdQuery);
+            return _mapper.Map<List<ProgressaoDTO>>(result);
         }
     }
 }

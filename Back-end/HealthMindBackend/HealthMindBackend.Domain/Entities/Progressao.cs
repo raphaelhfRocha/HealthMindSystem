@@ -18,7 +18,7 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public Progressao(String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro) : base(Prefix.Progressao)
+        public Progressao(String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro)
         {
             ValidateProgressoesDomain(pacienteId, prontuarioId, descricao, dataRegistro);
         }

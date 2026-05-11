@@ -26,9 +26,12 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
             if (historicoMedicoFound == null)
                 throw new KeyNotFoundException("Historico médico não encontrado.");
 
-            historicoMedicoFound.Update(request.PacienteId, request.ProntuarioId, request.Descricao, request.DataRegistro);
 
-            return historicoMedicoFound;
+            historicoMedicoFound.Update(request.Id, request.PacienteId, request.ProntuarioId, request.Descricao, request.DataRegistro);
+
+            var historicoMedicoEditado = await _historicoMedicoRepository.EditarHistoricoMedico(request.Id, historicoMedicoFound);
+            
+            return historicoMedicoEditado;
         }
     }
 }

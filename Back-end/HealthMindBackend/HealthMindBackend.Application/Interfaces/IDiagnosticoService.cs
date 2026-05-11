@@ -10,6 +10,7 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IDiagnosticoService
     {
         Task<IEnumerable<DiagnosticoDTO>> GetAllDiagnosticos();
+        Task<List<DiagnosticoDTO>> GetDiagnosticosByProntuarioId(String prontuarioId);
         Task AdicionarDiagnostico(DiagnosticoDTO diagnosticoDto);
         Task AtualizarDiagnostico(DiagnosticoDTO diagnosticoDto);
     }

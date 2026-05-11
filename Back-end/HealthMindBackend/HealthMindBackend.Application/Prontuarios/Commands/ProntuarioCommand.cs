@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Prontuarios.Commands
 {
-    public class ProntuarioCommand : IRequest<Prontuario>
+    public abstract class ProntuarioCommand : IRequest<Prontuario>
     {
         public String PacienteId { get; set; }
         public String Descricao { get; set; }
-        public DateTime DataAbertura { get; set; }
+        public DateTime? DataAbertura { get; set; }
         public StatusProntuarioEnum StatusProntuario { get; set; }
+        public List<Medicamento>? Medicamentos { get; set; }
     }
 }

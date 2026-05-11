@@ -1,22 +1,26 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
-using HealthMindBackend.Infrastructure.Persistence;
+using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 
 namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class HistoricoMedicoRepository : IHistoricoMedicoRepository
     {
+        private const string SequenceName = "HISTORICO_MEDICO";
         private readonly IMongoCollection<HistoricoMedico> _collection;
+        private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
-        public HistoricoMedicoRepository(MongoDbContext context)
+        public HistoricoMedicoRepository(IMongoDbContext context, ISequentialIdGenerator sequentialIdGenerator)
         {
             _collection = context.Database
                 .GetCollection<HistoricoMedico>("HISTORICO_MEDICO");
+            _sequentialIdGenerator = sequentialIdGenerator;
         }
 
         public async Task<HistoricoMedico> AdicionarHistoricoMedico(HistoricoMedico historico)
         {
+            historico.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.HistoricoMedico));
             await _collection.InsertOneAsync(historico);
             return historico;
         }
@@ -40,9 +44,9 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<IEnumerable<HistoricoMedico>> GetHistoricosByProntuarioId(String prontuarioId)
+        public async Task<List<HistoricoMedico>> GetHistoricosByProntuarioId(String prontuarioId)
         {
-            return await _collection.Find(h => h.Id == prontuarioId).ToListAsync();
+            return await _collection.Find(h => h.ProntuarioId == prontuarioId).ToListAsync();
         }
 
         public async Task<HistoricoMedico> GetHistoricoById(String historicoId)

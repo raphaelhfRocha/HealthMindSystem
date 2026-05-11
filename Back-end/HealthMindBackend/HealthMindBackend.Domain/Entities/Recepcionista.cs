@@ -11,21 +11,34 @@ namespace HealthMindBackend.Domain.Entities
 {
     public class Recepcionista : Usuario
     {
-        public Recepcionista(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(Prefix.Usuario, nome, email, senha, statusCargo, statusRole, cpfCnpj)
+        public Recepcionista()
+        {
+        }
+        public Recepcionista(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(id, nome, email, senha, statusCargo, statusRole, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
-            Id = id;
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
+            ValidateRecepcionistaDomain(statusCargo, statusRole);
         }
 
-        public Recepcionista(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(Prefix.Usuario, nome, email, senha, statusCargo, statusRole, cpfCnpj)
+        public Recepcionista(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(nome, email, senha, statusCargo, statusRole, cpfCnpj)
         {
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
+            ValidateRecepcionistaDomain(statusCargo, statusRole);
+        }
+        private void ValidateRecepcionistaDomain(StatusCargoEnum statusCargo, StatusRoleEnum statusRole)
+        {
+            DomainExceptionValidation.Validate(statusCargo != StatusCargoEnum.StsRecepcionista, "Cargo inválido para recepcionista");
+            DomainExceptionValidation.Validate(statusRole != StatusRoleEnum.StsColaborador, "Role inválida para recepcionista");
+
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
         }
 
-        public void Update(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        public void Update(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
+            ValidateRecepcionistaDomain(statusCargo, statusRole);
         }
     }
 }

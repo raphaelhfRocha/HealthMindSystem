@@ -11,7 +11,7 @@ namespace HealthMindBackend.Application.Pagamentos.Commands
 {
     public class PagamentoCommand : IRequest<Pagamento>
     {
-        public String SessaoId { get; set; }
+        public String? SessaoId { get; set; }
         public Decimal Valor { get; set; }
         public DateTime DataPagamento { get; set; }
         public StatusFormaPagamentoEnum StatusFormaPagamento { get; set; }        

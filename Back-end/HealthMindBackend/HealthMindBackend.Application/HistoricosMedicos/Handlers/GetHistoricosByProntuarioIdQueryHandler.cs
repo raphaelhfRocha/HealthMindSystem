@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
 {
-    public class GetHistoricosByProntuarioIdQueryHandler : IRequestHandler<GetHistoricosByProntuarioIdQuery, IEnumerable<HistoricoMedico>>
+    public class GetHistoricosByProntuarioIdQueryHandler : IRequestHandler<GetHistoricosByProntuarioIdQuery, List<HistoricoMedico>>
     {
         private readonly IHistoricoMedicoRepository _historicoMedicoRepository;
 
@@ -19,9 +19,11 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
             _historicoMedicoRepository = historicoMedicoRepository;
         }
 
-        public async Task<IEnumerable<HistoricoMedico>> Handle(GetHistoricosByProntuarioIdQuery request, CancellationToken cancellationToken)
+        public async Task<List<HistoricoMedico>> Handle(GetHistoricosByProntuarioIdQuery request, CancellationToken cancellationToken)
         {
-            return await _historicoMedicoRepository.GetHistoricosByProntuarioId(request.ProntuarioId);
+            var result = await _historicoMedicoRepository.GetHistoricosByProntuarioId(request.ProntuarioId);
+
+            return result ?? throw new KeyNotFoundException("Históricos médicos não encontrados");
         }
     }
 }

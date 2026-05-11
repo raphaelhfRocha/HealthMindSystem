@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Progressoes.Commands
 {
-    public class ProgressaoCommand : IRequest<Progressao>
+    public abstract class ProgressaoCommand : IRequest<Progressao>
     {
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.HistoricosMedicos.Queries
 {
-    public class GetHistoricosByProntuarioIdQuery : IRequest<IEnumerable<HistoricoMedico>>
+    public class GetHistoricosByProntuarioIdQuery : IRequest<List<HistoricoMedico>>
     {
         public String ProntuarioId { get; set; }
 

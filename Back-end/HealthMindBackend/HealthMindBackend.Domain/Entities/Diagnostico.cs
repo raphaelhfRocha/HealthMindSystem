@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,7 @@ namespace HealthMindBackend.Domain.Entities
         public String Descricao { get; private set; }
         public String Cid { get; private set; }
         public DateTime DataDiagnostico { get; private set; }
+        [BsonRepresentation(BsonType.String)]
         public StatusDiagnosticoEnum StatusDiagnostico { get; private set; }
         public String Observacoes { get; private set; }
 
@@ -22,14 +25,14 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public Diagnostico(String id, String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes) : base(Prefix.Diagnostico)
+        public Diagnostico(String id, String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id do diagnóstico inválido");
-            Id = id;
+            DefinirId(id);
             ValidateDiagnosticosDomain(pacienteId, prontuarioId, descricao, cid, dataDiagnostico, statusDiagnostico, observacoes);
         }
 
-        public Diagnostico(String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes) : base(Prefix.Diagnostico)
+        public Diagnostico(String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes)
         {
             ValidateDiagnosticosDomain(pacienteId, prontuarioId, descricao, cid, dataDiagnostico, statusDiagnostico, observacoes);
         }

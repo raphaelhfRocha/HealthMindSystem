@@ -11,5 +11,10 @@ namespace HealthMindBackend.Application.Pagamentos.Commands
     public class PagamentoDeleteCommand : IRequest<Pagamento>
     {
         public String SessaoId { get; set; }
+
+        public PagamentoDeleteCommand(String sessaoId)
+        {
+            SessaoId = sessaoId;
+        }
     }
 }

@@ -9,7 +9,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class PagamentoDTO
     {
-        public String SessaoId { get; set; }
+        public String? SessaoId { get; set; }
         public Decimal Valor { get; set; }
         public DateTime DataPagamento { get; set; }
         public StatusFormaPagamentoEnum FormaPagamento { get; set; }

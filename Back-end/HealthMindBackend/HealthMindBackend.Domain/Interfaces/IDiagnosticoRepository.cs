@@ -11,6 +11,7 @@ namespace HealthMindBackend.Domain.Interfaces
     {
         Task<IEnumerable<Diagnostico>> GetAllDiagnosticos();
         Task<Diagnostico> GetDiagnosticoById(String diagnosticoId);
+        Task<List<Diagnostico>> GetDiagnosticosByProntuarioId(String prontuarioId);
         Task<Diagnostico> AdicionarDiagnostico(Diagnostico diagnostico);
         Task<Diagnostico> EditarDiagnostico(String diagnosticoId, Diagnostico diagnostico);
     }

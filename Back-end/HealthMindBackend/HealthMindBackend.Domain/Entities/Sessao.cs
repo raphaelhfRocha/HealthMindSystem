@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -17,8 +18,10 @@ namespace HealthMindBackend.Domain.Entities
         public DateTime DataSessao { get; private set; }
         public TimeSpan HoraInicio { get; private set; }
         public String Observacoes { get; private set; }
+        [BsonRepresentation(BsonType.String)]
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; private set; }
-        public Pagamento Pagamento { get; private set; }
+        public Pagamento? Pagamento { get; set; }
+        [BsonRepresentation(BsonType.String)]
         public StatusSessaoEnum StatusSessao { get; private set; }
 
         public Sessao()
@@ -27,16 +30,16 @@ namespace HealthMindBackend.Domain.Entities
 
         public Sessao(String id, String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
             String observacoes,
-            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao) : base(Prefix.Sessao)
+            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
-            Id = id;
+            DefinirId(id);
             ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
         }
 
         public Sessao(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
             String observacoes,
-            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao) : base(Prefix.Sessao)
+            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
         {
             ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
         }
@@ -44,12 +47,10 @@ namespace HealthMindBackend.Domain.Entities
         public Sessao(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
             String observacoes, StatusTipoAtendimentoEnum statusTipoAtendimento,
             Pagamento pagamento, StatusSessaoEnum statusSessao
-            ) : base(Prefix.Sessao)
+            )
         {
             ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
-            pagamento = new Pagamento(pagamento.Valor, pagamento.DataPagamento,
-                pagamento.FormaPagamento, pagamento.StatusPagamento,
-                pagamento.StatusParcelado, pagamento.TotalParcelas);
+            Pagamento = pagamento;
         }
 
 

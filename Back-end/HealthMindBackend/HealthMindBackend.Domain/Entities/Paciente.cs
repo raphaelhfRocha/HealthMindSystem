@@ -13,41 +13,38 @@ namespace HealthMindBackend.Domain.Entities
     public class Paciente : EntityPessoa
     {
         public DateTime DataNascimento { get; private set; }
-        public Prontuario Prontuario { get; private set; }
-        
+        public String PsicologoId { get; private set; }
+
         public Paciente()
         {
         }
 
-        public Paciente(String id, String nome, String email, CpfCnpj cpfCnpj, DateTime dataNascimento) : base(Prefix.Paciente, nome, email, cpfCnpj)
+        public Paciente(String id, String nome, String email, String cpfCnpj, String psicologoId, DateTime dataNascimento) : base(id, nome, email, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id do paciente inválido.");
-            Id = id;
-            ValidatePacienteDomain(nome, email, cpfCnpj, dataNascimento);
+            ValidatePacienteDomain(nome, email, cpfCnpj, psicologoId, dataNascimento);
         }
 
-        public Paciente(String nome, String email, CpfCnpj cpfCnpj, DateTime dataNascimento) : base(Prefix.Paciente, nome, email, cpfCnpj)
+        public Paciente(String nome, String email, String cpfCnpj, String psicologoId, DateTime dataNascimento)
         {
-            ValidatePacienteDomain(nome, email, cpfCnpj, dataNascimento);
+            ValidatePacienteDomain(nome, email, cpfCnpj, psicologoId, dataNascimento);
         }
 
-        private void ValidatePacienteDomain(String nome, String email, CpfCnpj cpfCnpj, DateTime dataNascimento)
+        private void ValidatePacienteDomain(String nome, String email, String cpfCnpj, String psicologoId, DateTime dataNascimento)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome do paciente inválido.");
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "E-mail do paciente inválido.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(cpfCnpj), "CPF/CNPJ está vazio.");
-            //DomainExceptionValidation.Validate(cpfCnpj.Length < 11, "CPF/CNPJ deverá ter no mínimo 8 caracteres.");
-            //DomainExceptionValidation.Validate(cpfCnpj.Length > 14, "CPF/CNPJ deverá ter no máximo 14 caracteres.");
 
             Nome = nome;
             Email = email;
             CpfCnpj = cpfCnpj;
+            PsicologoId = psicologoId;
             DataNascimento = dataNascimento;
         }
 
-        public void Update(String nome, String email, CpfCnpj cpfCnpj, DateTime dataNascimento)
+        public void Update(String nome, String email, String cpfCnpj, String psicologoId, DateTime dataNascimento)
         {
-            ValidatePacienteDomain(nome, email, cpfCnpj, dataNascimento);
+            ValidatePacienteDomain(nome, email, cpfCnpj, psicologoId, dataNascimento);
         }
     }
 }

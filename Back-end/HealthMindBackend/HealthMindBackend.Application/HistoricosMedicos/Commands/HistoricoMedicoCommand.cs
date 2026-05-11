@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.HistoricosMedicos.Commands
 {
-    public class HistoricoMedicoCommand : IRequest<HistoricoMedico>
+    public abstract class HistoricoMedicoCommand : IRequest<HistoricoMedico>
     {
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }

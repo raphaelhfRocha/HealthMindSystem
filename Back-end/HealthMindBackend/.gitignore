@@ -1,0 +1,204 @@
+## .gitignore para projeto ASP.NET Core
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[AA]rm/
+[AA]rm64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Build generated files
+*.dll
+*.pdb
+*.exe
+*.app
+*.nupkg
+*.nuget.props
+*.nuget.targets
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.cache
+*.vsconfig
+*.DotSettings.user
+*.rsuser
+*.scc
+*.ode
+
+# JetBrains Rider
+.idea/
+*.sln.iml
+
+# NuGet
+**/[Pp]ackages/*
+!**/[Pp]ackages/*/README.md
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# ASP.NET Core
+appsettings.Development.json
+appsettings.*.json
+!**/appsettings.json
+!**/appsettings.Example.json
+!**/appsettings.example.json
+**/appsettings.*.local.json
+**/Properties/launchSettings.json
+
+# User secrets
+secrets.json
+secrets.*.json
+**/secrets/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+*.mdb
+*.sdf
+*.mdf
+*.ldf
+*.ndf
+
+# Windows
+[Tt]humbs.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Linux
+*~
+.directory
+.fuse_hidden*
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Logs
+*.log
+[Nn][Bb][Rr].*
+[Dd]ebug.*
+[Rr]elease.*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage results
+*.coverage
+*.coveragexml
+coverage/
+coverage.json
+coverage.cobertura.xml
+*.opencover.xml
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+
+# Test results
+TestResults/
+[Bb]enchmark[Dd]ot[Nn]et/
+
+# Publish output
+publish/
+*.publish.xml
+*.azurePubxml
+*.pubxml
+*.publishproj
+
+# Dotenv
+.env
+.env.local
+.env.*.local
+
+# Azure
+*.azuresettings
+*.publishsettings
+
+# NCrunch
+_NCrunch_*
+.*crunch*.local.xml
+nCrunchTemp_*
+
+# MightyMoose
+*.mm.*
+AutoPatcherNet.exe
+
+# StyleCop
+StyleCop41Settings.xml
+
+# Node.js (if using npm/yarn for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Python (if using Python scripts)
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Secrets and sensitive files
+*.pem
+*.key
+*.cert
+connectionstrings.json
+appsettings.Production.json
+appsettings.Staging.json

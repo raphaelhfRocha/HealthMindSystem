@@ -16,13 +16,13 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
 
         public PacienteCreateCommandHandler(IPacienteRepository pacienteRepository)
         {
-            _pacienteRepository = pacienteRepository;            
+            _pacienteRepository = pacienteRepository;
         }
 
         public async Task<Paciente> Handle(PacienteCreateCommand request, CancellationToken cancellationToken)
         {
-            var paciente = new Paciente(request.Nome, request.Email,
-                request.CpfCnpj, request.DataNascimento);
+            var paciente = new Paciente(request.Nome, request.Email, request.CpfCnpj,
+                 request.PsicologoId, request.DataNascimento);
 
             if (paciente == null)
                 throw new ArgumentNullException(nameof(paciente));

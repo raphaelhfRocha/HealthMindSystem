@@ -12,5 +12,11 @@ namespace HealthMindBackend.Application.Medicamentos.Commands
     {
         public String Id { get; set; }
         public String ProntuarioId { get; set; }
+
+        public MedicamentoDeleteCommand(String id, String prontuarioId)
+        {
+            Id = id;
+            ProntuarioId = prontuarioId;
+        }
     }
 }

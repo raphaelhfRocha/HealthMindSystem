@@ -16,17 +16,17 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
 
         public MedicamentoUpdateCommandHandler(IProntuarioRepository prontuarioRepository)
         {
-            _prontuarioRepository = prontuarioRepository;            
+            _prontuarioRepository = prontuarioRepository;
         }
 
         public async Task<Medicamento> Handle(MedicamentoUpdateCommand request, CancellationToken cancellationToken)
         {
-            var medicamentoFound = await _prontuarioRepository.GetMedicamentoById(request.ProntuarioId, request.Id);
+            var medicamentoFound = await _prontuarioRepository.GetMedicamentoByProntuarioIdAndMedicamentoId(request.ProntuarioId, request.Id);
 
             if (medicamentoFound == null)
                 throw new KeyNotFoundException("Medicamento não encontrado");
 
-            medicamentoFound.Update(medicamentoFound.Nome,medicamentoFound.Dosagem, medicamentoFound.Frequencia);
+            medicamentoFound.Update(request.Nome, request.Dosagem, request.Frequencia);
 
             return await _prontuarioRepository.EditarMedicamento(request.ProntuarioId, request.Id, medicamentoFound);
         }

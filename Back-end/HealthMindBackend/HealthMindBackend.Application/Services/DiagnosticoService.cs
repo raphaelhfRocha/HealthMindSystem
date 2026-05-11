@@ -41,5 +41,12 @@ namespace HealthMindBackend.Application.Services
             var result = await _mediator.Send(diagnosticosQuery);
             return _mapper.Map<IEnumerable<DiagnosticoDTO>>(result);
         }
+
+        public async Task<List<DiagnosticoDTO>> GetDiagnosticosByProntuarioId(String prontuarioId)
+        {
+            var getDiagnosticosByProntuarioIdQuery = new GetDiagnosticosByProntuarioIdQuery(prontuarioId);
+            var result = await _mediator.Send(getDiagnosticosByProntuarioIdQuery);
+            return _mapper.Map<List<DiagnosticoDTO>>(result);
+        }
     }
 }

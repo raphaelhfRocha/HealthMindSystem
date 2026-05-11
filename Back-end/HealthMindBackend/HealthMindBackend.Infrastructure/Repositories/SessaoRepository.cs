@@ -1,34 +1,37 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
-using HealthMindBackend.Infrastructure.Persistence;
+using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 
 namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class SessaoRepository : ISessaoRepository
     {
+        private const string SequenceName = "SESSAO";
         private readonly IMongoCollection<Sessao> _collection;
+        private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
-        public SessaoRepository(MongoDbContext context)
+        public SessaoRepository(IMongoDbContext context, ISequentialIdGenerator sequentialIdGenerator)
         {
             _collection = context.Database.GetCollection<Sessao>("SESSAO");
+            _sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        // ✔️ Criar sessão
         public async Task<Sessao> AgendarSessao(Sessao sessao)
         {
+            sessao.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Sessao));
+            //await DefinirPagamento(sessao.Id, sessao.Pagamento);
             await _collection.InsertOneAsync(sessao);
             return sessao;
         }
 
-        // ✔️ Atualizar sessão inteira
         public async Task<Sessao> AlterarSessao(String id, Sessao sessao)
         {
+            await DefinirPagamento(id, sessao.Pagamento);
             await _collection.ReplaceOneAsync(s => s.Id == id, sessao);
             return sessao;
         }
 
-        // ✔️ Definir ou atualizar pagamento (1:1)
         public async Task<Pagamento> DefinirPagamento(String sessaoId, Pagamento pagamento)
         {
             var update = Builders<Sessao>.Update
@@ -42,7 +45,6 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return pagamento;
         }
 
-        // ✔️ Remover pagamento (opcional)
         public async Task RemoverPagamento(String sessaoId)
         {
             var update = Builders<Sessao>.Update
@@ -54,13 +56,6 @@ namespace HealthMindBackend.Infrastructure.Repositories
             );
         }
 
-        // ✔️ Excluir sessão
-        public async Task ExcluirSessao(String id)
-        {
-            await _collection.DeleteOneAsync(s => s.Id == id);
-        }
-
-        // ✔️ Buscar por ID
         public async Task<Sessao> GetSessaoById(String sessaoId)
         {
             return await _collection
@@ -68,7 +63,6 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        // ✔️ Listar por psicólogo
         public async Task<List<Sessao>> GetSessoesByPsicologoId(String psicologoId)
         {
             return await _collection
@@ -81,14 +75,9 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        //// ✔️ Listar com paginação (IMPORTANTE)
-        //public async Task<List<Sessao>> GetAllSessoes(Int32 page, Int32 pageSize)
-        //{
-        //    return await _collection
-        //        .Find(_ => true)
-        //        .Skip((page - 1) * pageSize)
-        //        .Limit(pageSize)
-        //        .ToListAsync();
-        //}
+        public async Task<Sessao> GetPagamentoBySessaoId(String sessaoId)
+        {
+            return await _collection.Find(s => s.Pagamento.SessaoId == sessaoId).FirstOrDefaultAsync();
+        }
     }
 }

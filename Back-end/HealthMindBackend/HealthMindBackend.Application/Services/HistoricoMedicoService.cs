@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using HealthMindBackend.Application.DTOs;
-using HealthMindBackend.Application.HistoricosMedicos.Handlers;
+using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.HistoricosMedicos.Queries;
 using HealthMindBackend.Application.Interfaces;
 using MediatR;
@@ -25,14 +25,20 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto)
         {
-            var historicoMedicoCreateCommand = _mapper.Map<HistoricoMedicoCreateCommandHandler>(historicoMedicoDto);
+            var historicoMedicoCreateCommand = _mapper.Map<HistoricoMedicoCreateCommand>(historicoMedicoDto);
             await _mediator.Send(historicoMedicoCreateCommand);
         }
 
         public async Task AtualizarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto)
         {
-            var historicoMedicoUpdateCommand = _mapper.Map<HistoricoMedicoUpdateCommandHandler>(historicoMedicoDto);
+            var historicoMedicoUpdateCommand = _mapper.Map<HistoricoMedicoUpdateCommand>(historicoMedicoDto);
             await _mediator.Send(historicoMedicoUpdateCommand);
+        }
+
+        public async Task ExcluirHistoricoMedico(String historicoId)
+        {
+            var historicoMedicoDeleteCommand = new HistoricoMedicoDeleteCommand(historicoId);
+            await _mediator.Send(historicoMedicoDeleteCommand);
         }
 
         public async Task<IEnumerable<HistoricoMedicoDTO>> GetAllHistoricoMedicos()
@@ -42,11 +48,11 @@ namespace HealthMindBackend.Application.Services
             return _mapper.Map<IEnumerable<HistoricoMedicoDTO>>(result);
         }
 
-        public async Task<IEnumerable<HistoricoMedicoDTO>> GetHistoricosByProntuarioId(String prontuarioId)
+        public async Task<List<HistoricoMedicoDTO>> GetHistoricosByProntuarioId(String prontuarioId)
         {
             var getHistoricosByProntuarioId = new GetHistoricosByProntuarioIdQuery(prontuarioId);
             var result = await _mediator.Send(getHistoricosByProntuarioId);
-            return _mapper.Map<IEnumerable<HistoricoMedicoDTO>>(result);
+            return _mapper.Map<List<HistoricoMedicoDTO>>(result);
         }
     }
 }

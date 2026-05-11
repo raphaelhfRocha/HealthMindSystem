@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Psicologos.Commands
 {
-    public class PsicologoCommand : IRequest<Psicologo>
+    public abstract class PsicologoCommand : IRequest<Psicologo>
     {
         public String Nome { get; set; }
         public String Email { get; set; }
         public String Senha { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }
         public StatusRoleEnum StatusRole { get; set; }
-        public CpfCnpj CpfCnpj { get; set; }
+        public String CpfCnpj { get; set; }
         public String Crp { get; set; }
         public String Especialidade { get; set; }
+        public List<Disponibilidade>? Disponibilidades { get; set; }
     }
 }

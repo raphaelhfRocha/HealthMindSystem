@@ -10,8 +10,9 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IHistoricoMedicoService
     {
         Task<IEnumerable<HistoricoMedicoDTO>> GetAllHistoricoMedicos();
-        Task<IEnumerable<HistoricoMedicoDTO>> GetHistoricosByProntuarioId(String prontuarioId);
+        Task<List<HistoricoMedicoDTO>> GetHistoricosByProntuarioId(String prontuarioId);
         Task AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
         Task AtualizarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
+        Task ExcluirHistoricoMedico(String historicoId);
     }
 }

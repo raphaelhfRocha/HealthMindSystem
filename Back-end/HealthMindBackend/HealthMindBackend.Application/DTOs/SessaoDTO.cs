@@ -11,7 +11,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class SessaoDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         [Required(ErrorMessage = "Id do paciente obrigatório")]
         public String PacienteId { get; set; }
         [Required(ErrorMessage = "Id do paciente obrigatório")]
@@ -22,8 +22,8 @@ namespace HealthMindBackend.Application.DTOs
         public TimeSpan HoraInicio { get; set; }
         public String Observacoes { get; set; }
         [Required(ErrorMessage = "Tipo atendimento obrigatório")]
-        public StatusTipoAtendimentoEnum TipoAtendimento { get; set; }
-        public PagamentoDTO Pagamento { get; set; }
+        public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
+        public PagamentoDTO? PagamentoDTO { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }
     }
 }

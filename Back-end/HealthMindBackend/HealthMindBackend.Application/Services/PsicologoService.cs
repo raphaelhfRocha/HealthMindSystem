@@ -2,7 +2,6 @@
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Psicologos.Commands;
-using HealthMindBackend.Application.Psicologos.Handlers;
 using HealthMindBackend.Application.Psicologos.Queries;
 using MediatR;
 using System;
@@ -26,14 +25,14 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AtualizarPsicologo(PsicologoDTO psicologoDto)
         {
-            var psiologoUpdateCommand = _mapper.Map<PsicologoUpdateCommandHandler>(psicologoDto);
-            await _mediator.Send(psicologoDto);
+            var psiologoUpdateCommand = _mapper.Map<PsicologoUpdateCommand>(psicologoDto);
+            await _mediator.Send(psiologoUpdateCommand);
         }
 
         public async Task CadastrarPsicologo(PsicologoDTO psicologoDto)
         {
-            var psiologoCreateCommand = _mapper.Map<PsicologoCreateCommandHandler>(psicologoDto);
-            await _mediator.Send(psicologoDto);
+            var psicologoCreateCommand = _mapper.Map<PsicologoCreateCommand>(psicologoDto);
+            await _mediator.Send(psicologoCreateCommand);
         }
 
         public async Task ExcluirPsicologo(String psicologoId)

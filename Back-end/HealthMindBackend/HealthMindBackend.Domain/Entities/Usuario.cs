@@ -1,6 +1,7 @@
 ﻿using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -13,27 +14,29 @@ namespace HealthMindBackend.Domain.Entities
     [BsonDiscriminator("USUARIO")]
     public abstract class Usuario : EntityPessoa
     {
-        public String Senha { get; private set; }
-        public StatusCargoEnum StatusCargo { get; private set; }
-        public StatusRoleEnum StatusRole { get; private set; }
+        public String Senha { get; protected set; }
+        [BsonRepresentation(BsonType.String)]
+        public StatusCargoEnum StatusCargo { get; protected set; }
+        [BsonRepresentation(BsonType.String)]
+        public StatusRoleEnum StatusRole { get; protected set; }
+
 
         public Usuario()
         {
         }
 
-        public Usuario(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(Prefix.Usuario, nome, email, cpfCnpj)
+        public Usuario(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(id, nome, email, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
-            Id = id;
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
         }
 
-        public Usuario(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(Prefix.Usuario, nome, email, cpfCnpj)
+        public Usuario(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
         }
 
-        protected void ValidateUserDomain(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        protected void ValidateUserDomain(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome está vazio.");
             DomainExceptionValidation.Validate(nome.Length < 8, "Nome do usuário deverá ter no mínimo 8 caracteres.");
@@ -41,9 +44,6 @@ namespace HealthMindBackend.Domain.Entities
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "O e-mail está vazio.");
             DomainExceptionValidation.Validate(statusRole == StatusRoleEnum.StsNone, "Role inválida");
             DomainExceptionValidation.Validate(statusCargo == StatusCargoEnum.StsNone, "Cargo inválido");
-            //DomainExceptionValidation.Validate(String.IsNullOrEmpty(cpfCnpj), "CPF/CNPJ está vazio.");
-            //DomainExceptionValidation.Validate(cpfCnpj.Length < 11, "CPF/CNPJ deverá ter no mínimo 8 caracteres.");
-            //DomainExceptionValidation.Validate(cpfCnpj.Length > 14, "CPF/CNPJ deverá ter no máximo 14 caracteres.");
 
             Nome = nome;
             Email = email;

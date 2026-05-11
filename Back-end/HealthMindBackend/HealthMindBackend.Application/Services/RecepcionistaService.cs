@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
-using HealthMindBackend.Application.Recepcionistas.Handlers;
+using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Usuarios.Commands;
 using HealthMindBackend.Application.Usuarios.Queries;
 using MediatR;
@@ -26,13 +26,13 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AtualizarRecepcionista(RecepcionistaDTO recepcionistaDto)
         {
-            var recepcionistaUpdateCommand = _mapper.Map<RecepcionistaUpdateCommandHandler>(recepcionistaDto);
+            var recepcionistaUpdateCommand = _mapper.Map<RecepcionistaUpdateCommand>(recepcionistaDto);
             await _mediator.Send(recepcionistaUpdateCommand);
         }
 
         public async Task CadastrarRecepcionista(RecepcionistaDTO recepcionistaDto)
         {
-            var recepcionistaCreateCommand = _mapper.Map<RecepcionistaCreateCommandHandler>(recepcionistaDto);
+            var recepcionistaCreateCommand = _mapper.Map<RecepcionistaCreateCommand>(recepcionistaDto);
             await _mediator.Send(recepcionistaCreateCommand);
         }
 

@@ -8,7 +8,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class HistoricoMedicoDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }
         public String Descricao { get; set; }

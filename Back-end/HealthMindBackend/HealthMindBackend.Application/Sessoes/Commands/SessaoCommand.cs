@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Domain.Entities;
+﻿using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using MediatR;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Sessoes.Commands
 {
-    public class SessaoCommand : IRequest<Sessao>
+    public abstract class SessaoCommand : IRequest<Sessao>
     {
         public String PacienteId { get; set; }
         public String PsicologoId { get; set; }
@@ -18,6 +19,6 @@ namespace HealthMindBackend.Application.Sessoes.Commands
         public String Observacoes { get; set; }
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }
-
+        public PagamentoDTO? PagamentoDTO { get; set; }
     }
 }

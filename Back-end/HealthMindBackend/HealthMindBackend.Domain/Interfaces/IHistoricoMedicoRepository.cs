@@ -10,7 +10,7 @@ namespace HealthMindBackend.Domain.Interfaces
     public interface IHistoricoMedicoRepository
     {
         Task<IEnumerable<HistoricoMedico>> GetAllHistoricos();
-        Task<IEnumerable<HistoricoMedico>> GetHistoricosByProntuarioId(String prontuarioId);
+        Task<List<HistoricoMedico>> GetHistoricosByProntuarioId(String prontuarioId);
         Task<HistoricoMedico> GetHistoricoById(String historicoId);
         Task<HistoricoMedico> AdicionarHistoricoMedico(HistoricoMedico historico);
         Task<HistoricoMedico> EditarHistoricoMedico(String historicoId, HistoricoMedico historico);

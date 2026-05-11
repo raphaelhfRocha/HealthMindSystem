@@ -11,10 +11,13 @@ namespace HealthMindBackend.Domain.Entities
         public const String Paciente = "PAC";
         public const String Sessao = "SES";
         public const String Psicologo = "PSI";
+        public const String Recepcionista = "REC";
         public const String Usuario = "USR";
         public const String Prontuario = "PRT";
         public const String Diagnostico = "DIA";
         public const String HistoricoMedico = "HIS";
         public const String Progressao = "PRG";
+        public const String Medicamento = "MED";
+        public const String Disponibilidade = "DIS";
     }
 }

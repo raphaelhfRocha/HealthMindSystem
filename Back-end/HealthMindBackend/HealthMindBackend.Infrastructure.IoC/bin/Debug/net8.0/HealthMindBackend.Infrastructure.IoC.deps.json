@@ -315,6 +315,7 @@
       "HealthMindBackend.Infrastructure/1.0.0": {
         "dependencies": {
           "HealthMindBackend.Domain": "1.0.0",
+          "Microsoft.Extensions.Options": "10.0.0",
           "MongoDB.Driver": "3.8.0"
         },
         "runtime": {

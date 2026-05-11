@@ -11,14 +11,10 @@ namespace HealthMindBackend.Application.Progressoes.Commands
     public class ProgressaoDeleteCommand : IRequest<Progressao>
     {
         public String Id { get; set; }
-        public String PacienteId { get; set; }
-        public String ProntuarioId { get; set; }
 
-        public ProgressaoDeleteCommand(String id, String pacienteId, String prontuarioId)
+        public ProgressaoDeleteCommand(String id)
         {
             Id = id;
-            PacienteId = pacienteId;
-            ProntuarioId = prontuarioId;
         }
     }
 }

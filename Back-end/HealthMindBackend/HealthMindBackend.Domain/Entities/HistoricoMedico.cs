@@ -18,7 +18,7 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public HistoricoMedico(String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro) : base(Prefix.HistoricoMedico)
+        public HistoricoMedico(String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro)
         {
             ValidateHistoricoMedicoDomain(pacienteId, prontuarioId, descricao, dataRegistro);
         }
@@ -35,8 +35,10 @@ namespace HealthMindBackend.Domain.Entities
             DataRegistro = dataRegistro;
         }
 
-        public void Update(String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro)
+        public void Update(String id, String pacienteId, String prontuarioId, String descricao, DateTime dataRegistro)
         {
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id histórico médico inválido.");
+            Id = id;
             ValidateHistoricoMedicoDomain(pacienteId, prontuarioId, descricao, dataRegistro);
         }
     }

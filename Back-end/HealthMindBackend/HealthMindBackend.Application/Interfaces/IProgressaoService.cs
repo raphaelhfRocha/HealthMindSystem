@@ -10,7 +10,8 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IProgressaoService
     {
         Task<IEnumerable<ProgressaoDTO>> GetAllProgressoes();
+        Task<List<ProgressaoDTO>> GetProgressoesByProntuarioId(String prontuarioId);
         Task AdicionarProgressao(ProgressaoDTO progressaoDto);
-        Task ExcluirProgressao(String progressaoId, String pacienteId, String prontuarioId);
+        Task ExcluirProgressao(String progressaoId);
     }
 }

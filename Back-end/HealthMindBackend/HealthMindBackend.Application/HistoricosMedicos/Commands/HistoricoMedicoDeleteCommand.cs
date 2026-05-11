@@ -11,5 +11,10 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Commands
     public class HistoricoMedicoDeleteCommand : IRequest<HistoricoMedico>
     {
         public String Id { get; set; }
+
+        public HistoricoMedicoDeleteCommand(String id)
+        {
+            Id = id;
+        }
     }
 }

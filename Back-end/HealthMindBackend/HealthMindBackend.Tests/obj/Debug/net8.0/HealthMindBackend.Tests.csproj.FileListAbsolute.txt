@@ -91,6 +91,7 @@ C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMindBackend.Tests.AssemblyInfoInputs.cache
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMindBackend.Tests.AssemblyInfo.cs
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMindBackend.Tests.csproj.CoreCompileInputs.cache
+C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMindBackend.Tests.sourcelink.json
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMi.722058C6.Up2Date
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\HealthMindBackend.Tests.dll
 C:\PI\HeathMind\Back-end\HealthMindBackend\HealthMindBackend.Tests\obj\Debug\net8.0\refint\HealthMindBackend.Tests.dll

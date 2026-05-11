@@ -27,7 +27,23 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
             if (sessao == null)
                 throw new ArgumentNullException(nameof(sessao));
 
-            return await _sessaoRepository.AgendarSessao(sessao);
+            
+            var result = await _sessaoRepository.AgendarSessao(sessao);
+
+            request.PagamentoDTO.SessaoId = result.Id;
+
+            var pagamento = new Pagamento(request.PagamentoDTO.SessaoId, request.PagamentoDTO.Valor,
+                request.PagamentoDTO.DataPagamento, request.PagamentoDTO.FormaPagamento,
+                request.PagamentoDTO.StatusPagamento, request.PagamentoDTO.StatusParcelado,
+                request.PagamentoDTO.TotalParcelas);
+
+            var pagamentoDefinido = pagamento != null 
+                ? await _sessaoRepository.DefinirPagamento(result.Id, pagamento)
+                : null;
+
+            result.Pagamento = pagamentoDefinido;
+
+            return result;
         }
     }
 }

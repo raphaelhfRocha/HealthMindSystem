@@ -21,7 +21,7 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
 
         public async Task<Medicamento> Handle(MedicamentoCreateCommand request, CancellationToken cancellationToken)
         {
-            var medicamento = new Medicamento(request.Nome, request.Dosagem,
+            var medicamento = new Medicamento(request.ProntuarioId, request.Nome, request.Dosagem,
                 request.Frequencia);
 
             if (medicamento == null)

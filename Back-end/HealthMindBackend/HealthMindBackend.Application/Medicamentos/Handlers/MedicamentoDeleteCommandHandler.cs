@@ -20,7 +20,7 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
         }
         public async Task<Medicamento> Handle(MedicamentoDeleteCommand request, CancellationToken cancellationToken)
         {
-            var medicamentoFound = await _prontuarioRepository.GetMedicamentoById(request.ProntuarioId, request.Id);
+            var medicamentoFound = await _prontuarioRepository.GetMedicamentoByProntuarioIdAndMedicamentoId(request.ProntuarioId, request.Id);
 
             if (medicamentoFound == null)
                 throw new KeyNotFoundException("Medicamento não encontrado");

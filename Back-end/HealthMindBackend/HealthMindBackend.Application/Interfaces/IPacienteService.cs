@@ -10,8 +10,8 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IPacienteService
     {
         Task<IEnumerable<PacienteDTO>> GetAllPacientes();
+        Task<List<PacienteDTO>> GetPacientesByPsicologoId(String? psicologoId);
         Task CadastrarPaciente(PacienteDTO pacienteDto);
         Task AtualizarPaciente(PacienteDTO pacienteDto);
-        Task ExcluirPaciente(String pacienteId);
     }
 }

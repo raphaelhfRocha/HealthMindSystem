@@ -11,14 +11,14 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class ProntuarioDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         [Required(ErrorMessage = "Id do paciente obrigatório")]
         public String PacienteId { get; set; }
         [Required(ErrorMessage = "Descrição prontuário obrigatório")]
         public String Descricao { get; set; }
-        public DateTime DataAbertura { get; set; }
+        public DateTime? DataAbertura { get; set; }
         [Required(ErrorMessage = "Status prontuário obrigatório")]
         public StatusProntuarioEnum StatusProntuario { get; set; }
-        public List<MedicamentoDTO> MedicamentosDTO { get; set; }
+        public List<MedicamentoDTO>? MedicamentosDTO { get; set; }
     }
 }

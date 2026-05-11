@@ -556,6 +556,7 @@
         "framework": ".NETCoreApp,Version=v8.0",
         "dependencies": {
           "HealthMindBackend.Domain": "1.0.0",
+          "Microsoft.Extensions.Options": "8.0.0",
           "MongoDB.Driver": "3.8.0"
         },
         "compile": {

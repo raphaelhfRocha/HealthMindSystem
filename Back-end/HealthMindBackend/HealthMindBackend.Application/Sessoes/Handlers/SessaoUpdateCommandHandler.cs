@@ -29,7 +29,21 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
             sessaoFound.Update(request.PacienteId, request.PsicologoId, request.DataSessao,
                 request.HoraInicio, request.Observacoes, request.StatusTipoAtendimento, request.StatusSessao);
 
-            return await _sessaoRepository.AlterarSessao(request.Id, sessaoFound);
+            var result = await _sessaoRepository.AlterarSessao(request.Id, sessaoFound);
+            request.PagamentoDTO.SessaoId = result.Id;
+
+            var pagamento = new Pagamento(request.PagamentoDTO.SessaoId, request.PagamentoDTO.Valor,
+                request.PagamentoDTO.DataPagamento, request.PagamentoDTO.FormaPagamento,
+                request.PagamentoDTO.StatusPagamento, request.PagamentoDTO.StatusParcelado,
+                request.PagamentoDTO.TotalParcelas);
+
+            var pagamentoDefinido = pagamento != null
+                ? await _sessaoRepository.DefinirPagamento(result.Id, pagamento)
+                : null;
+
+            result.Pagamento = pagamentoDefinido;
+
+            return result;
         }
     }
 }

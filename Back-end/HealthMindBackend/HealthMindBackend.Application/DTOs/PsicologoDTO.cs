@@ -11,17 +11,17 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class PsicologoDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         [MinLength(8)]
         [MaxLength(120)]
         [Required(ErrorMessage = "Nome psicólogo obrigatório")]
         public String Nome { get; set; }
         [Required(ErrorMessage = "E-mail psicólogo obrigatório")]
         public String Email { get; set; }
-        //[MinLength(11)]
-        //[MaxLength(14)]
+        [MinLength(11)]
+        [MaxLength(14)]
         [Required(ErrorMessage = "CPF/CNPJ obrigatório")]
-        public CpfCnpj CpfCnpj { get; set; }
+        public String CpfCnpj { get; set; }
         [Required(ErrorMessage = "Cargo obrigatório")]
         public StatusCargoEnum StatusCargo { get; set; }
         [Required(ErrorMessage = "Role obrigatória")]
@@ -32,5 +32,6 @@ namespace HealthMindBackend.Application.DTOs
         public String Crp { get; set; }
         [Required(ErrorMessage = "Especialidade obrigatória")]
         public String Especialidade { get; set; }
+        public List<DisponibilidadeDTO>? DisponibilidadesDTO { get; set; }
     }
 }
