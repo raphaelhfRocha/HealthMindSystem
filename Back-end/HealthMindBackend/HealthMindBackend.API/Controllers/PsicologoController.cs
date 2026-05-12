@@ -27,7 +27,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         ///
         /// **2. Em seguida clique no botão Execute**
         /// </remarks>
@@ -64,7 +64,9 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite os dados que deseja editar seguindo o modelo abaixo:**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
         /// 
         /// **[POST] - /api/Psicologo**
         /// ```
@@ -78,6 +80,7 @@ namespace HealthMindBackend.API.Controllers
         ///   "Especialidade": "Especialidade"
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         [HttpPost]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status201Created)]
@@ -113,7 +116,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do psicologo registrado no campo do parametro psicologoId**
+        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
         /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
         /// 
         /// **[PUT] - /api/Psicologo/{psicologoId}**
@@ -128,9 +131,10 @@ namespace HealthMindBackend.API.Controllers
         ///   "Especialidade": "Especialidade"
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="psicologoId">
-        /// ID do psicólogo.
+        /// ID Psicólogo
         /// </param>
         [HttpPut("{psicologoId}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]

@@ -29,7 +29,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         ///
         /// **2. Em seguida clique no botão Execute**
         /// </remarks>
@@ -65,7 +65,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         /// 
         /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
         /// 
@@ -124,7 +124,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         /// 
         /// **2. Digite no campo Id do prontuário**
         /// 
@@ -152,6 +152,7 @@ namespace HealthMindBackend.API.Controllers
         ///   ]
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         [HttpPut("{prontuarioId}")]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status200OK)]
@@ -212,8 +213,8 @@ namespace HealthMindBackend.API.Controllers
         /// <summary>
         /// Exclusão de medicamento do prontuário.
         /// </summary>
-        /// <param name="prontuarioId">Id do prontuário.</param>
-        /// <param name="medicamentoId">Id do medicamento.</param>
+        /// <param name="prontuarioId">Id Prontuário</param>
+        /// <param name="medicamentoId">Id Medicamento</param>
         /// <response code="204">Medicamento excluído</response>
         /// <response code="400">Dados inválidos</response>
         /// <response code="404">Dados não encontrados</response>
@@ -223,7 +224,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         /// 
         /// **2. Digite os parametros de medicamento e prontuário nos campos de Id do Medicamento e Id do Prontuário**
         /// 

@@ -27,9 +27,11 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         ///
         /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Paciente**
         /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
@@ -64,14 +66,14 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do psicologo registrado no campo do parametro psicologoId**
+        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
         /// 
         /// **2. Em seguida clique no botão Execute**
         /// 
-        /// **[GET] - /api/Paciente/{psicologoId}**
+        /// **[GET] - /api/Paciente/psicologo/{psicologoId}**
         /// </remarks>
         /// <param name="psicologoId">
-        /// ID do psicologo.
+        /// ID Psicólogo
         /// </param>
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
@@ -110,8 +112,9 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite os dados que deseja editar seguindo o modelo abaixo:**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         /// 
+        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
         /// **[POST] - /api/Paciente**
         /// ```
         /// {
@@ -122,6 +125,7 @@ namespace HealthMindBackend.API.Controllers
         ///   "psicologoId": "Id do psicólogo"
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="pacienteDto">
         ///     **Dados a cadastrar**
@@ -153,7 +157,7 @@ namespace HealthMindBackend.API.Controllers
         /// </summary>
         /// <response code="200">Paciente editado</response>
         /// <response code="400">Dados inválidos</response>
-        /// <response code="404">Psicólogo não encontrado</response>
+        /// <response code="404">Paciente não encontrado</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
         /// **Esse endpoint é dedicado a edição de paciente**
@@ -161,7 +165,8 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do paciente registrado no campo do parametro pacienteId**
+        /// **1. Digite o Id do paciente registrado no campo do parâmetro pacienteId**
+        /// 
         /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
         /// 
         /// **[PUT] - /api/Paciente/{pacienteId}**
@@ -174,9 +179,10 @@ namespace HealthMindBackend.API.Controllers
         ///   "psicologoId": "Id do psicólogo"
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="pacienteId">
-        /// ID do paciente.
+        /// ID Paciente
         /// </param>
         /// <param name="pacienteDto">
         /// Dados a alterar

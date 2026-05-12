@@ -17,6 +17,24 @@ namespace HealthMindBackend.API.Controllers
             _diagnosticoService = diagnosticoService;
         }
 
+
+        /// <summary>
+        /// Lista de todos os diagnósticos
+        /// </summary>
+        /// <response code="200">Diagnósticos encontrados</response>
+        /// <response code="404">Diagnósticos não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a listagem de todos diagnósticos**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        ///
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Diagnostico**
+        /// </remarks>
         [HttpGet]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -38,6 +56,28 @@ namespace HealthMindBackend.API.Controllers
             }
         }
 
+
+        /// <summary>
+        /// Lista de diagnósticos por Id prontuário
+        /// </summary>
+        /// <response code="200">Diagnósticos encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Diagnósticos não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de diagnósticos por Id Prontuário**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do prontuário registrado no campo do parâmetro prontuarioId**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Diagnostico/prontuario/{prontuarioId}**
+        /// </remarks>
+        /// <param name="prontuarioId">
+        /// ID Prontuário
+        /// </param>
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -61,6 +101,36 @@ namespace HealthMindBackend.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Registro de diagnóstico
+        /// </summary>
+        /// <response code="201">Diagnóstico registrado</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a registro de diagnósticos**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite os dados que deseja registrar seguindo o modelo abaixo:**
+        /// 
+        /// **[POST] - /api/Diagnostico**
+        /// ```
+        /// {
+        ///   "prontuarioId": "Id do prontuário",
+        ///   "pacienteId": "Id do paciente",
+        ///   "descricao": "Descrição do diagnóstico",
+        ///   "cid": "CID do diagnóstico",
+        ///   "dataDiagnostico": "0000-00-00T23:00:00.000Z",
+        ///   "statusDiagnostico": 0,
+        ///   "observacoes": "Observações"
+        /// }
+        /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
+        /// </remarks>
+        /// <param name="diagnosticoDto">
+        ///     **Dados a cadastrar**
+        /// </param>
         [HttpPost]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]
@@ -82,6 +152,43 @@ namespace HealthMindBackend.API.Controllers
             }
         }
 
+        /// <summary>
+        /// Atualização de diagnóstico
+        /// </summary>
+        /// <response code="200">Diagnóstico editado</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Diagnóstico não encontrado</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a alteração de diagnóstico**
+        /// 
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do diagnóstico registrado no campo do parâmetro diagnosticoId**
+        /// 
+        /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
+        /// 
+        /// **[PUT] - /api/Diagnostico/{diagnosticoId}**
+        /// ```
+        /// {
+        ///   "prontuarioId": "Id do prontuário",
+        ///   "pacienteId": "Id do paciente",
+        ///   "descricao": "Descrição do diagnóstico",
+        ///   "cid": "CID do diagnóstico",
+        ///   "dataDiagnostico": "0000-00-00T00:00:00.000Z",
+        ///   "statusDiagnostico": 0,
+        ///   "observacoes": "Observações"
+        /// }
+        /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
+        /// </remarks>
+        /// <param name="diagnosticoId">
+        /// ID Diagnóstico
+        /// </param>
+        /// <param name="diagnosticoDto">
+        /// Dados a alterar
+        /// </param>
         [HttpPut("{diagnosticoId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]

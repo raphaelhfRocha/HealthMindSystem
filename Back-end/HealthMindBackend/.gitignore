@@ -22,6 +22,18 @@ bld/
 *.nupkg
 *.nuget.props
 *.nuget.targets
+*.deps.json
+*.runtimeconfig.json
+*.runtimeconfig.dev.json
+*.ref.dll
+*.g.cs
+*.g.i.cs
+*.csproj.CoreCompileInputs.cache
+*.csproj.FileListAbsolute.txt
+*.AssemblyInfo.cs
+GeneratedMSBuildEditorConfig.editorconfig
+project.assets.json
+project.nuget.cache
 
 # Visual Studio / VS Code
 .vs/
@@ -37,9 +49,6 @@ bld/
 *.scc
 *.ode
 
-# JetBrains Rider
-.idea/
-*.sln.iml
 
 # NuGet
 **/[Pp]ackages/*
@@ -62,16 +71,6 @@ secrets.json
 secrets.*.json
 **/secrets/
 
-# Database files
-*.db
-*.sqlite
-*.sqlite3
-*.mdb
-*.sdf
-*.mdf
-*.ldf
-*.ndf
-
 # Windows
 [Tt]humbs.db
 [Dd]esktop.ini
@@ -82,30 +81,6 @@ $RECYCLE.BIN/
 *.msm
 *.msp
 *.lnk
-
-# macOS
-.DS_Store
-.AppleDouble
-.LSOverride
-Icon
-._*
-.DocumentRevisions-V100
-.fseventsd
-.Spotlight-V100
-.TemporaryItems
-.Trashes
-.VolumeIcon.icns
-.com.apple.timemachine.donotpresent
-.AppleDB
-.AppleDesktop
-Network Trash Folder
-Temporary Items
-.apdisk
-
-# Linux
-*~
-.directory
-.fuse_hidden*
 
 # Temporary files
 *.tmp
@@ -152,10 +127,6 @@ publish/
 .env.local
 .env.*.local
 
-# Azure
-*.azuresettings
-*.publishsettings
-
 # NCrunch
 _NCrunch_*
 .*crunch*.local.xml
@@ -172,28 +143,6 @@ StyleCop41Settings.xml
 node_modules/
 npm-debug.log
 yarn-error.log
-
-# Python (if using Python scripts)
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
 
 # Secrets and sensitive files
 *.pem

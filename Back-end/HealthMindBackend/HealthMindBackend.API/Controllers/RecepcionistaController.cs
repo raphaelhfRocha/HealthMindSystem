@@ -28,7 +28,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         ///
         /// **2. Em seguida clique no botão Execute**
         /// 
@@ -66,7 +66,9 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite os dados que deseja editar seguindo o modelo abaixo:**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
         /// 
         /// **[POST] - /api/Recepcionista**
         /// ```
@@ -78,6 +80,7 @@ namespace HealthMindBackend.API.Controllers
         ///   "statusRole": 0
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="recepcionistaDto">
         ///     **Dados a cadastrar**
@@ -118,7 +121,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do recepcionista registrado no campo do parametro recepcionistaId**
+        /// **1. Digite o Id do recepcionista registrado no campo do parâmetro recepcionistaId**
         /// 
         /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
         /// 
@@ -132,9 +135,10 @@ namespace HealthMindBackend.API.Controllers
         ///   "statusRole": 0
         /// }
         /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="recepcionistaId">
-        /// ID do recepcionista.
+        /// ID Recepcionista
         /// </param>
         /// <param name="recepcionistaDto">
         /// Dados a alterar
@@ -180,14 +184,14 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parametros)**
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
         /// 
-        /// **2. Digite o parametro de recepcionista no campo de Id do Recepcionista**
+        /// **2. Digite o parâmetro de recepcionista no campo de Id do Recepcionista**
         /// 
         /// **3. Em seguida clique no botão Execute**
         /// 
         /// </remarks>
-        /// <param name="recepcionistaId">Id do Recepcionista.</param>
+        /// <param name="recepcionistaId">ID Recepcionista</param>
         [HttpDelete("{recepcionistaId}")]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
