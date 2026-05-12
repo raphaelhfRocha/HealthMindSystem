@@ -22,11 +22,10 @@ namespace HealthMindBackend.Infrastructure.Repositories
             _sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        public async Task<Psicologo> CadastrarPsicologo(Psicologo psicologo)
+        public async Task CadastrarPsicologo(Psicologo psicologo)
         {
             psicologo.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Psicologo));
             await _collection.InsertOneAsync(psicologo);
-            return psicologo;
         }
 
         public async Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo)

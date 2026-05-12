@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using HealthMindBackend.API.DTOs;
+using HealthMindBackend.Application.Auths.Commands;
 using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
@@ -22,14 +24,17 @@ namespace HealthMindBackend.Application.Mappings
     {
         public DTOToCommandsMappingsProfile()
         {
+            CreateMap<PsicologoCadastroDTO, AuthPsicologoCreateCommand>().ReverseMap();
+            CreateMap<RecepcionistaCadastroDTO, AuthRecepcionistaCreateCommand>().ReverseMap();
+            CreateMap<PacienteDTO, PacienteCreateCommand>().ReverseMap();
             CreateMap<PacienteDTO, PacienteCreateCommand>().ReverseMap();
             CreateMap<PacienteDTO, PacienteUpdateCommand>().ReverseMap();
-            CreateMap<PsicologoDTO, PsicologoCreateCommand>().ReverseMap();
+            //CreateMap<PsicologoDTO, PsicologoCreateCommand>().ReverseMap();
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>().ReverseMap();
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>()
                 .ForMember(dest => dest.Disponibilidades, opt => opt
                 .MapFrom(src => src.DisponibilidadesDTO)).ReverseMap();
-            CreateMap<ProntuarioDTO, ProntuarioCreateCommand>().ReverseMap();
+            //CreateMap<ProntuarioDTO, ProntuarioCreateCommand>().ReverseMap();
             CreateMap<ProntuarioDTO, ProntuarioCreateCommand>()
                 .ForMember(dest => dest.Medicamentos, opt => opt
                 .MapFrom(src => src.MedicamentosDTO)).ReverseMap();
@@ -51,7 +56,7 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<HistoricoMedicoDTO, HistoricoMedicoCreateCommand>().ReverseMap();
             CreateMap<HistoricoMedicoDTO, HistoricoMedicoUpdateCommand>().ReverseMap();
             CreateMap<ProgressaoDTO, ProgressaoCreateCommand>().ReverseMap();
-            CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>().ReverseMap();
+            //CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>().ReverseMap();
             CreateMap<RecepcionistaDTO, RecepcionistaUpdateCommand>().ReverseMap();
         }
     }

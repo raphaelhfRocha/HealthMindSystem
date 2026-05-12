@@ -27,7 +27,7 @@ namespace HealthMindBackend.Application.Recepcionistas.Handlers
             if (recepcionistaFound == null)
                 throw new KeyNotFoundException("Recepcionista não encontrado");
 
-            recepcionistaFound.Update(request.Nome, request.Email, request.Senha,
+            recepcionistaFound.Update(request.Nome, request.Email,
                 request.StatusCargo, request.StatusRole, request.CpfCnpj);
 
             return await _recepcionistaRepository.EditarRecepcionista(request.Id, recepcionistaFound);

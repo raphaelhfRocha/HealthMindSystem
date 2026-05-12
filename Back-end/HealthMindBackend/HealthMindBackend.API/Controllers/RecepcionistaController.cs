@@ -56,59 +56,6 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
-        /// Cadastro de recepcionista
-        /// </summary>
-        /// <response code="201">Recepcionista cadastrado</response>
-        /// <response code="400">Dados inválidos</response>
-        /// <response code="500">Erro interno</response>
-        /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de recepcionista**
-        /// 
-        /// Como usar:
-        /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
-        /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
-        /// 
-        /// **[POST] - /api/Recepcionista**
-        /// ```
-        /// {
-        ///   "nome": "Nome recepcionista",
-        ///   "email": "E-mail recepcionista",
-        ///   "cpfCnpj": "894838938923",
-        ///   "statusCargo": 0,
-        ///   "statusRole": 0
-        /// }
-        /// ```
-        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
-        /// </remarks>
-        /// <param name="recepcionistaDto">
-        ///     **Dados a cadastrar**
-        /// </param>
-        [HttpPost]
-        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CadastrarRecepcionista([FromBody] RecepcionistaDTO recepcionistaDto)
-        {
-            if (recepcionistaDto == null)
-                return BadRequest(nameof(recepcionistaDto));
-            try
-            {
-                await _recepcionistaService.CadastrarRecepcionista(recepcionistaDto);
-                return Created($"/api/recepcionista", recepcionistaDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
-        }
-
-        /// <summary>
         /// Edição de recepcionista
         /// </summary>
         /// <response code="200">Recepcionista editado</response>

@@ -20,14 +20,16 @@ namespace HealthMindBackend.Application.Recepcionistas.Handlers
             _recepcionistaRepository = recepcionistaRepository;
         }
 
-        public Task<Recepcionista> Handle(RecepcionistaCreateCommand request, CancellationToken cancellationToken)
+        public async Task<Recepcionista> Handle(RecepcionistaCreateCommand request, CancellationToken cancellationToken)
         {
             var recepcionista = new Recepcionista(request.Nome, request.Email, request.Senha, request.StatusCargo, request.StatusRole, request.CpfCnpj);
 
             if (recepcionista == null)
                 throw new ArgumentNullException(nameof(recepcionista));
 
-            return _recepcionistaRepository.CadastrarRecepcionista(recepcionista);
+            await _recepcionistaRepository.CadastrarRecepcionista(recepcionista);
+            
+            return recepcionista;
         }
     }
 }

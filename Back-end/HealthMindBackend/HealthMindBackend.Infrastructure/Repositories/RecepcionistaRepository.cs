@@ -19,15 +19,14 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public RecepcionistaRepository(IMongoDbContext context, ISequentialIdGenerator sequentialIdGenerator)
         {
-            _collection = context.Database.GetCollection<Recepcionista>("USUARIO");
+            _collection = context.Database.GetCollection<Recepcionista>("RECEPCIONISTA");
             _sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        public async Task<Recepcionista> CadastrarRecepcionista(Recepcionista recepcionista)
+        public async Task CadastrarRecepcionista(Recepcionista recepcionista)
         {
             recepcionista.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Recepcionista));
             await _collection.InsertOneAsync(recepcionista);
-            return recepcionista;
         }
 
         public async Task<Recepcionista> EditarRecepcionista(String id, Recepcionista usuario)

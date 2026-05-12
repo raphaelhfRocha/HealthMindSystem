@@ -14,6 +14,7 @@ using HealthMindBackend.Infrastructure.Configurations;
 using HealthMindBackend.Infrastructure.Persistence.Context;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using HealthMindBackend.Infrastructure.Repositories;
+using HealthMindBackend.Infrastructure.Security.PasswordHasher;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
@@ -40,6 +41,9 @@ namespace HealthMindBackend.Infrastructure.IoC
                 .GetRequiredService<IMongoDbContext>());
             services.AddScoped<ISequentialIdGenerator, SequentialIdGenerator>();
 
+            services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddTransient<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();
             services.AddScoped<IHistoricoMedicoRepository, HistoricoMedicoRepository>();
@@ -79,6 +83,15 @@ namespace HealthMindBackend.Infrastructure.IoC
                     classMap.AutoMap();
                     classMap.SetIgnoreExtraElements(true);
                     classMap.MapMember(prontuario => prontuario.Medicamentos).SetElementName("medicamentos");
+                });
+            }
+            if (!BsonClassMap.IsClassMapRegistered(typeof(Psicologo)))
+            {
+                BsonClassMap.RegisterClassMap<Psicologo>(classMap =>
+                {
+                    classMap.AutoMap();
+                    classMap.SetIgnoreExtraElements(true);
+                    classMap.MapMember(prontuario => prontuario.Disponibilidades).SetElementName("disponibilidades");
                 });
             }
         }

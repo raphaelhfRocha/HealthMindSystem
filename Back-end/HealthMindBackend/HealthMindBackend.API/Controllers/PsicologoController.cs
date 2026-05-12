@@ -54,56 +54,6 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
-        /// Cadastro de psicólogos
-        /// </summary>
-        /// <response code="201">Psicólogo cadastrado</response>
-        /// <response code="400">Dados inválidos</response>
-        /// <response code="500">Erro interno</response>
-        /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de psicólogos**
-        /// 
-        /// Como usar:
-        /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
-        /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
-        /// 
-        /// **[POST] - /api/Psicologo**
-        /// ```
-        /// {
-        ///   "Nome": "Nome do psicólogo",
-        ///   "Email": "email@email.com",
-        ///   "CpfCnpj": "12345678903",
-        ///   "StatusCargo": 1,
-        ///   "StatusRole": 2,
-        ///   "Crp": "123456789",
-        ///   "Especialidade": "Especialidade"
-        /// }
-        /// ```
-        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
-        /// </remarks>
-        [HttpPost]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status201Created)]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> CadastrarPsicologo([FromBody] PsicologoDTO psicologoDto)
-        {
-            try
-            {
-                await _psicologoService.CadastrarPsicologo(psicologoDto);
-                return Created($"/api/psicologo", psicologoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
-        }
-
-        /// <summary>
         /// Edição de psicólogo
         /// </summary>
         /// <response code="200">Psicólogo editado</response>

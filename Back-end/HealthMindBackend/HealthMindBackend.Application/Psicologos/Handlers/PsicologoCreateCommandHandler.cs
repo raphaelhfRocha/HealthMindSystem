@@ -28,7 +28,9 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
             if (psicologo == null)
                 throw new ArgumentNullException(nameof(psicologo));
 
-            return await _psicologoRepository.CadastrarPsicologo(psicologo);
+            await _psicologoRepository.CadastrarPsicologo(psicologo);
+
+            return psicologo;
         }
     }
 }

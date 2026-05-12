@@ -26,7 +26,7 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
             if (psicologoFound == null)
                 throw new KeyNotFoundException("Psicólogo não encontrado");
 
-            psicologoFound.Update(request.Nome, request.Email, request.Senha, request.StatusCargo, request.StatusRole, request.CpfCnpj, request.Crp, request.Especialidade);
+            psicologoFound.Update(request.Nome, request.Email, request.StatusCargo, request.StatusRole, request.CpfCnpj, request.Crp, request.Especialidade);
 
             return await _psicologoRepository.EditarPsicologo(request.Id, psicologoFound);
         }

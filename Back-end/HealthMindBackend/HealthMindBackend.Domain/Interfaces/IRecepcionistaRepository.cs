@@ -13,7 +13,7 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<IEnumerable<Recepcionista>> GetAllRecepcionistas();
         Task<Recepcionista> GetRecepcionistaById(String id);
         //Task<IEnumerable<Usuario>> GetUsuarioByStatusCargo(StatusCargoEnum statusCargo);
-        Task<Recepcionista> CadastrarRecepcionista(Recepcionista recepcionista);
+        Task CadastrarRecepcionista(Recepcionista recepcionista);
         Task<Recepcionista> EditarRecepcionista(String id, Recepcionista recepcionista);
         Task ExcluirRecepcionista(String id);
     }
