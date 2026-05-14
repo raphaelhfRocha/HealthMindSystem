@@ -38,7 +38,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllPacientes()
+        public async Task<IActionResult> GetAllRecepcionistas()
         {
             try
             {
@@ -148,7 +148,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditarPaciente(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
+        public async Task<IActionResult> EditarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
@@ -197,7 +197,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ExcluirPaciente(String recepcionistaId)
+        public async Task<IActionResult> ExcluirRecepcionista(String recepcionistaId)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
