@@ -1,10 +1,8 @@
-import { Diagnostico } from "shared/types/common/Diagnostico";
 import { api } from "./api";
 import { DiagnosticoDTO } from "shared/types/dtos/Diagnostico.dto";
 
 export async function getAllDiagnosticos(): Promise<DiagnosticoDTO[]> {
     const response = await api.get<DiagnosticoDTO[]>("diagnostico");
-
     return response.data;
 }
 

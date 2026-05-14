@@ -10,7 +10,7 @@ export default function ErrorBoundary() {
 
   if (isRouteErrorResponse(error)) {
     if (error.status === 404) {
-      return <Alert severity="error">Error 404 - This page doesn't exist!</Alert>;
+      return <Alert severity="error">Error 404 - This page doesn't exist</Alert>;
     }
 
     if (error.status === 401) {

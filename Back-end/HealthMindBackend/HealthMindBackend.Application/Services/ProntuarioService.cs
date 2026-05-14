@@ -29,9 +29,10 @@ namespace HealthMindBackend.Application.Services
             _logger = logger;
         }
 
-        public async Task EditarMedicamento(String medicamentoId, MedicamentoDTO medicamentoDto)
+        public async Task EditarMedicamento(String prontuarioId, String medicamentoId, MedicamentoDTO medicamentoDto)
         {
             var medicamentoUpdateCommand = _mapper.Map<MedicamentoUpdateCommand>(medicamentoDto);
+            medicamentoUpdateCommand.ProntuarioId = prontuarioId;
             medicamentoUpdateCommand.Id = medicamentoId;
             await _mediator.Send(medicamentoUpdateCommand);
         }

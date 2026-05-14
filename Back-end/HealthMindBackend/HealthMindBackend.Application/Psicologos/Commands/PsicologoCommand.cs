@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Domain.Entities;
+﻿using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.ValueObjects;
 using MediatR;
@@ -20,6 +21,6 @@ namespace HealthMindBackend.Application.Psicologos.Commands
         public String CpfCnpj { get; set; }
         public String Crp { get; set; }
         public String Especialidade { get; set; }
-        public List<Disponibilidade>? Disponibilidades { get; set; }
+        public List<DisponibilidadeDTO>? DisponibilidadesDTO { get; set; }
     }
 }

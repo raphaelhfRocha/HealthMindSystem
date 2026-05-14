@@ -20,11 +20,11 @@ namespace HealthMindBackend.Domain.Entities
         public Medicamento()
         {
         }
-        public Medicamento(String prontuarioId, String nome, String dosagem, String frequencia)
+        public Medicamento(String nome, String dosagem, String frequencia)
         {
             Id = $"MED-{Guid.NewGuid():N}";
             ValidateMedicamentoDomain(nome, dosagem, frequencia);
-            ProntuarioId = prontuarioId;
+            //ProntuarioId = prontuarioId;
         }
 
         private void ValidateMedicamentoDomain(String nome, String dosagem, String frequencia)

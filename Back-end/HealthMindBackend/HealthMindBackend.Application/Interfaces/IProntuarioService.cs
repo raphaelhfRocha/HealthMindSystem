@@ -15,7 +15,7 @@ namespace HealthMindBackend.Application.Interfaces
         Task RegistrarProntuario(ProntuarioDTO prontuarioDto);
         Task EditarProntuario(ProntuarioDTO prontuarioDto);
         Task RegistrarMedicamento(MedicamentoDTO medicamentoDto);
-        Task EditarMedicamento(String medicamentoId, MedicamentoDTO medicamentoDto);
+        Task EditarMedicamento(String prontuarioId, String medicamentoId, MedicamentoDTO medicamentoDto);
         Task ExcluirMedicamento(String prontuarioId, String medicamentoId);
     }
 }
