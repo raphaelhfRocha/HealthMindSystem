@@ -29,11 +29,11 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>()
                 .ForMember(dest => dest.Disponibilidades, opt => opt
                 .MapFrom(src => src.DisponibilidadesDTO)).ReverseMap();
-            CreateMap<ProntuarioDTO, ProntuarioCreateCommand>().ReverseMap();
+            //CreateMap<ProntuarioDTO, ProntuarioCreateCommand>().ReverseMap();
             CreateMap<ProntuarioDTO, ProntuarioCreateCommand>()
                 .ForMember(dest => dest.Medicamentos, opt => opt
                 .MapFrom(src => src.MedicamentosDTO)).ReverseMap();
-            CreateMap<ProntuarioDTO, ProntuarioUpdateCommand>().ReverseMap();
+            //CreateMap<ProntuarioDTO, ProntuarioUpdateCommand>().ReverseMap();
             CreateMap<ProntuarioDTO, ProntuarioUpdateCommand>()
                 .ForMember(dest => dest.Medicamentos, opt => opt
                 .MapFrom(src => src.MedicamentosDTO)).ReverseMap();

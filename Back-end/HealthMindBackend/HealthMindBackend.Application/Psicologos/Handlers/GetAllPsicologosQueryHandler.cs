@@ -23,10 +23,8 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
         {
             var psicologosFound = await _psicologoRepository.GetAllPsicologos();
 
-            if (!psicologosFound.Any())
+            return psicologosFound.Any() ? psicologosFound : 
                 throw new KeyNotFoundException("Psicólogos não encontrados.");
-
-            return psicologosFound;
         }
     }
 }

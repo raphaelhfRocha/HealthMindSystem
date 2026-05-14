@@ -23,10 +23,8 @@ namespace HealthMindBackend.Application.Recepcionistas.Handlers
         {
             var recepcionistasFound = await _recepcionistaRepository.GetAllRecepcionistas();
 
-            if (!recepcionistasFound.Any())
+            return recepcionistasFound.Any() ? recepcionistasFound :
                 throw new KeyNotFoundException("Recepcionistas não encontrados.");
-
-            return recepcionistasFound;
         }
     }
 }

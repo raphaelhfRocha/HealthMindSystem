@@ -35,6 +35,15 @@ const MainRoutes = {
       ]
     },
     {
+      path: 'pacientes',
+      children: [
+        {
+          path: 'default',
+          element: <DashboardDefault />
+        }
+      ]
+    },
+    {
       path: 'typography',
       element: <UtilsTypography />
     },
