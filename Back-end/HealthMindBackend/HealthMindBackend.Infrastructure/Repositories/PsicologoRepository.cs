@@ -22,6 +22,35 @@ namespace HealthMindBackend.Infrastructure.Repositories
             _sequentialIdGenerator = sequentialIdGenerator;
         }
 
+        public async Task<Disponibilidade> AdicionarDisponibilidade(String psicologoId, Disponibilidade disponibilidade)
+        {
+            disponibilidade.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Disponibilidade));
+            disponibilidade.PsicologoId = psicologoId;
+
+            var psicologo = await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+            if (psicologo == null)
+                throw new KeyNotFoundException("Psicólogo não encontrado");
+
+            if (psicologo.Disponibilidades == null)
+            {
+                var inicializarDisponibilidades = Builders<Psicologo>.Update
+                    .Set(p => p.Disponibilidades, new List<Disponibilidade>());
+
+                await _collection.UpdateOneAsync(p => p.Id == psicologoId, inicializarDisponibilidades);
+            }
+
+            var adicionarDisponibilidade = Builders<Psicologo>.Update
+                .Push(p => p.Disponibilidades, disponibilidade);
+
+            await _collection.UpdateOneAsync(p => p.Id == psicologoId, adicionarDisponibilidade);
+            return disponibilidade;
+        }
+
+        public Task<Disponibilidade> AlterarDisponibilidade(String psicologoId, Disponibilidade disponibilidade)
+        {
+            throw new NotImplementedException();
+        }
+
         public async Task<Psicologo> CadastrarPsicologo(Psicologo psicologo)
         {
             psicologo.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Psicologo));
@@ -35,6 +64,14 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return psicologo;
         }
 
+        public async Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId)
+        {
+            var deleteDisponibilidade = Builders<Psicologo>.Update
+                .PullFilter(p => p.Disponibilidades, d => d.Id == disponibilidadeId);
+
+            await _collection.UpdateOneAsync(p => p.Id == psicologoId, deleteDisponibilidade);
+        }
+
         public async Task ExcluirPsicologo(String id)
         {
             await _collection.DeleteOneAsync(p => p.Id == id);
@@ -43,6 +80,26 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<IEnumerable<Psicologo>> GetAllPsicologos()
         {
             return await _collection.Find(_ => true).ToListAsync();
+        }
+
+        public async Task<Disponibilidade> GetDisponibilidadeByPsicologoIdAndDisponibilidadeId(String psicologoId, String disponibilidadeId)
+        {
+            var psicologo = await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+
+            if (psicologo == null || psicologo.Disponibilidades == null)
+                return null;
+
+            return psicologo.Disponibilidades.FirstOrDefault(d => d.Id == disponibilidadeId);
+        }
+
+        public async Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId)
+        {
+            var psicologo = await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+           
+            if (psicologo == null || psicologo.Disponibilidades == null)
+                return null;
+
+            return psicologo.Disponibilidades.ToList();
         }
 
         public async Task<Psicologo> GetPsicologoById(String psicologoId)

@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -44,6 +45,50 @@ namespace HealthMindBackend.API.Controllers
                 return Ok(result);
             }
             catch(KeyNotFoundException nf)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
+            }
+        }
+
+        /// <summary>
+        /// Lista de disponbilidades por Id psicólogo
+        /// </summary>
+        /// <response code="200">Disponibilidades encontradas</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Disponibilidades não encontradas</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de Disponibilidades por Id psicólogo**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do psicólogo registrado no campo do parâmetro psicologoId**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Psicologo/{psicologoId}/disponibilidades**
+        /// </remarks>
+        /// <param name="psicologoId">
+        /// ID Psicólogo
+        /// </param>
+        [HttpGet("{psicologoId}/disponibilidades")]
+        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetDisponibilidadesByPsicologoId(String psicologoId)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+            try
+            {
+                var result = await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId);
+                return Ok(result);
+            }
+            catch (KeyNotFoundException nf)
             {
                 return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
             }
@@ -128,7 +173,14 @@ namespace HealthMindBackend.API.Controllers
         ///   "StatusCargo": 1,
         ///   "StatusRole": 2,
         ///   "Crp": "123456789",
-        ///   "Especialidade": "Especialidade"
+        ///   "Especialidade": "Especialidade",
+        ///   "disponibilidadesDTO": [
+        ///   {
+        ///     "dataDisponibilidade": "0000-00-00T00:00:00.000Z", // Nova disponibilidade
+        ///     "horaInicio": "00:00:00",
+        ///     "statusDisponibilidade": 1
+        ///   }
+        ///  ]
         /// }
         /// ```
         /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
@@ -145,15 +197,72 @@ namespace HealthMindBackend.API.Controllers
         {
             if (psicologoId == null)
                 return BadRequest(nameof(psicologoId));
+            if (!ModelState.IsValid)
+                return BadRequest(nameof(psicologoDto));
             try
             {
                 psicologoDto.Id = psicologoId;
                 await _psicologoService.AtualizarPsicologo(psicologoDto);
+                
+                if(psicologoDto.DisponibilidadesDTO != null)
+                {
+                    foreach(var item in psicologoDto.DisponibilidadesDTO)
+                    {
+                        item.PsicologoId = psicologoId;
+                        await _psicologoService.AdicionarDisponibilidade(item);
+                    }
+                }
                 return Ok(psicologoDto);
             }
             catch (DomainExceptionValidation br)
             {
                 return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
+            }
+            catch (KeyNotFoundException nf)
+            {
+                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
+            }
+        }
+        /// <summary>
+        /// Exclusão de disponibilidade de psicologo.
+        /// </summary>
+        /// <param name="psicologoId">Id Psicologo</param>
+        /// <param name="disponibilidadeId">Id Disponibilidade</param>
+        /// <response code="204">Disponibilidade excluída</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Dados não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a exclusão de disponibilidade de psicologo**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite os parametros de disponibilidade e psicologo nos campos de Id de Disponibilidade e Id do Psicologo**
+        /// 
+        /// **3. Em seguida clique no botão Execute**
+        /// 
+        /// </remarks>
+        [HttpDelete("{disponibilidadeId}")]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExcluirMedicamento(String psicologoId, String disponibilidadeId)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+            if (disponibilidadeId == null)
+                return BadRequest(nameof(disponibilidadeId));
+            try
+            {
+                await _psicologoService.ExcluirDisponibilidade(psicologoId, disponibilidadeId);
+                return NoContent();
             }
             catch (KeyNotFoundException nf)
             {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using HealthMindBackend.Application.Diagnosticos.Commands;
+using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.Medicamentos.Commands;
@@ -27,8 +28,11 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<PacienteDTO, PacienteUpdateCommand>();
             CreateMap<PsicologoDTO, PsicologoCreateCommand>();
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>()
-                .ForMember(dest => dest.DisponibilidadesDTO, opt => opt
+                .ForMember(dest => dest.Disponibilidades, opt => opt
                 .MapFrom(src => src.DisponibilidadesDTO));
+            CreateMap<DisponibilidadeDTO, Disponibilidade>()
+                .ConstructUsing(src => new Disponibilidade(src.DataDisponibilidade, src.HoraInicio, src.StatusDisponibilidade))
+                .ForMember(dest => dest.PsicologoId, opt => opt.MapFrom(src => src.PsicologoId));
             CreateMap<ProntuarioDTO, ProntuarioCreateCommand>()
                 .ForMember(dest => dest.Medicamentos, opt => opt
                 .MapFrom(src => src.MedicamentosDTO));
@@ -54,6 +58,7 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<ProgressaoDTO, ProgressaoCreateCommand>();
             CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>();
             CreateMap<RecepcionistaDTO, RecepcionistaUpdateCommand>();
+            CreateMap<DisponibilidadeDTO, DisponibilidadeCreateCommand>();
         }
     }
 }

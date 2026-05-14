@@ -16,7 +16,7 @@ namespace HealthMindBackend.Domain.Entities
         public String UsuarioId { get; private set; }
         public String Crp { get; private set; }
         public String Especialidade { get; private set; }
-        public List<Disponibilidade>? Disponibilidades { get; private set; }
+        public List<Disponibilidade>? Disponibilidades { get; private set; } = new List<Disponibilidade>();
 
         public Psicologo()
         {
@@ -40,6 +40,13 @@ namespace HealthMindBackend.Domain.Entities
         {
             ValidateUserDomain(nome, email, senha, cargo, role, cpfCnpj);
             ValidatePsicologoDomain(cargo, crp, especialidade);
+        }
+
+        public Psicologo(String nome, String email, String senha, StatusCargoEnum cargo, StatusRoleEnum role, String cpfCnpj, String crp, String especialidade, List<Disponibilidade>? disponibilidades) : base(nome, email, senha, cargo, role, cpfCnpj)
+        {
+            ValidateUserDomain(nome, email, senha, cargo, role, cpfCnpj);
+            ValidatePsicologoDomain(cargo, crp, especialidade);
+            Disponibilidades = disponibilidades;
         }
 
         private void ValidatePsicologoDomain(StatusCargoEnum cargo, String crp, String especialidade)
