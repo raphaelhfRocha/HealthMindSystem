@@ -96,7 +96,8 @@ namespace HealthMindBackend.API.Controllers
         {
             try
             {
-                prontuarioDto.DataAbertura = DateTime.Now;
+                if (!prontuarioDto.DataAbertura.HasValue || prontuarioDto.DataAbertura.Value == DateTime.MinValue)
+                    prontuarioDto.DataAbertura = DateTime.UtcNow;
                 await _prontuarioService.RegistrarProntuario(prontuarioDto);
                 return Created($"/api/prontuario", prontuarioDto);
             }
@@ -139,12 +140,14 @@ namespace HealthMindBackend.API.Controllers
         ///   "medicamentosDTO": [
         ///     {
         ///       "id": "MED-001",  // Com ID = atualiza existente
+        ///       "prontuarioId": "PRT-001",
         ///       "nome": "Nome atualizado",
         ///       "dosagem": "500mg",
         ///       "frequencia": "8 em 8 horas"
         ///     },
         ///     {
         ///       // Sem ID = cria novo
+        ///       "prontuarioId": "PRT-001",
         ///       "nome": "Novo medicamento",
         ///       "dosagem": "250mg",
         ///       "frequencia": "12 em 12 horas"
@@ -182,7 +185,7 @@ namespace HealthMindBackend.API.Controllers
                             var medicamentoExistente = medicamentosExistentes.FirstOrDefault(m => m.Id == medicamentoDto.Id);
                             if (medicamentoExistente != null)
                             {
-                                await _prontuarioService.EditarMedicamento(medicamentoDto.Id, medicamentoDto);
+                                await _prontuarioService.EditarMedicamento(prontuarioId, medicamentoDto.Id, medicamentoDto);
                             }
                         }
                         else

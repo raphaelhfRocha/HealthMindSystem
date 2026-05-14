@@ -22,10 +22,8 @@ namespace HealthMindBackend.Application.Prontuarios.Handlers
         {
             var prontuariosFound = await _prontuarioRepository.GetAllProntuarios();
 
-            if (!prontuariosFound.Any())
+            return prontuariosFound.Any() ? prontuariosFound :
                 throw new KeyNotFoundException("Prontuarios não encontrados");
-
-            return prontuariosFound;
         }
     }
 }

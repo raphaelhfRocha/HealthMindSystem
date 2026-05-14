@@ -30,7 +30,7 @@ namespace HealthMindBackend.Infrastructure.IoC
     {
         public static IServiceCollection AddInfrastructureAPI(this IServiceCollection services, IConfiguration configuration)
         {
-            RegisterMongoClassMaps();
+            //RegisterMongoClassMaps();
 
             services.Configure<MongoDbSettings>(
                 configuration.GetSection("MongoDbSettings"));
@@ -78,7 +78,7 @@ namespace HealthMindBackend.Infrastructure.IoC
                 {
                     classMap.AutoMap();
                     classMap.SetIgnoreExtraElements(true);
-                    classMap.MapMember(prontuario => prontuario.Medicamentos).SetElementName("medicamentos");
+                    classMap.MapMember(prontuario => prontuario.Medicamentos).SetElementName("Medicamentos");
                 });
             }
         }

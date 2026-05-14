@@ -22,10 +22,8 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
         {
             var pacientes = await _pacienteRepository.GetAllPacientes();
 
-            if (!pacientes.Any())
+            return pacientes.Any() ? pacientes :
                 throw new KeyNotFoundException("Pacientes não encontrados");
-
-            return pacientes;
         }
     }
 }

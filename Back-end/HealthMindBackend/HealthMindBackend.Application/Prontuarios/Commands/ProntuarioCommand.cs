@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Domain.Entities;
+﻿using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using MediatR;
 using System;

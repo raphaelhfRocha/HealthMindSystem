@@ -23,7 +23,7 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
         {
             var historicoMedico = new HistoricoMedico(request.PacienteId, request.ProntuarioId, request.Descricao, request.DataRegistro);
 
-            if (historicoMedico == null)
+            historicoMedico = historicoMedico ??
                 throw new ArgumentNullException(nameof(historicoMedico));
 
             return await _historicoMedicoRepository.AdicionarHistoricoMedico(historicoMedico);

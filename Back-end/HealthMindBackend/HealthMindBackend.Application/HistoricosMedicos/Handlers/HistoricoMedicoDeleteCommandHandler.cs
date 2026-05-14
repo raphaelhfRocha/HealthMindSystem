@@ -23,11 +23,10 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
         {
             var historicoMedicoFound = await _historicoMedicoRepository.GetHistoricoById(request.Id);
 
-            if (historicoMedicoFound == null)
+            historicoMedicoFound = historicoMedicoFound ?? 
                 throw new KeyNotFoundException("Histórico médico não encontrado");
 
             await _historicoMedicoRepository.ExcluirHistoricoMedico(request.Id);
-
             return historicoMedicoFound;
         }
     }

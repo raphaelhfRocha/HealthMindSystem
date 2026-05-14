@@ -33,7 +33,6 @@ namespace HealthMindBackend.Infrastructure.Repositories
                     medicamento.DefinirId(await _sequentialIdGenerator
                         .GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
                     medicamento.ProntuarioId = prontuario.Id;
-
                 }
             }
 
@@ -59,11 +58,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public async Task<Medicamento> AdicionarMedicamento(String prontuarioId, Medicamento medicamento)
         {
-            var adicionar = Builders<Prontuario>.Update
-                .Push(p => p.Medicamentos, medicamento);
-
             medicamento.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
             medicamento.ProntuarioId = prontuarioId;
+
+            var adicionar = Builders<Prontuario>.Update
+                .Push(p => p.Medicamentos, medicamento);
 
             await _collection.UpdateOneAsync(p => p.Id == prontuarioId, adicionar);
             return medicamento;
@@ -83,7 +82,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 .Set("Medicamentos.$.Frequencia", medicamento.Frequencia);
 
             var result = await _collection.UpdateOneAsync(filter, update);
-            if (result.ModifiedCount == 0)
+            if (result.MatchedCount == 0)
                 throw new KeyNotFoundException("Medicamento não encontrado para atualização");
 
             return medicamento;
