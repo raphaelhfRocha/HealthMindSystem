@@ -14,7 +14,7 @@ namespace HealthMindBackend.API.Controllers
 
         public PsicologoController(IPsicologoService psicologoService)
         {
-            _psicologoService = psicologoService;           
+            _psicologoService = psicologoService;
         }
 
         /// <summary>
@@ -39,19 +39,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllPsicologos()
         {
-            try
-            {
-                var result = await _psicologoService.GetAllPsicologos();
-                return Ok(result);
-            }
-            catch(KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _psicologoService.GetAllPsicologos());
         }
 
         /// <summary>
@@ -76,26 +64,15 @@ namespace HealthMindBackend.API.Controllers
         /// ID Psicólogo
         /// </param>
         [HttpGet("{psicologoId}/disponibilidades")]
-        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status500InternalServerError)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDisponibilidadesByPsicologoId(String psicologoId)
         {
             if (psicologoId == null)
                 return BadRequest(nameof(psicologoId));
-            try
-            {
-                var result = await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            return Ok(await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId));
         }
 
         /// <summary>
@@ -133,19 +110,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CadastrarPsicologo([FromBody] PsicologoDTO psicologoDto)
         {
-            try
-            {
-                await _psicologoService.CadastrarPsicologo(psicologoDto);
-                return Created($"/api/psicologo", psicologoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            await _psicologoService.CadastrarPsicologo(psicologoDto);
+            return Created($"/api/psicologo", psicologoDto);
         }
 
         /// <summary>
@@ -175,8 +141,8 @@ namespace HealthMindBackend.API.Controllers
         ///   "Crp": "123456789",
         ///   "Especialidade": "Especialidade",
         ///   "disponibilidadesDTO": [
-        ///   {
-        ///     "dataDisponibilidade": "0000-00-00T00:00:00.000Z", // Nova disponibilidade
+        ///   { // Nova disponibilidade
+        ///     "dataDisponibilidade": "0000-00-00T00:00:00.000Z",
         ///     "horaInicio": "00:00:00",
         ///     "statusDisponibilidade": 1
         ///   }
@@ -199,33 +165,19 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(psicologoId));
             if (!ModelState.IsValid)
                 return BadRequest(nameof(psicologoDto));
-            try
+
+            psicologoDto.Id = psicologoId;
+            await _psicologoService.AtualizarPsicologo(psicologoDto);
+
+            if (psicologoDto.DisponibilidadesDTO != null)
             {
-                psicologoDto.Id = psicologoId;
-                await _psicologoService.AtualizarPsicologo(psicologoDto);
-                
-                if(psicologoDto.DisponibilidadesDTO != null)
+                foreach (var item in psicologoDto.DisponibilidadesDTO)
                 {
-                    foreach(var item in psicologoDto.DisponibilidadesDTO)
-                    {
-                        item.PsicologoId = psicologoId;
-                        await _psicologoService.AdicionarDisponibilidade(item);
-                    }
+                    item.PsicologoId = psicologoId;
+                    await _psicologoService.AdicionarDisponibilidade(item);
                 }
-                return Ok(psicologoDto);
             }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(psicologoDto);
         }
         /// <summary>
         /// Exclusão de disponibilidade de psicologo.
@@ -248,7 +200,7 @@ namespace HealthMindBackend.API.Controllers
         /// **3. Em seguida clique no botão Execute**
         /// 
         /// </remarks>
-        [HttpDelete("{disponibilidadeId}")]
+        [HttpDelete("{psicologoId}/disponibilidades/{disponibilidadeId}")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
@@ -259,19 +211,9 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(psicologoId));
             if (disponibilidadeId == null)
                 return BadRequest(nameof(disponibilidadeId));
-            try
-            {
-                await _psicologoService.ExcluirDisponibilidade(psicologoId, disponibilidadeId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            
+            await _psicologoService.ExcluirDisponibilidade(psicologoId, disponibilidadeId);
+            return NoContent();
         }
     }
 }

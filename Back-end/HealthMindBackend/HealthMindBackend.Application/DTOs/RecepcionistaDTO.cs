@@ -22,9 +22,7 @@ namespace HealthMindBackend.Application.DTOs
         [MaxLength(14)]
         [Required(ErrorMessage = "CPF/CNPJ obrigatório")]
         public String CpfCnpj { get; set; }
-        [Required(ErrorMessage = "Cargo obrigatório")]
         public StatusCargoEnum StatusCargo { get; set; }
-        [Required(ErrorMessage = "Role obrigatória")]
         public StatusRoleEnum StatusRole { get; set; }
     }
 }

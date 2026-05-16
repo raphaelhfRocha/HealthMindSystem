@@ -41,19 +41,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllDiagnosticos()
         {
-            try
-            {
-                var result = await _diagnosticoService.GetAllDiagnosticos();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _diagnosticoService.GetAllDiagnosticos());
         }
 
 
@@ -86,19 +74,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (prontuarioId == null)
                 return BadRequest(nameof(prontuarioId));
-            try
-            {
-                var result = await _diagnosticoService.GetDiagnosticosByProntuarioId(prontuarioId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            return Ok(await _diagnosticoService
+                .GetDiagnosticosByProntuarioId(prontuarioId));
         }
 
         /// <summary>
@@ -137,19 +115,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegistrarDiagnostico([FromBody] DiagnosticoDTO diagnosticoDto)
         {
-            try
-            {
-                await _diagnosticoService.AdicionarDiagnostico(diagnosticoDto);
-                return Created($"/api/diagnostico", diagnosticoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            await _diagnosticoService.AdicionarDiagnostico(diagnosticoDto);
+            return Created($"/api/diagnostico", diagnosticoDto);
         }
 
         /// <summary>
@@ -198,24 +165,10 @@ namespace HealthMindBackend.API.Controllers
         {
             if (diagnosticoId == null)
                 return BadRequest(nameof(diagnosticoId));
-            try
-            {
-                diagnosticoDto.Id = diagnosticoId;
-                await _diagnosticoService.AtualizarDiagnostico(diagnosticoDto);
-                return Ok(diagnosticoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            diagnosticoDto.Id = diagnosticoId;
+            await _diagnosticoService.AtualizarDiagnostico(diagnosticoDto);
+            return Ok(diagnosticoDto);
         }
     }
 }

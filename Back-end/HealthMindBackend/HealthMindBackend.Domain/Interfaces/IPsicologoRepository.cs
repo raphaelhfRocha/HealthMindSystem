@@ -18,7 +18,6 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo);
         Task ExcluirPsicologo(String psicologoId);
         Task<Disponibilidade> AdicionarDisponibilidade(String psicologoId, Disponibilidade disponibilidade);
-        Task<Disponibilidade> AlterarDisponibilidade(String psicologoId, Disponibilidade disponibilidade);
         Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId);
     }
 }

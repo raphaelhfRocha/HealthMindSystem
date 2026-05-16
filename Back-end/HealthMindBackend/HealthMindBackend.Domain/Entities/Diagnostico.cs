@@ -1,6 +1,5 @@
-﻿using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -17,8 +16,7 @@ namespace HealthMindBackend.Domain.Entities
         public String Descricao { get; private set; }
         public String Cid { get; private set; }
         public DateTime DataDiagnostico { get; private set; }
-        [BsonRepresentation(BsonType.String)]
-        public StatusDiagnosticoEnum StatusDiagnostico { get; private set; }
+        public StatusDiagnosticoEnum StatusDiagnostico { get; set; }
         public String Observacoes { get; private set; }
 
         public Diagnostico()
@@ -27,7 +25,7 @@ namespace HealthMindBackend.Domain.Entities
 
         public Diagnostico(String id, String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id do diagnóstico inválido");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id do diagn�stico inv�lido");
             DefinirId(id);
             ValidateDiagnosticosDomain(pacienteId, prontuarioId, descricao, cid, dataDiagnostico, statusDiagnostico, observacoes);
         }
@@ -39,12 +37,7 @@ namespace HealthMindBackend.Domain.Entities
 
         private void ValidateDiagnosticosDomain(String pacienteId, String prontuarioId, String descricao, String cid, DateTime dataDiagnostico, StatusDiagnosticoEnum statusDiagnostico, String observacoes)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(pacienteId), "Id do paciente inválido");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(prontuarioId), "Id do prontuario inválido");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(cid), "CID inválido.");
-            DomainExceptionValidation.Validate(cid.Length < 4, "CID deverá ter no mínimo 4 caracteres.");
-            DomainExceptionValidation.Validate(cid.Length > 5, "CID deverá ter no máximo 5 caracteres.");
-            DomainExceptionValidation.Validate(statusDiagnostico == StatusDiagnosticoEnum.StsNone, "Status do diagnóstico inválido.");
+            DomainExceptionValidation.Validate(statusDiagnostico == StatusDiagnosticoEnum.StsNone, "Status do diagn�stico inv�lido.");
 
             PacienteId = pacienteId;
             ProntuarioId = prontuarioId;
@@ -61,3 +54,4 @@ namespace HealthMindBackend.Domain.Entities
         }
     }
 }
+

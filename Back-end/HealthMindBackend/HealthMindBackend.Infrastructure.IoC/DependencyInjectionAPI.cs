@@ -1,28 +1,21 @@
-﻿using HealthMindBackend.Application.Diagnosticos.Handlers;
-using HealthMindBackend.Application.HistoricosMedicos.Handlers;
+using FluentValidation;
+using HealthMindBackend.Application.Behaviors;
+using HealthMindBackend.Application.Diagnosticos.Handlers;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Mappings;
-using HealthMindBackend.Application.Pacientes.Handlers;
-using HealthMindBackend.Application.Progressoes.Handlers;
-using HealthMindBackend.Application.Prontuarios.Handlers;
-using HealthMindBackend.Application.Psicologos.Handlers;
-using HealthMindBackend.Application.Recepcionistas.Handlers;
 using HealthMindBackend.Application.Services;
+using HealthMindBackend.Application.Validators.Diagnosticos;
 using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Infrastructure.Configurations;
+using HealthMindBackend.Infrastructure.Mappings.Serializers;
 using HealthMindBackend.Infrastructure.Persistence.Context;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using HealthMindBackend.Infrastructure.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
-using MongoDB.Driver;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace HealthMindBackend.Infrastructure.IoC
 {
@@ -30,7 +23,6 @@ namespace HealthMindBackend.Infrastructure.IoC
     {
         public static IServiceCollection AddInfrastructureAPI(this IServiceCollection services, IConfiguration configuration)
         {
-            //RegisterMongoClassMaps();
 
             services.Configure<MongoDbSettings>(
                 configuration.GetSection("MongoDbSettings"));
@@ -39,6 +31,27 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddSingleton(sp => (MongoDbContext)sp
                 .GetRequiredService<IMongoDbContext>());
             services.AddScoped<ISequentialIdGenerator, SequentialIdGenerator>();
+
+            BsonSerializer.TryRegisterSerializer(typeof(StatusCargoEnum),
+                new StatusCargoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusDiagnosticoEnum),
+                new StatusDiagnosticoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusDisponibilidadeEnum),
+                new StatusDisponibilidadeEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusFormaPagamentoEnum),
+                new StatusFormaPagamentoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusPagamentoEnum),
+                new StatusPagamentoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusParceladoEnum),
+                new StatusParceladoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusProntuarioEnum),
+                new StatusProntuarioEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusRoleEnum),
+                new StatusRoleEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusSessaoEnum),
+                new StatusSessaoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusTipoAtendimentoEnum),
+                new StatusTipoAtendimentoEnumSerializer());
 
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();
@@ -57,30 +70,18 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<ISessaoRepository, SessaoRepository>();
             services.AddScoped<ISessaoService, SessaoService>();
 
+            // Registers all validators from the Application assembly.
+            services.AddValidatorsFromAssemblyContaining<DiagnosticoCreateCommandValidator>();
+
             services.AddAutoMapper(_ => { }, typeof(DomainToDTOMappingsProfile).Assembly);
 
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllDiagnosticosQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllHistoricosQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllPacientesQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllProgressoesQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllProntuariosQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllPsicologosQueryHandler>());
-            services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllRecepcionistasQueryHandler>());
+            services.AddMediatR(cfg =>
+            {
+                cfg.RegisterServicesFromAssemblyContaining<GetAllDiagnosticosQueryHandler>();
+                cfg.AddOpenBehavior(typeof(ValidationBehavior<,>));
+            });
 
             return services;
-        }
-
-        private static void RegisterMongoClassMaps()
-        {
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Prontuario)))
-            {
-                BsonClassMap.RegisterClassMap<Prontuario>(classMap =>
-                {
-                    classMap.AutoMap();
-                    classMap.SetIgnoreExtraElements(true);
-                    classMap.MapMember(prontuario => prontuario.Medicamentos).SetElementName("Medicamentos");
-                });
-            }
         }
     }
 }

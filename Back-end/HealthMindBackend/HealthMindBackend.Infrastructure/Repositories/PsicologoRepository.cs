@@ -46,11 +46,6 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return disponibilidade;
         }
 
-        public Task<Disponibilidade> AlterarDisponibilidade(String psicologoId, Disponibilidade disponibilidade)
-        {
-            throw new NotImplementedException();
-        }
-
         public async Task<Psicologo> CadastrarPsicologo(Psicologo psicologo)
         {
             psicologo.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Psicologo));

@@ -38,21 +38,9 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllPacientes()
+        public async Task<IActionResult> GetAllRecepcionistas()
         {
-            try
-            {
-                var result = await _recepcionistaService.GetAllRecepcionistas();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _recepcionistaService.GetAllRecepcionistas());
         }
 
         /// <summary>
@@ -93,19 +81,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (recepcionistaDto == null)
                 return BadRequest(nameof(recepcionistaDto));
-            try
-            {
-                await _recepcionistaService.CadastrarRecepcionista(recepcionistaDto);
-                return Created($"/api/recepcionista", recepcionistaDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            await _recepcionistaService.CadastrarRecepcionista(recepcionistaDto);
+            return Created($"/api/recepcionista", recepcionistaDto);
         }
 
         /// <summary>
@@ -148,28 +126,14 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditarPaciente(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
+        public async Task<IActionResult> AtualizarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
-            try
-            {
-                recepcionistaDto.Id = recepcionistaId;
-                await _recepcionistaService.AtualizarRecepcionista(recepcionistaDto);
-                return Ok(recepcionistaDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            recepcionistaDto.Id = recepcionistaId;
+            await _recepcionistaService.AtualizarRecepcionista(recepcionistaDto);
+            return Ok(recepcionistaDto);
         }
 
         /// <summary>
@@ -197,23 +161,13 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ExcluirPaciente(String recepcionistaId)
+        public async Task<IActionResult> ExcluirRecepcionista(String recepcionistaId)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
-            try
-            {
-                await _recepcionistaService.ExcluirRecepcionista(recepcionistaId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Bad Request 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            await _recepcionistaService.ExcluirRecepcionista(recepcionistaId);
+            return NoContent();
         }
     }
 }

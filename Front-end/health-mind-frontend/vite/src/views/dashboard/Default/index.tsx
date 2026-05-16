@@ -15,14 +15,31 @@ import { gridSpacing } from 'store/constant';
 
 // assets
 import StorefrontTwoToneIcon from '@mui/icons-material/StorefrontTwoTone';
+import { getAllPsicologos } from 'shared/services/psicologo.service';
+import { PsicologoDTO } from 'shared/types/dtos/Psicologo.dto';
 
 // ==============================|| DEFAULT DASHBOARD ||============================== //
 
 export default function Dashboard() {
+  const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
   const [isLoading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(false);
+    const carregarDados = async () => {
+      try {
+        const psicologosResponse = await getAllPsicologos();
+        console.log("Dados psicologos: ", psicologosResponse);
+        setPsicologos(psicologosResponse);
+      } catch (error) {
+        console.error('Erro ao carregar dados dos psicologos:', error);
+        setErro('Nao foi possivel carregar os dados. Verifique se a API esta em execucao.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    carregarDados();
   }, []);
 
   return (

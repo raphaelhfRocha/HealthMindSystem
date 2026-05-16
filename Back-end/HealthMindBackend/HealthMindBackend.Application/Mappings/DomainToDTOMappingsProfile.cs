@@ -23,6 +23,7 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<Prontuario, ProntuarioDTO>()
                 .ForMember(dest => dest.MedicamentosDTO, opt => opt
                 .MapFrom(src => src.Medicamentos)).ReverseMap();
+            CreateMap<Medicamento, MedicamentoDTO>().ReverseMap();
             CreateMap<Progressao, ProgressaoDTO>().ReverseMap();
             CreateMap<HistoricoMedico, HistoricoMedicoDTO>().ReverseMap();
             CreateMap<Diagnostico, DiagnosticoDTO>().ReverseMap();
