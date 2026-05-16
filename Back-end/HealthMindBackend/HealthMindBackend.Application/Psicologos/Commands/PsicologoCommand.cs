@@ -21,6 +21,6 @@ namespace HealthMindBackend.Application.Psicologos.Commands
         public String CpfCnpj { get; set; }
         public String Crp { get; set; }
         public String Especialidade { get; set; }
-        public List<DisponibilidadeDTO>? DisponibilidadesDTO { get; set; }
+        public List<Disponibilidade>? Disponibilidades { get; set; }
     }
 }

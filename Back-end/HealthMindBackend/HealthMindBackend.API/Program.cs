@@ -1,3 +1,4 @@
+using HealthMindBackend.API.Middleware;
 using HealthMindBackend.Infrastructure.IoC;
 using System.Reflection;
 
@@ -36,9 +37,13 @@ app.UseStatusCodePages();
 
 app.UseRouting();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 

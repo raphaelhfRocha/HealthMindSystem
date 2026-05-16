@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Infrastructure.Mappings.EnumMappings;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;

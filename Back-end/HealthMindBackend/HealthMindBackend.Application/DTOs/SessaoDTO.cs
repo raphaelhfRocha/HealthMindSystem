@@ -21,7 +21,6 @@ namespace HealthMindBackend.Application.DTOs
         [Required(ErrorMessage = "Hora sessão obrigatória")]
         public TimeSpan HoraInicio { get; set; }
         public String Observacoes { get; set; }
-        [Required(ErrorMessage = "Tipo atendimento obrigatório")]
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public PagamentoDTO? PagamentoDTO { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }

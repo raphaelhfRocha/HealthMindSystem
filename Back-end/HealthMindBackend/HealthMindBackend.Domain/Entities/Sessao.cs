@@ -1,6 +1,5 @@
-﻿using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -18,10 +17,8 @@ namespace HealthMindBackend.Domain.Entities
         public DateTime DataSessao { get; private set; }
         public TimeSpan HoraInicio { get; private set; }
         public String Observacoes { get; private set; }
-        [BsonRepresentation(BsonType.String)]
-        public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; private set; }
+        public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public Pagamento? Pagamento { get; set; }
-        [BsonRepresentation(BsonType.String)]
         public StatusSessaoEnum StatusSessao { get; private set; }
 
         public Sessao()
@@ -32,7 +29,7 @@ namespace HealthMindBackend.Domain.Entities
             String observacoes,
             StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inv�lido.");
             DefinirId(id);
             ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
         }
@@ -56,11 +53,11 @@ namespace HealthMindBackend.Domain.Entities
 
         private void ValidateSessaoDomain(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio, String observacoes, StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(pacienteId), "Id do paciente inválido.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(psicologoId), "Id do psicologo inválido.");
-            DomainExceptionValidation.Validate(dataSessao == DateTime.MinValue, "Data sessão inválida.");
-            DomainExceptionValidation.Validate(horaInicio == TimeSpan.Zero || horaInicio == TimeSpan.MinValue, "Hora sessão inválida.");
-            DomainExceptionValidation.Validate(statusTipoAtendimento == StatusTipoAtendimentoEnum.StsNone, "Tipo de atendimento inválido.");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(pacienteId), "Id do paciente inv�lido.");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(psicologoId), "Id do psicologo inv�lido.");
+            DomainExceptionValidation.Validate(dataSessao == DateTime.MinValue, "Data sess�o inv�lida.");
+            DomainExceptionValidation.Validate(horaInicio == TimeSpan.Zero || horaInicio == TimeSpan.MinValue, "Hora sess�o inv�lida.");
+            DomainExceptionValidation.Validate(statusTipoAtendimento == StatusTipoAtendimentoEnum.StsNone, "Tipo de atendimento inv�lido.");
 
 
             PacienteId = pacienteId;
@@ -78,3 +75,4 @@ namespace HealthMindBackend.Domain.Entities
         }
     }
 }
+

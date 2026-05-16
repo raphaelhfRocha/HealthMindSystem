@@ -31,6 +31,7 @@ namespace HealthMindBackend.Application.Mappings
                 .ForMember(dest => dest.PagamentoDTO,
                 opt => opt.MapFrom(src => src.Pagamento)).ReverseMap();
             CreateMap<Pagamento, PagamentoDTO>().ReverseMap();
+            CreateMap<Disponibilidade, DisponibilidadeDTO>().ReverseMap();
         }
     }
 }

@@ -13,7 +13,7 @@ namespace HealthMindBackend.Domain.Entities
     public class Disponibilidade
     {
         public String? Id { get; private set; }
-        public String PsicologoId { get; private set; }
+        public String PsicologoId { get; set; }
         public DateTime DataDisponibilidade { get; private set; }
         public TimeSpan HoraInicio { get; private set; }
         public StatusDisponibilidadeEnum StatusDisponibilidade { get; private set; }
@@ -21,12 +21,16 @@ namespace HealthMindBackend.Domain.Entities
         public Disponibilidade()
         {
         }
-
         public Disponibilidade(String psicologoId, DateTime dataDisponibilidade, TimeSpan horaInicio, StatusDisponibilidadeEnum statusDisponibilidade)
         {
             Id = $"DIS-{Guid.NewGuid():N}";
             DomainDisponibilidadeValidate(dataDisponibilidade, horaInicio, statusDisponibilidade);
             PsicologoId = psicologoId;
+        }
+        public Disponibilidade(DateTime dataDisponibilidade, TimeSpan horaInicio, StatusDisponibilidadeEnum statusDisponibilidade)
+        {
+            Id = $"DIS-{Guid.NewGuid():N}";
+            DomainDisponibilidadeValidate(dataDisponibilidade, horaInicio, statusDisponibilidade);
         }
 
         public void DomainDisponibilidadeValidate(DateTime dataDisponibilidade, TimeSpan horaInicio, StatusDisponibilidadeEnum statusDisponibilidade)

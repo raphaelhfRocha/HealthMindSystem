@@ -1,7 +1,6 @@
-Ôªøusing HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects;
-using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -15,9 +14,7 @@ namespace HealthMindBackend.Domain.Entities
     public abstract class Usuario : EntityPessoa
     {
         public String Senha { get; protected set; }
-        [BsonRepresentation(BsonType.String)]
         public StatusCargoEnum StatusCargo { get; protected set; }
-        [BsonRepresentation(BsonType.String)]
         public StatusRoleEnum StatusRole { get; protected set; }
 
 
@@ -27,7 +24,7 @@ namespace HealthMindBackend.Domain.Entities
 
         public Usuario(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(id, nome, email, cpfCnpj)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inv√°lido.");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inv·lido.");
             ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
         }
 
@@ -38,12 +35,12 @@ namespace HealthMindBackend.Domain.Entities
 
         protected void ValidateUserDomain(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome est√° vazio.");
-            DomainExceptionValidation.Validate(nome.Length < 8, "Nome do usu√°rio dever√° ter no m√≠nimo 8 caracteres.");
-            DomainExceptionValidation.Validate(nome.Length > 120, "Nome do usu√°rio dever√° ter no m√°ximo 150 caracteres.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "O e-mail est√° vazio.");
-            DomainExceptionValidation.Validate(statusRole == StatusRoleEnum.StsNone, "Role inv√°lida");
-            DomainExceptionValidation.Validate(statusCargo == StatusCargoEnum.StsNone, "Cargo inv√°lido");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome est· vazio.");
+            DomainExceptionValidation.Validate(nome.Length < 8, "Nome do usu·rio dever· ter no mÌnimo 8 caracteres.");
+            DomainExceptionValidation.Validate(nome.Length > 120, "Nome do usu·rio dever· ter no m·ximo 150 caracteres.");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "O e-mail est· vazio.");
+            DomainExceptionValidation.Validate(statusRole == StatusRoleEnum.StsNone, "Role inv·lida");
+            DomainExceptionValidation.Validate(statusCargo == StatusCargoEnum.StsNone, "Cargo inv·lido");
 
             Nome = nome;
             Email = email;
@@ -54,3 +51,4 @@ namespace HealthMindBackend.Domain.Entities
         }
     }
 }
+

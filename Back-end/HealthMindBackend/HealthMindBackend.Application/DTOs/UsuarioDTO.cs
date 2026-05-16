@@ -18,13 +18,11 @@ namespace HealthMindBackend.Application.DTOs
         public String Nome { get; set; }
         [Required(ErrorMessage = "E-mail usuário obrigatório")]
         public String Email { get; set; }
-        //[MinLength(11)]
-        //[MaxLength(14)]
+        [MinLength(11)]
+        [MaxLength(14)]
         [Required(ErrorMessage = "CPF/CNPJ obrigatório")]
         public String CpfCnpj { get; set; }
-        [Required(ErrorMessage = "Cargo obrigatório")]
         public StatusCargoEnum StatusCargo { get; set; }
-        [Required(ErrorMessage = "Role obrigatória")]
         public StatusRoleEnum StatusRole { get; set; }
     }
 }

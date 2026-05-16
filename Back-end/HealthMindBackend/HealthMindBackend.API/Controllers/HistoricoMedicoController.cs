@@ -40,19 +40,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllHistoricosMedicos()
         {
-            try
-            {
-                var result = await _historicoMedicoService.GetAllHistoricoMedicos();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _historicoMedicoService.GetAllHistoricoMedicos());
         }
 
         /// <summary>
@@ -84,19 +72,8 @@ namespace HealthMindBackend.API.Controllers
         {
             if (prontuarioId == null)
                 return BadRequest(nameof(prontuarioId));
-            try
-            {
-                var result = await _historicoMedicoService.GetHistoricosByProntuarioId(prontuarioId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            return Ok(await _historicoMedicoService.GetHistoricosByProntuarioId(prontuarioId));
         }
 
 
@@ -135,21 +112,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegistrarHistoricoMedico([FromBody] HistoricoMedicoDTO historicoMedicoDto)
         {
-            if (historicoMedicoDto == null)
-                return BadRequest(nameof(historicoMedicoDto));
-            try
-            {
-                await _historicoMedicoService.AdicionarHistoricoMedico(historicoMedicoDto);
-                return Created($"/api/historicoMedico", historicoMedicoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            await _historicoMedicoService.AdicionarHistoricoMedico(historicoMedicoDto);
+            return Created($"/api/historicoMedico", historicoMedicoDto);
         }
 
 
@@ -194,26 +158,12 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditarHistoricoMedico(String historicoId, [FromBody] HistoricoMedicoDTO historicoMedicoDto)
         {
-            if(historicoId == null)
+            if (historicoId == null)
                 return BadRequest(nameof(historicoId));
-            try
-            {
-                historicoMedicoDto.Id = historicoId;
-                await _historicoMedicoService.AtualizarHistoricoMedico(historicoMedicoDto);
-                return Ok(historicoMedicoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            historicoMedicoDto.Id = historicoId;
+            await _historicoMedicoService.AtualizarHistoricoMedico(historicoMedicoDto);
+            return Ok(historicoMedicoDto);
         }
 
 
@@ -248,23 +198,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (historicoId == null)
                 return BadRequest(nameof(historicoId));
-            try
-            {
-                await _historicoMedicoService.ExcluirHistoricoMedico(historicoId);
-                return NoContent();
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            
+            await _historicoMedicoService.ExcluirHistoricoMedico(historicoId);
+            return NoContent();
         }
     }
 }

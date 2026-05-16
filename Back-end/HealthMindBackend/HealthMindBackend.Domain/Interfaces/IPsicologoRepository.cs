@@ -12,8 +12,12 @@ namespace HealthMindBackend.Domain.Interfaces
     {
         Task<IEnumerable<Psicologo>> GetAllPsicologos();
         Task<Psicologo> GetPsicologoById(String psicologoId);
+        Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId);
+        Task<Disponibilidade> GetDisponibilidadeByPsicologoIdAndDisponibilidadeId(String psicologoId, String disponibilidadeId);
         Task<Psicologo> CadastrarPsicologo(Psicologo psicologo);
         Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo);
         Task ExcluirPsicologo(String psicologoId);
+        Task<Disponibilidade> AdicionarDisponibilidade(String psicologoId, Disponibilidade disponibilidade);
+        Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId);
     }
 }

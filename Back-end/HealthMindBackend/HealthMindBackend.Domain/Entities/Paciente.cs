@@ -32,9 +32,6 @@ namespace HealthMindBackend.Domain.Entities
 
         private void ValidatePacienteDomain(String nome, String email, String cpfCnpj, String psicologoId, DateTime dataNascimento)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome do paciente inválido.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "E-mail do paciente inválido.");
-
             Nome = nome;
             Email = email;
             CpfCnpj = cpfCnpj;

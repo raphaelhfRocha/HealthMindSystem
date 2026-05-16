@@ -14,8 +14,8 @@ namespace HealthMindBackend.Infrastructure.IoC
         public static IServiceCollection AddInfrastructureCORS(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment)
         {
             // Configuração CORS mais permissiva para desenvolvimento
-            var corsOrigins = configuration.GetSection("cors:Endpoint").Get<string[]>()
-                ?? new[] { "" };
+            var corsOrigins = configuration.GetSection("cors:Endpoint").Get<String[]>()
+                ?? new[] { "http://localhost:3000/free" };
 
             services.AddCors(options =>
             {

@@ -14,7 +14,7 @@ namespace HealthMindBackend.API.Controllers
 
         public ProgressaoController(IProgressaoService progressaoService)
         {
-            _progressaoService = progressaoService;            
+            _progressaoService = progressaoService;
         }
 
         /// <summary>
@@ -40,19 +40,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllProgressoes()
         {
-            try
-            {
-                var result = await _progressaoService.GetAllProgressoes();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _progressaoService.GetAllProgressoes());
         }
 
         /// <summary>
@@ -84,19 +72,8 @@ namespace HealthMindBackend.API.Controllers
         {
             if (prontuarioId == null)
                 return BadRequest(nameof(prontuarioId));
-            try
-            {
-                var result = await _progressaoService.GetProgressoesByProntuarioId(prontuarioId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            return Ok(await _progressaoService.GetProgressoesByProntuarioId(prontuarioId));
         }
 
         /// <summary>
@@ -136,19 +113,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (progressaoDto == null)
                 return BadRequest(nameof(progressaoDto));
-            try
-            {
-                await _progressaoService.AdicionarProgressao(progressaoDto);
-                return Created($"/api/progressao", progressaoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            await _progressaoService.AdicionarProgressao(progressaoDto);
+            return Created($"/api/progressao", progressaoDto);
         }
 
         /// <summary>
@@ -182,23 +149,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (progressaoId == null)
                 return BadRequest(nameof(progressaoId));
-            try
-            {
-                await _progressaoService.ExcluirProgressao(progressaoId);
-                return NoContent();
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            
+            await _progressaoService.ExcluirProgressao(progressaoId);
+            return NoContent();
         }
     }
 }
