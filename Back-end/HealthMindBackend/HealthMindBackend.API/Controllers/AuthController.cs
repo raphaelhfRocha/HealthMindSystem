@@ -70,10 +70,10 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoCadastroDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [HttpPost("psicologo")]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status500InternalServerError)]
-        [HttpPost("psicologo")]
         public async Task<IActionResult> CadastrarPsicologo([FromBody] PsicologoCadastroDTO psicologoCadastroDto)
         {
             if (!ModelState.IsValid)
@@ -119,10 +119,10 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="recepcionistaCadastroDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [HttpPost("recepcionista")]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status500InternalServerError)]
-        [HttpPost("recepcionista")]
         public async Task<IActionResult> CadastrarRecepcionista([FromBody] RecepcionistaCadastroDTO recepcionistaCadastroDto)
         {
             if (!ModelState.IsValid)

@@ -1,12 +1,15 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PsicologoController : ControllerBase
     {
         private readonly IPsicologoService _psicologoService;
@@ -86,6 +89,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpPut("{psicologoId}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]

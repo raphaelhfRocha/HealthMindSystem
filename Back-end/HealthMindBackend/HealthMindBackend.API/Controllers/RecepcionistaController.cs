@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class RecepcionistaController : ControllerBase
     {
         private readonly IRecepcionistaService _recepcionistaService;
@@ -34,11 +37,12 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Recepcionista**
         /// </remarks>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetAllPacientes()
+        public async Task<IActionResult> GetAllRecepcionistas()
         {
             try
             {
@@ -90,12 +94,13 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="recepcionistaDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpPut("{recepcionistaId}")]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditarPaciente(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
+        public async Task<IActionResult> EditarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
@@ -139,12 +144,13 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="recepcionistaId">ID Recepcionista</param>
+        [Authorize(Roles = "Psicologo")]
         [HttpDelete("{recepcionistaId}")]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ExcluirPaciente(String recepcionistaId)
+        public async Task<IActionResult> ExcluirRecepcionista(String recepcionistaId)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));

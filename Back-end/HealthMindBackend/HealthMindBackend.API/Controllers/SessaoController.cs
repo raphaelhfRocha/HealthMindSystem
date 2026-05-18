@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SessaoController : ControllerBase
     {
         private readonly ISessaoService _sessaoService;
@@ -35,6 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Sessao**
         /// </remarks>
+        [Authorize(Roles = "Recepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
@@ -78,6 +82,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Prontuário.
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
@@ -186,6 +191,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpPost]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status400BadRequest)]
@@ -256,6 +262,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpPut("{sessaoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status400BadRequest)]
@@ -310,6 +317,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="sessaoId">ID Sessão</param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpDelete("{sessaoId}")]
         [ProducesResponseType(typeof(PagamentoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(PagamentoDTO), StatusCodes.Status400BadRequest)]

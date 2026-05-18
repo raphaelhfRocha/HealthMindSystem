@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Domain.Entities
 {
+    [BsonKnownTypes(typeof(Psicologo), typeof(Recepcionista))]
     [BsonDiscriminator("USUARIO")]
     public abstract class Usuario : EntityPessoa
     {
@@ -19,21 +20,30 @@ namespace HealthMindBackend.Domain.Entities
         public StatusCargoEnum StatusCargo { get; protected set; }
         [BsonRepresentation(BsonType.String)]
         public StatusRoleEnum StatusRole { get; protected set; }
+        public Boolean EmailConfirmado { get; set; }
+        public DateTime? UltimoAcesso { get; set; }
+        public Boolean Ativo { get; set; }
 
 
         public Usuario()
         {
+            EmailConfirmado = false;
+            Ativo = true;
         }
 
         public Usuario(String id, String nome, String email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(id, nome, email, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
             ValidateUserDomain(nome, email, statusCargo, statusRole, cpfCnpj);
+            EmailConfirmado = false;
+            Ativo = true;
         }
 
         public Usuario(String nome, String email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
             ValidateUserDomain(nome, email, statusCargo, statusRole, cpfCnpj);
+            EmailConfirmado = false;
+            Ativo = true;
         }
 
         protected void ValidateUserDomain(String nome, String email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)

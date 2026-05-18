@@ -36,11 +36,11 @@ namespace HealthMindBackend.Application.Services
             await _mediator.Send(authRecepcionistaCreateCommand);
         }
 
-        public async Task<UsuarioDTO> Login(String email, String senha)
+        public async Task<LoginResponseDTO> Login(String email, String senha)
         {
             var authLoginCommand = new AuthLoginCommand(email, senha);
             var result = await _mediator.Send(authLoginCommand);
-            return _mapper.Map<UsuarioDTO>(result);
+            return result;
         }
     }
 }

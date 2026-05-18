@@ -44,6 +44,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
+        public async Task<Psicologo> GetPsicologoByEmail(String email)
+        {
+            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
+        }
+
         public async Task<Psicologo> GetPsicologoById(String psicologoId)
         {
             return await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();

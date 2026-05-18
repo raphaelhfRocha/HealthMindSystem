@@ -10,7 +10,7 @@ namespace HealthMindBackend.Application.Interfaces
 {
     public interface IAuthService
     {
-        Task<UsuarioDTO> Login(String email, String senha);
+        Task<LoginResponseDTO> Login(String email, String senha);
         Task CadastrarPsicologo(PsicologoCadastroDTO psicologoCadastroDto);
         Task CadastrarRecepcionista(RecepcionistaCadastroDTO recepcionistaCadastroDto);
     }

@@ -12,6 +12,8 @@ namespace HealthMindBackend.API.DTOs
         public String Nome { get; set; }
         [Required(ErrorMessage = "E-mail usuário obrigatório")]
         public String Email { get; set; }
+        [Required(ErrorMessage = "Senha usuário obrigatória")]
+        public String Senha { get; set; }
         //[MinLength(11)]
         //[MaxLength(14)]
         [Required(ErrorMessage = "CPF/CNPJ obrigatório")]

@@ -26,15 +26,12 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             prontuario.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Prontuario));
 
-            if (prontuario.Medicamentos != null)
+            // Medicamentos sempre é inicializado como lista, então não precisa verificar null
+            foreach (var medicamento in prontuario.Medicamentos)
             {
-                foreach (var medicamento in prontuario.Medicamentos)
-                {
-                    medicamento.DefinirId(await _sequentialIdGenerator
-                        .GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
-                    medicamento.ProntuarioId = prontuario.Id;
-
-                }
+                medicamento.DefinirId(await _sequentialIdGenerator
+                    .GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
+                medicamento.ProntuarioId = prontuario.Id;
             }
 
             await _collection.InsertOneAsync(prontuario);
@@ -59,13 +56,18 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public async Task<Medicamento> AdicionarMedicamento(String prontuarioId, Medicamento medicamento)
         {
-            var adicionar = Builders<Prontuario>.Update
-                .Push(p => p.Medicamentos, medicamento);
-
             medicamento.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
             medicamento.ProntuarioId = prontuarioId;
 
-            await _collection.UpdateOneAsync(p => p.Id == prontuarioId, adicionar);
+            // Usar $push para adicionar o medicamento à array
+            // Se medicamentos for null, o $push vai inicializar como array
+            var update = Builders<Prontuario>.Update.Push(p => p.Medicamentos, medicamento);
+
+            var result = await _collection.UpdateOneAsync(p => p.Id == prontuarioId, update);
+
+            if (result.ModifiedCount == 0)
+                throw new KeyNotFoundException($"Prontuário com ID {prontuarioId} não encontrado");
+
             return medicamento;
         }
 
@@ -100,7 +102,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<Medicamento> GetMedicamentoByProntuarioIdAndMedicamentoId(String prontuarioId, String medicamentoId)
         {
             var prontuario = await _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
-            if (prontuario == null || prontuario.Medicamentos == null)
+            if (prontuario == null)
                 return null;
 
             return prontuario.Medicamentos.FirstOrDefault(m => m.Id == medicamentoId);
@@ -109,7 +111,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<List<Medicamento>> GetMedicamentosByProntuarioId(String prontuarioId)
         {
             var prontuario = await _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
-            if (prontuario == null || prontuario.Medicamentos == null)
+            if (prontuario == null)
                 return null;
 
             return prontuario.Medicamentos.ToList();

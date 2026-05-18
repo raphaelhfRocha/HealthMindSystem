@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HealthMindBackend.Infrastructure\HealthMindBackend.Infrastructure.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -1,6 +1,7 @@
 ﻿using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects;
+using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Domain.Entities
 {
+    [BsonDiscriminator("RECEPCIONISTA")]
     public class Recepcionista : Usuario
     {
         public Recepcionista()

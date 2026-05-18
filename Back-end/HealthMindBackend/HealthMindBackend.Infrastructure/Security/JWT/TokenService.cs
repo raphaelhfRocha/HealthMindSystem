@@ -1,4 +1,5 @@
 ﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Infrastructure.Security.JWT
 {
-    public class TokenService
+    public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
 
@@ -20,7 +21,7 @@ namespace HealthMindBackend.Infrastructure.Security.JWT
             _configuration = configuration;
         }
 
-        public String Generate(Usuario usuario)
+        public String GenerateToken(Usuario usuario)
         {
             usuario = usuario ?? throw new ArgumentNullException(nameof(usuario));
 
@@ -35,14 +36,24 @@ namespace HealthMindBackend.Infrastructure.Security.JWT
 
             var credentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature);
 
-            var claims = new[]
+            var claims = new List<Claim>
             {
+                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
                 new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.Email, usuario.Email),
-                new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
+                new Claim(ClaimTypes.Role, usuario.StatusCargo.ToString()),
                 new Claim("usuarioId", usuario.Id.ToString()),
                 new Claim("usuarioNome", usuario.Nome)
             };
+
+            if(usuario is Psicologo psicologo)
+            {
+                claims.Add(new Claim("PsicologoId", psicologo.Id));
+            }
+            if(usuario is Recepcionista recepcionista)
+            {
+                claims.Add(new Claim("RecepcionistaId", recepcionista.Id));
+            }
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

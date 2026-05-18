@@ -34,11 +34,11 @@ namespace HealthMindBackend.Infrastructure.Persistence.Context
             // Use MongoClient with connection string directly to avoid DNS resolution issues
             // with MongoDB.Driver 3.x that causes "name servers must not be empty" errors
             var client = new MongoClient(connectionString);
-            
+
             // Extract database name from connection string or use configured default
             var mongoUrl = new MongoUrl(connectionString);
             var databaseName = string.IsNullOrEmpty(mongoUrl.DatabaseName) ? settings.Value.Database : mongoUrl.DatabaseName;
-            
+
             Database = client.GetDatabase(databaseName);
         }
     }

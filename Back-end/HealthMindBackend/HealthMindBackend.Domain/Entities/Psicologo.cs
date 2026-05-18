@@ -16,6 +16,7 @@ namespace HealthMindBackend.Domain.Entities
         public String UsuarioId { get; private set; }
         public String Crp { get; private set; }
         public String Especialidade { get; private set; }
+        [BsonElement("disponibilidades")]
         public List<Disponibilidade>? Disponibilidades { get; private set; }
 
         public Psicologo()

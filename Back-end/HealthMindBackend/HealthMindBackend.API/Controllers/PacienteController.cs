@@ -1,12 +1,15 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class PacienteController : ControllerBase
     {
         private readonly IPacienteService _pacienteService;
@@ -33,6 +36,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Paciente**
         /// </remarks>
+        [Authorize(Roles = "Recepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]
@@ -75,6 +79,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
@@ -130,6 +135,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="pacienteDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpPost]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
@@ -187,6 +193,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="pacienteDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpPut("{pacienteId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]

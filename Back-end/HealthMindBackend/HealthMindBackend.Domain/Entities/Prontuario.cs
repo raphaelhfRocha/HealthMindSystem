@@ -18,10 +18,16 @@ namespace HealthMindBackend.Domain.Entities
         public DateTime DataAbertura { get; private set; }
         [BsonRepresentation(BsonType.String)]
         public StatusProntuarioEnum StatusProntuario { get; private set; }
-        public List<Medicamento>? Medicamentos { get; private set; }
+
+        /// <summary>
+        /// Lista de medicamentos associados ao prontuário.
+        /// Inicializada como vazia para permitir adicionar medicamentos depois.
+        /// </summary>
+        public List<Medicamento> Medicamentos { get; private set; } = new List<Medicamento>();
 
         public Prontuario()
         {
+            Medicamentos = new List<Medicamento>();
         }
         public Prontuario(String pacienteId, String descricao, StatusProntuarioEnum statusProntuario)
         {

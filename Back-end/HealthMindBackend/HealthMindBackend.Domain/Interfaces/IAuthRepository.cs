@@ -9,11 +9,10 @@ namespace HealthMindBackend.Domain.Interfaces
 {
     public interface IAuthRepository
     {
-        Task<Usuario?> Login(String email, String senha);
-        Task<Usuario> CadastrarUsuario(Usuario usuario);
-        Task<Usuario> GetUsuarioByEmail(Usuario usuario);
+        Task<Usuario?> GetUsuarioByEmail(String email);
         Task<Usuario> GetUsuarioById(Usuario usuario);
+        Task<String?> Login(String email, String senha);
+        Task<Usuario> CadastrarUsuario(Usuario usuario);
         Task<Boolean> ValidateEmailIsAlreadyExist(String email);
-
     }
 }

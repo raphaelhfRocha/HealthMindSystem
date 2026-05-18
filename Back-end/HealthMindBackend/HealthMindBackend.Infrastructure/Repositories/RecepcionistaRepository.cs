@@ -45,6 +45,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
+        public async Task<Recepcionista> GetRecepcionistaByEmail(String email)
+        {
+            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
+        }
+
         public async Task<Recepcionista> GetRecepcionistaById(String id)
         {
             return await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();

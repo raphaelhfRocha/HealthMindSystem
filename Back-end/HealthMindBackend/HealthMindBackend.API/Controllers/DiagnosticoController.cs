@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class DiagnosticoController : ControllerBase
     {
         private readonly IDiagnosticoService _diagnosticoService;
@@ -35,6 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Diagnostico**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -78,6 +82,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -131,6 +136,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="diagnosticoDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]
@@ -189,6 +195,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="diagnosticoDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpPut("{diagnosticoId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]

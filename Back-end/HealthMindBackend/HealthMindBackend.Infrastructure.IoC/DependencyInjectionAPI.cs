@@ -14,6 +14,7 @@ using HealthMindBackend.Infrastructure.Configurations;
 using HealthMindBackend.Infrastructure.Persistence.Context;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using HealthMindBackend.Infrastructure.Repositories;
+using HealthMindBackend.Infrastructure.Security.JWT;
 using HealthMindBackend.Infrastructure.Security.PasswordHasher;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -31,8 +32,6 @@ namespace HealthMindBackend.Infrastructure.IoC
     {
         public static IServiceCollection AddInfrastructureAPI(this IServiceCollection services, IConfiguration configuration)
         {
-            RegisterMongoClassMaps();
-
             services.Configure<MongoDbSettings>(
                 configuration.GetSection("MongoDbSettings"));
 
@@ -44,6 +43,7 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IAuthService, AuthService>();
             services.AddTransient<IPasswordHasherService, PasswordHasherService>();
+            services.AddTransient<ITokenService, TokenService>();
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();
             services.AddScoped<IHistoricoMedicoRepository, HistoricoMedicoRepository>();
@@ -72,28 +72,6 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<GetAllRecepcionistasQueryHandler>());
 
             return services;
-        }
-
-        private static void RegisterMongoClassMaps()
-        {
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Prontuario)))
-            {
-                BsonClassMap.RegisterClassMap<Prontuario>(classMap =>
-                {
-                    classMap.AutoMap();
-                    classMap.SetIgnoreExtraElements(true);
-                    classMap.MapMember(prontuario => prontuario.Medicamentos).SetElementName("medicamentos");
-                });
-            }
-            if (!BsonClassMap.IsClassMapRegistered(typeof(Psicologo)))
-            {
-                BsonClassMap.RegisterClassMap<Psicologo>(classMap =>
-                {
-                    classMap.AutoMap();
-                    classMap.SetIgnoreExtraElements(true);
-                    classMap.MapMember(prontuario => prontuario.Disponibilidades).SetElementName("disponibilidades");
-                });
-            }
         }
     }
 }

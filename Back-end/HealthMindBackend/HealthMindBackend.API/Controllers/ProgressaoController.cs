@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProgressaoController : ControllerBase
     {
         private readonly IProgressaoService _progressaoService;
@@ -34,6 +37,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Progressao**
         /// </remarks>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
@@ -76,6 +80,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
@@ -128,6 +133,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="progressaoDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status400BadRequest)]
@@ -173,6 +179,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="progressaoId">ID Progressão</param>
+        [Authorize(Roles = "Psicologo")]
         [HttpDelete("{progressaoId}")]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status400BadRequest)]

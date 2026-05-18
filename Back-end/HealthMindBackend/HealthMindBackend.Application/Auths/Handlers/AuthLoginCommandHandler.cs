@@ -1,4 +1,6 @@
-﻿using HealthMindBackend.Application.Authentications.Commands;
+﻿using HealthMindBackend.API.DTOs;
+using HealthMindBackend.Application.Authentications.Commands;
+using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -10,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Authentications.Handlers
 {
-    public class AuthLoginCommandHandler : IRequestHandler<AuthLoginCommand, Usuario>
+    public class AuthLoginCommandHandler : IRequestHandler<AuthLoginCommand, LoginResponseDTO>
     {
         private readonly IAuthRepository _authRepository;
 
@@ -19,11 +21,23 @@ namespace HealthMindBackend.Application.Authentications.Handlers
             _authRepository = authRepository;
         }
 
-        public async Task<Usuario> Handle(AuthLoginCommand request, CancellationToken cancellationToken)
+        public async Task<LoginResponseDTO> Handle(AuthLoginCommand request, CancellationToken cancellationToken)
         {
-            var usuarioLogado = await _authRepository.Login(request.Email, request.Senha);
+            if (request == null)
+                throw new ArgumentNullException("Não foi possível realizar login");
 
-            return usuarioLogado ?? throw new KeyNotFoundException("Login inválido");
+            var tokenUsuarioAutenticado = await _authRepository.Login(request.Email, request.Senha);
+
+            if (tokenUsuarioAutenticado == null)
+                throw new KeyNotFoundException("E-mail ou senha inválidos");
+
+            var loginResponseDto = new LoginResponseDTO
+            {
+                Email = request.Email,
+                Token = tokenUsuarioAutenticado
+            };
+
+            return loginResponseDto;
         }
     }
 }
