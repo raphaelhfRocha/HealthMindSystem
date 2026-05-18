@@ -114,11 +114,4 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return prontuario.Medicamentos.ToList();
         }
     }
-} _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
-            if (prontuario == null)
-                return null;
-
-            return prontuario.Medicamentos.ToList();
-        }
-    }
 }

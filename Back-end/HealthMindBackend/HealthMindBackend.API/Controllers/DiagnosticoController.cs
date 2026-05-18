@@ -38,7 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Diagnostico**
         /// </remarks>
-        [Authorize(Roles = "StsPsicologo")]
+        [Authorize(Roles = "Psicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -47,8 +47,6 @@ namespace HealthMindBackend.API.Controllers
         {
             return Ok(await _diagnosticoService.GetAllDiagnosticos());
         }
-
-
         /// <summary>
         /// Lista de diagnósticos por Id prontuário
         /// </summary>

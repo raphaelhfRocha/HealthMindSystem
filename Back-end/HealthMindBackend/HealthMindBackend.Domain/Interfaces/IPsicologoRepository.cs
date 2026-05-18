@@ -15,6 +15,7 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId);
         Task<Disponibilidade> GetDisponibilidadeByPsicologoIdAndDisponibilidadeId(String psicologoId, String disponibilidadeId);
         Task<Psicologo> GetPsicologoByEmail(String email);
+        Task<Psicologo> CadastrarPsicologo(Psicologo psicologo);
         Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo);
         Task<Disponibilidade> AdicionarDisponibilidade(String psicologoId, Disponibilidade disponibilidade);
         Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId);

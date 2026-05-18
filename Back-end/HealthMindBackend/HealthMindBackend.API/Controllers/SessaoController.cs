@@ -127,6 +127,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoId">
         /// ID Sessão
         /// </param>
+        [Authorize(Roles = "Recepcionista")]
         [HttpGet("{sessaoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]

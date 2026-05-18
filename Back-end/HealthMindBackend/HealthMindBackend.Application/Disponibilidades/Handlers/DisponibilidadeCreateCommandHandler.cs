@@ -26,9 +26,6 @@ namespace HealthMindBackend.Application.Disponibilidades.Handlers
                 PsicologoId = request.PsicologoId
             };
 
-            //var psicologoFound = await _psicologoRepository.GetPsicologoById(request.PsicologoId)
-            //    ?? throw new KeyNotFoundException("Psicólogo não encontrado");
-
             disponibilidade = disponibilidade
                 ?? throw new ArgumentNullException(nameof(disponibilidade));
 

@@ -19,7 +19,6 @@ namespace HealthMindBackend.API.Controllers
             _historicoMedicoService = historicoMedicoService;
         }
 
-
         /// <summary>
         /// Lista de todos os históricos médicos
         /// </summary>

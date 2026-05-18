@@ -22,7 +22,6 @@ namespace HealthMindBackend.Domain.Entities
         public Psicologo()
         {
         }
-
         public Psicologo(String id, String nome, String email, String senha, StatusCargoEnum cargo, StatusRoleEnum role, String cpfCnpj, String usuarioId, String crp, String especialidade) : base(id, nome, email, cargo, role, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "O Id não pode ser menor ou igual a zero");
@@ -30,8 +29,6 @@ namespace HealthMindBackend.Domain.Entities
             ValidatePsicologoDomain(cargo, crp, especialidade);
             UsuarioId = usuarioId;
         }
-        
-
         public Psicologo(String nome, String email, String senha, StatusCargoEnum cargo, StatusRoleEnum role, String cpfCnpj, String crp, String especialidade) : base(nome, email, cargo, role, cpfCnpj)
         {
             ValidateUserDomain(nome, email, cargo, role, cpfCnpj);
@@ -45,9 +42,9 @@ namespace HealthMindBackend.Domain.Entities
             ValidatePsicologoDomain(cargo, crp, especialidade);
         }
 
-        public Psicologo(String nome, String email, String senha, StatusCargoEnum cargo, StatusRoleEnum role, String cpfCnpj, String crp, String especialidade, List<Disponibilidade>? disponibilidades) : base(nome, email, senha, cargo, role, cpfCnpj)
+        public Psicologo(String nome, String email, StatusCargoEnum cargo, StatusRoleEnum role, String cpfCnpj, String crp, String especialidade, List<Disponibilidade>? disponibilidades) : base(nome, email, cargo, role, cpfCnpj)
         {
-            ValidateUserDomain(nome, email, senha, cargo, role, cpfCnpj);
+            ValidateUserDomain(nome, email, cargo, role, cpfCnpj);
             ValidatePsicologoDomain(cargo, crp, especialidade);
             Disponibilidades = disponibilidades;
         }

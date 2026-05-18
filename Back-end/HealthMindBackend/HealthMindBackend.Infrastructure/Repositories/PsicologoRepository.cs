@@ -45,7 +45,12 @@ namespace HealthMindBackend.Infrastructure.Repositories
             await _collection.UpdateOneAsync(p => p.Id == psicologoId, adicionarDisponibilidade);
             return disponibilidade;
         }
-
+        public async Task<Psicologo> CadastrarPsicologo(Psicologo psicologo)
+        {
+            psicologo.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Psicologo));
+            await _collection.InsertOneAsync(psicologo);
+            return psicologo;
+        }
         public async Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo)
         {
             await _collection.ReplaceOneAsync(p => p.Id == psicologoId, psicologo);
@@ -88,6 +93,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 return null;
 
             return psicologo.Disponibilidades.ToList();
+        }
+
+        public async Task<Psicologo> GetPsicologoByEmail(String email)
+        {
+            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
         }
 
         public async Task<Psicologo> GetPsicologoById(String psicologoId)

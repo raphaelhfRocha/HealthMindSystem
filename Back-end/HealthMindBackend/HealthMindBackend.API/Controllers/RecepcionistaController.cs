@@ -88,8 +88,6 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditarPaciente(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
-        public async Task<IActionResult> AtualizarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         public async Task<IActionResult> EditarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         {
             if (recepcionistaId == null)

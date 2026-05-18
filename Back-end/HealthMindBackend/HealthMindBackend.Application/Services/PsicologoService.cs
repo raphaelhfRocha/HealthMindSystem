@@ -30,31 +30,21 @@ namespace HealthMindBackend.Application.Services
             var disponibilidadeCreateCommand = _mapper.Map<DisponibilidadeCreateCommand>(disponibilidadeDto);
             await _mediator.Send(disponibilidadeCreateCommand);
         }
-
         public async Task AtualizarPsicologo(PsicologoDTO psicologoDto)
         {
             var psiologoUpdateCommand = _mapper.Map<PsicologoUpdateCommand>(psicologoDto);
             await _mediator.Send(psiologoUpdateCommand);
         }
-
         public async Task CadastrarPsicologo(PsicologoDTO psicologoDto)
         {
             var psicologoCreateCommand = _mapper.Map<PsicologoCreateCommand>(psicologoDto);
             await _mediator.Send(psicologoCreateCommand);
         }
-
         public async Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId)
         {
             var disponibilidadeDeleteCommand = new DisponibilidadeDeleteCommand(disponibilidadeId, psicologoId);
             await _mediator.Send(disponibilidadeDeleteCommand);
         }
-
-        public async Task ExcluirPsicologo(String psicologoId)
-        {
-            var psicologoDeleteCommand = new PsicologoDeleteCommand(psicologoId);
-            await _mediator.Send(psicologoDeleteCommand);
-        }
-
         public async Task<IEnumerable<PsicologoDTO>> GetAllPsicologos()
         {
             var getAllPsicologosQuery = new GetAllPsicologosQuery();

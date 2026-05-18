@@ -19,12 +19,14 @@ namespace HealthMindBackend.Domain.Entities
         public StatusRoleEnum StatusRole { get; protected set; }
 
 
+        protected Usuario()
+        {
+        }
         public Usuario(String id, String nome, String email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(id, nome, email, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
             ValidateUserDomain(nome, email, statusCargo, statusRole, cpfCnpj);
         }
-
         public Usuario(String nome, String email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
         {
             ValidateUserDomain(nome, email, statusCargo, statusRole, cpfCnpj);

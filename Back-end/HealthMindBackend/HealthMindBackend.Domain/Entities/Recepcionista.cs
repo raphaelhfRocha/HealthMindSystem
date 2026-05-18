@@ -13,9 +13,6 @@ namespace HealthMindBackend.Domain.Entities
     [BsonDiscriminator("RECEPCIONISTA")]
     public class Recepcionista : Usuario
     {
-        public Recepcionista()
-        {
-        }
         public Recepcionista(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(id, nome, email, statusCargo, statusRole, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");

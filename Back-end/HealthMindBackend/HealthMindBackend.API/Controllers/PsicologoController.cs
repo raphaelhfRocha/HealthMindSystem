@@ -35,7 +35,7 @@ namespace HealthMindBackend.API.Controllers
         ///
         /// **2. Em seguida clique no botão Execute**
         /// </remarks>
-
+        [Authorize(Roles = "Psicologo,Recepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
@@ -44,7 +44,6 @@ namespace HealthMindBackend.API.Controllers
         {
             return Ok(await _psicologoService.GetAllPsicologos());
         }
-
         /// <summary>
         /// Lista de disponbilidades por Id psicólogo
         /// </summary>
@@ -66,6 +65,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
+        [Authorize(Roles = "Psicologo")]
         [HttpGet("{psicologoId}/disponibilidades")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
@@ -77,7 +77,6 @@ namespace HealthMindBackend.API.Controllers
 
             return Ok(await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId));
         }
-        
         /// <summary>
         /// <summary>
         /// Edição de psicólogo
@@ -143,6 +142,46 @@ namespace HealthMindBackend.API.Controllers
                     await _psicologoService.AdicionarDisponibilidade(item);
                 }
             }
-            ca}
-	   }
 
+            return Ok(psicologoDto);
+        }
+
+        /// <summary>
+        /// Exclusão de disponibilidade de psicologo.
+        /// </summary>
+        /// <param name="psicologoId">Id Psicologo</param>
+        /// <param name="disponibilidadeId">Id Disponibilidade</param>
+        /// <response code="204">Disponibilidade excluída</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Dados não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a exclusão de disponibilidade de psicologo**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite os parametros de disponibilidade e psicologo nos campos de Id de Disponibilidade e Id do Psicologo**
+        /// 
+        /// **3. Em seguida clique no botão Execute**
+        /// 
+        /// </remarks>
+        [Authorize(Roles = "Psicologo")]
+        [HttpDelete("{psicologoId}/disponibilidades/{disponibilidadeId}")]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExcluirMedicamento(String psicologoId, String disponibilidadeId)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+            if (disponibilidadeId == null)
+                return BadRequest(nameof(disponibilidadeId));
+
+            await _psicologoService.ExcluirDisponibilidade(psicologoId, disponibilidadeId);
+            return NoContent();
+        }
+    }
+}

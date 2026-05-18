@@ -13,7 +13,6 @@ namespace HealthMindBackend.Application.Interfaces
         Task<List<DisponibilidadeDTO>> GetDisponibilidadesByPsicologoId(String psicologoId);
         Task CadastrarPsicologo(PsicologoDTO psicologoDto);
         Task AtualizarPsicologo(PsicologoDTO psicologoDto);
-        Task ExcluirPsicologo(String psicologoId);
         Task AdicionarDisponibilidade(DisponibilidadeDTO disponibilidadeDto);
         Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId);
     }
