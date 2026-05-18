@@ -97,9 +97,29 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return psicologo.Disponibilidades.ToList();
         }
 
+        public async Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj)
+        {
+            return await _collection.Find(p => p.CpfCnpj == cpfCnpj).FirstOrDefaultAsync();
+        }
+
+        public async Task<Psicologo> GetPsicologoByCrp(String crp)
+        {
+            return await _collection.Find(p => p.Crp == crp).FirstOrDefaultAsync();
+        }
+
         public async Task<Psicologo> GetPsicologoById(String psicologoId)
         {
             return await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByEspecialidade(String especialidade)
+        {
+            return await _collection.Find(p => p.Especialidade == especialidade).ToListAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByNome(String nome)
+        {
+            return await _collection.Find(p => p.Nome == nome).ToListAsync();
         }
     }
 }

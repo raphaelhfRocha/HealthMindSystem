@@ -68,5 +68,19 @@ namespace HealthMindBackend.Application.Services
             var result = await _mediator.Send(getDisponibilidadesByPsicologoIdQuery);
             return _mapper.Map<List<DisponibilidadeDTO>>(result);
         }
+
+        public async Task<List<PsicologoDTO>> GetPsicologosByEspecialidade(String especialidade)
+        {
+            var getPsicologosByEspecialidadesQuery = new GetPsicologosByEspecialidadeQuery(especialidade);
+            var result = await _mediator.Send(getPsicologosByEspecialidadesQuery);
+            return _mapper.Map<List<PsicologoDTO>>(result);
+        }
+
+        public async Task<List<PsicologoDTO>> GetPsicologosByNome(String nome)
+        {
+            var getPsicologosByNome = new GetPsicologosByNomeQuery(nome);
+            var result = await _mediator.Send(getPsicologosByNome);
+            return _mapper.Map<List<PsicologoDTO>>(result);
+        }
     }
 }
