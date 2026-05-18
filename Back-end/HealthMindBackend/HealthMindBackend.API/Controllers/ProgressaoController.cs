@@ -37,7 +37,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Progressao**
         /// </remarks>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
@@ -68,7 +68,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status404NotFound)]
@@ -110,7 +110,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="progressaoDto">
         ///     **Dados a cadastrar**
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status400BadRequest)]
@@ -146,7 +146,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="progressaoId">ID Progressão</param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{progressaoId}")]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(ProgressaoDTO), StatusCodes.Status400BadRequest)]

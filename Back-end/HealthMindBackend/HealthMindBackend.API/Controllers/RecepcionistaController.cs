@@ -37,7 +37,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Recepcionista**
         /// </remarks>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
@@ -82,7 +82,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="recepcionistaDto">
         /// Dados a alterar
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{recepcionistaId}")]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
@@ -118,7 +118,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="recepcionistaId">ID Recepcionista</param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{recepcionistaId}")]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]

@@ -36,7 +36,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/HistoricoMedico**
         /// </remarks>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status404NotFound)]
@@ -67,7 +67,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status404NotFound)]
@@ -110,7 +110,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="historicoMedicoDto">
         ///     **Dados a cadastrar**
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]
@@ -156,7 +156,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="historicoMedicoDto">
         /// Dados a alterar
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{historicoId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]
@@ -195,7 +195,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="historicoId">Id Histórico médico</param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{historicoId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]

@@ -35,7 +35,7 @@ namespace HealthMindBackend.API.Controllers
         ///
         /// **2. Em seguida clique no botão Execute**
         /// </remarks>
-        [Authorize(Roles = "Psicologo,Recepcionista")]
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
@@ -65,7 +65,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("{psicologoId}/disponibilidades")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
@@ -118,7 +118,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{psicologoId}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
@@ -167,7 +167,7 @@ namespace HealthMindBackend.API.Controllers
         /// **3. Em seguida clique no botão Execute**
         /// 
         /// </remarks>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{psicologoId}/disponibilidades/{disponibilidadeId}")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]

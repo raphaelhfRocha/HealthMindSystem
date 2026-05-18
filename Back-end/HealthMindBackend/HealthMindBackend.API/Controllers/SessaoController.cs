@@ -82,7 +82,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Prontuário.
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]

@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using HealthMindBackend.API.DTOs;
+using HealthMindBackend.Application.Auths.Commands;
 using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Application.DTOs;
@@ -24,6 +26,8 @@ namespace HealthMindBackend.Application.Mappings
     {
         public DTOToCommandsMappingsProfile()
         {
+            CreateMap<PsicologoCadastroDTO, AuthPsicologoCreateCommand>();
+            CreateMap<RecepcionistaCadastroDTO, AuthRecepcionistaCreateCommand>();
             CreateMap<PacienteDTO, PacienteCreateCommand>();
             CreateMap<PacienteDTO, PacienteUpdateCommand>();
             CreateMap<PsicologoDTO, PsicologoCreateCommand>();

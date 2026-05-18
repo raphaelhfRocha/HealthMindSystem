@@ -14,7 +14,7 @@ namespace HealthMindBackend.API.Controllers
 
         public AuthController(IAuthService authService)
         {
-            _authService = authService;            
+            _authService = authService;
         }
 
         [HttpPost("login")]
@@ -27,15 +27,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(nameof(loginDto));
-            try
-            {
-                var usuarioAutenticado = await _authService.Login(loginDto.Email, loginDto.Senha);
-                return Ok(usuarioAutenticado);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex}");
-            }
+
+            var usuarioAutenticado = await _authService.Login(loginDto.Email, loginDto.Senha);
+            return Ok(usuarioAutenticado);
         }
 
         /// <summary>
@@ -70,6 +64,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoCadastroDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("psicologo")]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status400BadRequest)]
@@ -78,15 +73,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(nameof(psicologoCadastroDto));
-            try
-            {
-                await _authService.CadastrarPsicologo(psicologoCadastroDto);
-                return Created($"/api/auth/psicologo", psicologoCadastroDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex}");
-            }
+
+            await _authService.CadastrarPsicologo(psicologoCadastroDto);
+            return Created($"/api/auth/psicologo", psicologoCadastroDto);
         }
 
         /// <summary>
@@ -119,6 +108,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="recepcionistaCadastroDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("recepcionista")]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status400BadRequest)]
@@ -127,15 +117,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(nameof(recepcionistaCadastroDto));
-            try
-            {
-                await _authService.CadastrarRecepcionista(recepcionistaCadastroDto);
-                return Created($"/api/auth/recepcionista", recepcionistaCadastroDto);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno: {ex}");
-            }
+
+            await _authService.CadastrarRecepcionista(recepcionistaCadastroDto);
+            return Created($"/api/auth/recepcionista", recepcionistaCadastroDto);
         }
     }
 }

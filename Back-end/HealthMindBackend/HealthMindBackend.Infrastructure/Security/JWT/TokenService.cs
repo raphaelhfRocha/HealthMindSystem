@@ -39,20 +39,18 @@ namespace HealthMindBackend.Infrastructure.Security.JWT
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
-                new Claim(ClaimTypes.Name, usuario.Nome),
                 new Claim(ClaimTypes.Email, usuario.Email),
                 new Claim(ClaimTypes.Role, usuario.StatusCargo.ToString()),
-                new Claim("usuarioId", usuario.Id.ToString()),
                 new Claim("usuarioNome", usuario.Nome)
             };
 
             if(usuario is Psicologo psicologo)
             {
-                claims.Add(new Claim("PsicologoId", psicologo.Id));
+                claims.Add(new Claim("UsuarioId", psicologo.Id));
             }
             if(usuario is Recepcionista recepcionista)
             {
-                claims.Add(new Claim("RecepcionistaId", recepcionista.Id));
+                claims.Add(new Claim("UsuarioId", recepcionista.Id));
             }
 
             var tokenDescriptor = new SecurityTokenDescriptor

@@ -67,7 +67,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]

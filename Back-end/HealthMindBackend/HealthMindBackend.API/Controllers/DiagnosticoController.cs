@@ -38,7 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Diagnostico**
         /// </remarks>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -68,7 +68,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status404NotFound)]
@@ -112,7 +112,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="diagnosticoDto">
         ///     **Dados a cadastrar**
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]
@@ -160,7 +160,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="diagnosticoDto">
         /// Dados a alterar
         /// </param>
-        [Authorize(Roles = "Psicologo")]
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{diagnosticoId}")]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DiagnosticoDTO), StatusCodes.Status400BadRequest)]
