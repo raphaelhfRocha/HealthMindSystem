@@ -43,19 +43,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllPacientes()
         {
-            try
-            {
-                var result = await _pacienteService.GetAllPacientes();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _pacienteService.GetAllPacientes());
         }
 
         /// <summary>
@@ -87,23 +75,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPacientesByPsicologoId(String? psicologoId)
         {
-            try
-            {
-                var result = await _pacienteService.GetPacientesByPsicologoId(psicologoId);
-                return Ok(result);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _pacienteService.GetPacientesByPsicologoId(psicologoId));
         }
 
         /// <summary>
@@ -142,19 +114,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CadastrarPaciente([FromBody] PacienteDTO pacienteDto)
         {
-            try
-            {
-                await _pacienteService.CadastrarPaciente(pacienteDto);
-                return Created($"/api/paciente", pacienteDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            await _pacienteService.CadastrarPaciente(pacienteDto);
+            return Created($"/api/paciente", pacienteDto);
         }
 
 
@@ -203,24 +164,10 @@ namespace HealthMindBackend.API.Controllers
         {
             if (pacienteId == null)
                 return BadRequest(nameof(pacienteId));
-            try
-            {
-                pacienteDto.Id = pacienteId;
-                await _pacienteService.AtualizarPaciente(pacienteDto);
-                return Ok(pacienteDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            
+            pacienteDto.Id = pacienteId;
+            await _pacienteService.AtualizarPaciente(pacienteDto);
+            return Ok(pacienteDto);
         }
     }
 }

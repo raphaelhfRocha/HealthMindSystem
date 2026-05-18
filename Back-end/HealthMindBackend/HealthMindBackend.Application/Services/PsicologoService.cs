@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using HealthMindBackend.Application.Disponibilidades.Commands;
+using HealthMindBackend.Application.Disponibilidades.Queries;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Psicologos.Commands;
@@ -23,6 +25,12 @@ namespace HealthMindBackend.Application.Services
             _mediator = mediator;
         }
 
+        public async Task AdicionarDisponibilidade(DisponibilidadeDTO disponibilidadeDto)
+        {
+            var disponibilidadeCreateCommand = _mapper.Map<DisponibilidadeCreateCommand>(disponibilidadeDto);
+            await _mediator.Send(disponibilidadeCreateCommand);
+        }
+
         public async Task AtualizarPsicologo(PsicologoDTO psicologoDto)
         {
             var psiologoUpdateCommand = _mapper.Map<PsicologoUpdateCommand>(psicologoDto);
@@ -33,6 +41,12 @@ namespace HealthMindBackend.Application.Services
         {
             var psicologoCreateCommand = _mapper.Map<PsicologoCreateCommand>(psicologoDto);
             await _mediator.Send(psicologoCreateCommand);
+        }
+
+        public async Task ExcluirDisponibilidade(String psicologoId, String disponibilidadeId)
+        {
+            var disponibilidadeDeleteCommand = new DisponibilidadeDeleteCommand(disponibilidadeId, psicologoId);
+            await _mediator.Send(disponibilidadeDeleteCommand);
         }
 
         public async Task ExcluirPsicologo(String psicologoId)
@@ -46,6 +60,13 @@ namespace HealthMindBackend.Application.Services
             var getAllPsicologosQuery = new GetAllPsicologosQuery();
             var result = await _mediator.Send(getAllPsicologosQuery);
             return _mapper.Map<IEnumerable<PsicologoDTO>>(result);
+        }
+
+        public async Task<List<DisponibilidadeDTO>> GetDisponibilidadesByPsicologoId(String psicologoId)
+        {
+            var getDisponibilidadesByPsicologoIdQuery = new GetDisponibilidadesByPsicologoIdQuery(psicologoId);
+            var result = await _mediator.Send(getDisponibilidadesByPsicologoIdQuery);
+            return _mapper.Map<List<DisponibilidadeDTO>>(result);
         }
     }
 }

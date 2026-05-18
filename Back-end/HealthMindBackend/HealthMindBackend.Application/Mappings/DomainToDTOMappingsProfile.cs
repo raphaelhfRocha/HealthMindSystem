@@ -19,12 +19,10 @@ namespace HealthMindBackend.Application.Mappings
             CreateMap<Usuario, PsicologoCadastroDTO>().ReverseMap();
             CreateMap<Usuario, RecepcionistaCadastroDTO>().ReverseMap();
             CreateMap<Recepcionista, RecepcionistaDTO>().ReverseMap();
-            CreateMap<Psicologo, PsicologoDTO>().ReverseMap();
             CreateMap<Psicologo, PsicologoDTO>()
                 .ForMember(dest => dest.DisponibilidadesDTO, opt => opt
                 .MapFrom(src => src.Disponibilidades)).ReverseMap();
             CreateMap<Paciente, PacienteDTO>().ReverseMap();
-            CreateMap<Prontuario, ProntuarioDTO>().ReverseMap();
             CreateMap<Prontuario, ProntuarioDTO>()
                 .ForMember(dest => dest.MedicamentosDTO, opt => opt
                 .MapFrom(src => src.Medicamentos)).ReverseMap();
@@ -36,6 +34,7 @@ namespace HealthMindBackend.Application.Mappings
                 .ForMember(dest => dest.PagamentoDTO,
                 opt => opt.MapFrom(src => src.Pagamento)).ReverseMap();
             CreateMap<Pagamento, PagamentoDTO>().ReverseMap();
+            CreateMap<Disponibilidade, DisponibilidadeDTO>().ReverseMap();
         }
     }
 }

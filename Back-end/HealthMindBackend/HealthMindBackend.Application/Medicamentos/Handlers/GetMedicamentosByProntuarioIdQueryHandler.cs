@@ -23,9 +23,6 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
         {
             var medicamentosFound = await _prontuarioRepository.GetMedicamentosByProntuarioId(request.ProntuarioId);
 
-            if (medicamentosFound == null)
-                throw new KeyNotFoundException("Medicamentos não encontrados");
-
             return medicamentosFound;
         }
     }

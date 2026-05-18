@@ -43,19 +43,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllProntuarios()
         {
-            try
-            {
-                var result = await _prontuarioService.GetAllProntuarios();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _prontuarioService.GetAllProntuarios());
         }
 
         /// <summary>
@@ -99,20 +87,11 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegistrarProntuario([FromBody] ProntuarioDTO prontuarioDto)
         {
-            try
-            {
-                prontuarioDto.DataAbertura = DateTime.Now;
-                await _prontuarioService.RegistrarProntuario(prontuarioDto);
-                return Created($"/api/prontuario", prontuarioDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            if (!prontuarioDto.DataAbertura.HasValue || prontuarioDto.DataAbertura.Value == DateTime.MinValue)
+                prontuarioDto.DataAbertura = DateTime.UtcNow;
+
+            await _prontuarioService.RegistrarProntuario(prontuarioDto);
+            return Created($"/api/prontuario", prontuarioDto);
         }
 
         /// <summary>
@@ -144,12 +123,14 @@ namespace HealthMindBackend.API.Controllers
         ///   "medicamentosDTO": [
         ///     {
         ///       "id": "MED-001",  // Com ID = atualiza existente
+        ///       "prontuarioId": "PRT-001",
         ///       "nome": "Nome atualizado",
         ///       "dosagem": "500mg",
         ///       "frequencia": "8 em 8 horas"
         ///     },
         ///     {
         ///       // Sem ID = cria novo
+        ///       "prontuarioId": "PRT-001",
         ///       "nome": "Novo medicamento",
         ///       "dosagem": "250mg",
         ///       "frequencia": "12 em 12 horas"
@@ -169,51 +150,37 @@ namespace HealthMindBackend.API.Controllers
         {
             if (String.IsNullOrWhiteSpace(prontuarioId))
                 return BadRequest("Id do prontuário é obrigatório.");
-            try
+
+            prontuarioDto.Id = prontuarioId;
+
+            // Busca os medicamentos existentes no banco de dados
+            var medicamentosExistentes = await _prontuarioService.GetMedicamentosByProntuarioId(prontuarioId) ?? new List<MedicamentoDTO>();
+
+            if (prontuarioDto.MedicamentosDTO != null)
             {
-                prontuarioDto.Id = prontuarioId;
-
-                // Busca os medicamentos existentes no banco de dados
-                var medicamentosExistentes = await _prontuarioService.GetMedicamentosByProntuarioId(prontuarioId) ?? new List<MedicamentoDTO>();
-
-                if (prontuarioDto.MedicamentosDTO != null)
+                foreach (var medicamentoDto in prontuarioDto.MedicamentosDTO)
                 {
-                    foreach (var medicamentoDto in prontuarioDto.MedicamentosDTO)
-                    {
-                        medicamentoDto.ProntuarioId = prontuarioId;
+                    medicamentoDto.ProntuarioId = prontuarioId;
 
-                        if (!String.IsNullOrWhiteSpace(medicamentoDto.Id))
+                    if (!String.IsNullOrWhiteSpace(medicamentoDto.Id))
+                    {
+                        // Medicamento com ID: atualizar existente
+                        var medicamentoExistente = medicamentosExistentes.FirstOrDefault(m => m.Id == medicamentoDto.Id);
+                        if (medicamentoExistente != null)
                         {
-                            // Medicamento com ID: atualizar existente
-                            var medicamentoExistente = medicamentosExistentes.FirstOrDefault(m => m.Id == medicamentoDto.Id);
-                            if (medicamentoExistente != null)
-                            {
-                                await _prontuarioService.EditarMedicamento(medicamentoDto.Id, medicamentoDto);
-                            }
-                        }
-                        else
-                        {
-                            // Medicamento sem ID: criar novo
-                            await _prontuarioService.RegistrarMedicamento(medicamentoDto);
+                            await _prontuarioService.EditarMedicamento(prontuarioId, medicamentoDto.Id, medicamentoDto);
                         }
                     }
+                    else
+                    {
+                        // Medicamento sem ID: criar novo
+                        await _prontuarioService.RegistrarMedicamento(medicamentoDto);
+                    }
                 }
+            }
 
-                await _prontuarioService.EditarProntuario(prontuarioDto);
-                return Ok(prontuarioDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            await _prontuarioService.EditarProntuario(prontuarioDto);
+            return Ok(prontuarioDto);
         }
 
         /// <summary>
@@ -249,19 +216,9 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(prontuarioId));
             if (medicamentoId == null)
                 return BadRequest(nameof(medicamentoId));
-            try
-            {
-                await _prontuarioService.ExcluirMedicamento(prontuarioId, medicamentoId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            
+            await _prontuarioService.ExcluirMedicamento(prontuarioId, medicamentoId);
+            return NoContent();
         }
     }
 }

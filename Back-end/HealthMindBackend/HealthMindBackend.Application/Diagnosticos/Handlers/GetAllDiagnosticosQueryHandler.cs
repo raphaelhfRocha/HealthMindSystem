@@ -23,10 +23,8 @@ namespace HealthMindBackend.Application.Diagnosticos.Handlers
         {
             var diagnosticosFound = await _diagnosticoRepository.GetAllDiagnosticos();
 
-            if (!diagnosticosFound.Any())
+            return diagnosticosFound.Any() ? diagnosticosFound : 
                 throw new KeyNotFoundException("Diagnosticos não encontrados");
-
-            return diagnosticosFound;
         }
     }
 }

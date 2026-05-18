@@ -1,3 +1,4 @@
+using HealthMindBackend.API.Middleware;
 using HealthMindBackend.Infrastructure.IoC;
 using System.Reflection;
 
@@ -7,18 +8,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddInfrastructureAPI(builder.Configuration);
+builder.Services.AddInfrastructureCORS(builder.Configuration, builder.Environment);
 builder.Services.AddInfrastructureJWT(builder.Configuration);
 builder.Services.AddInfrastructureSwagger();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(options =>
-//{
-//    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-
-//    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-
-//    options.IncludeXmlComments(xmlPath);
-//});
+builder.Services.AddHttpClient();
 
 var app = builder.Build();
 
@@ -35,9 +30,13 @@ app.UseStatusCodePages();
 
 app.UseRouting();
 
+app.UseCors("CorsPolicy");
+
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseMiddleware<GlobalExceptionMiddleware>();
 
 app.MapControllers();
 

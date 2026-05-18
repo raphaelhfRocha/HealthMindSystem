@@ -23,10 +23,8 @@ namespace HealthMindBackend.Application.Progressoes.Handlers
         {
             var progressoesFound = await _progressaoRepository.GetAllProgressoes();
 
-            if (!progressoesFound.Any())
+            return progressoesFound.Any() ? progressoesFound : 
                 throw new KeyNotFoundException("Progressões não encontradas");
-
-            return progressoesFound;
         }
     }
 }

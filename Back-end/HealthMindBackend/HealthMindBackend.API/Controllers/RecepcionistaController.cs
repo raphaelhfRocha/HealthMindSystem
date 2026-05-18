@@ -44,19 +44,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllRecepcionistas()
         {
-            try
-            {
-                var result = await _recepcionistaService.GetAllRecepcionistas();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            return Ok(await _recepcionistaService.GetAllRecepcionistas());
         }
 
         /// <summary>
@@ -100,28 +88,16 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditarPaciente(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
+        public async Task<IActionResult> AtualizarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         public async Task<IActionResult> EditarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaDTO recepcionistaDto)
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
-            try
-            {
-                recepcionistaDto.Id = recepcionistaId;
-                await _recepcionistaService.AtualizarRecepcionista(recepcionistaDto);
-                return Ok(recepcionistaDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            recepcionistaDto.Id = recepcionistaId;
+            await _recepcionistaService.AtualizarRecepcionista(recepcionistaDto);
+            return Ok(recepcionistaDto);
         }
 
         /// <summary>
@@ -154,19 +130,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (recepcionistaId == null)
                 return BadRequest(nameof(recepcionistaId));
-            try
-            {
-                await _recepcionistaService.ExcluirRecepcionista(recepcionistaId);
-                return NoContent();
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Bad Request 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            await _recepcionistaService.ExcluirRecepcionista(recepcionistaId);
+            return NoContent();
         }
     }
 }

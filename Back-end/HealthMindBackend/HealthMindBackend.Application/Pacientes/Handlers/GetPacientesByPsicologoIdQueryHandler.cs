@@ -21,7 +21,8 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
 
         public async Task<List<Paciente>> Handle(GetPacientesByPsicologoIdQuery request, CancellationToken cancellationToken)
         {
-            return await _pacienteRepository.GetPacientesByPsicologoId(request.PsicologoId);
+            return await _pacienteRepository.GetPacientesByPsicologoId(request.PsicologoId) ??
+                throw new KeyNotFoundException("Pacientes não encontrados");
         }
     }
 }

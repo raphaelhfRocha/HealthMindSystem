@@ -23,10 +23,8 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
         {
             var sessoesFound = await _sessaoRepository.GetAllSessoes();
 
-            if (!sessoesFound.Any())
+            return sessoesFound.Any() ? sessoesFound :
                 throw new KeyNotFoundException("Sessões não encontradas");
-
-            return sessoesFound;
         }
     }
 }

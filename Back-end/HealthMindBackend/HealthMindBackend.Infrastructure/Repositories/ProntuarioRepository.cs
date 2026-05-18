@@ -1,4 +1,4 @@
-﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
@@ -26,12 +26,14 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             prontuario.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Prontuario));
 
-            // Medicamentos sempre é inicializado como lista, então não precisa verificar null
-            foreach (var medicamento in prontuario.Medicamentos)
+            if (prontuario.Medicamentos != null)
             {
-                medicamento.DefinirId(await _sequentialIdGenerator
-                    .GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
-                medicamento.ProntuarioId = prontuario.Id;
+                foreach (var medicamento in prontuario.Medicamentos)
+                {
+                    medicamento.DefinirId(await _sequentialIdGenerator
+                        .GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
+                    medicamento.ProntuarioId = prontuario.Id;
+                }
             }
 
             await _collection.InsertOneAsync(prontuario);
@@ -59,15 +61,10 @@ namespace HealthMindBackend.Infrastructure.Repositories
             medicamento.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Medicamento));
             medicamento.ProntuarioId = prontuarioId;
 
-            // Usar $push para adicionar o medicamento à array
-            // Se medicamentos for null, o $push vai inicializar como array
-            var update = Builders<Prontuario>.Update.Push(p => p.Medicamentos, medicamento);
+            var adicionar = Builders<Prontuario>.Update
+                .Push(p => p.Medicamentos, medicamento);
 
-            var result = await _collection.UpdateOneAsync(p => p.Id == prontuarioId, update);
-
-            if (result.ModifiedCount == 0)
-                throw new KeyNotFoundException($"Prontuário com ID {prontuarioId} não encontrado");
-
+            await _collection.UpdateOneAsync(p => p.Id == prontuarioId, adicionar);
             return medicamento;
         }
 
@@ -85,8 +82,8 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 .Set("Medicamentos.$.Frequencia", medicamento.Frequencia);
 
             var result = await _collection.UpdateOneAsync(filter, update);
-            if (result.ModifiedCount == 0)
-                throw new KeyNotFoundException("Medicamento não encontrado para atualização");
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException("Medicamento n�o encontrado para atualiza��o");
 
             return medicamento;
         }
@@ -102,7 +99,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<Medicamento> GetMedicamentoByProntuarioIdAndMedicamentoId(String prontuarioId, String medicamentoId)
         {
             var prontuario = await _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
-            if (prontuario == null)
+            if (prontuario == null || prontuario.Medicamentos == null)
                 return null;
 
             return prontuario.Medicamentos.FirstOrDefault(m => m.Id == medicamentoId);
@@ -111,6 +108,13 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<List<Medicamento>> GetMedicamentosByProntuarioId(String prontuarioId)
         {
             var prontuario = await _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
+            if (prontuario == null || prontuario.Medicamentos == null)
+                return null;
+
+            return prontuario.Medicamentos.ToList();
+        }
+    }
+} _collection.Find(p => p.Id == prontuarioId).FirstOrDefaultAsync();
             if (prontuario == null)
                 return null;
 
