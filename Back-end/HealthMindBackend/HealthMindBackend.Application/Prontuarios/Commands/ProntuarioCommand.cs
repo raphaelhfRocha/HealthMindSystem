@@ -1,6 +1,7 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace HealthMindBackend.Application.Prontuarios.Commands
         public String Descricao { get; set; }
         public DateTime? DataAbertura { get; set; }
         public StatusProntuarioEnum StatusProntuario { get; set; }
+        public ContatoEmergencia? ContatoEmergencia { get; set; }
         public List<Medicamento>? Medicamentos { get; set; }
     }
 }

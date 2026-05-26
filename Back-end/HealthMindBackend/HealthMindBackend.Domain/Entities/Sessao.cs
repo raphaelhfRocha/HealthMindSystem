@@ -1,5 +1,6 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;

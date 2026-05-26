@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.HistoricosMedicos.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,15 +13,19 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
 {
     public class HistoricoMedicoUpdateCommandHandler : IRequestHandler<HistoricoMedicoUpdateCommand, HistoricoMedico>
     {
+        private readonly IValidator<HistoricoMedicoUpdateCommand> _validatorHistoricoMedicoUpdateCommand;
         private readonly IHistoricoMedicoRepository _historicoMedicoRepository;
 
-        public HistoricoMedicoUpdateCommandHandler(IHistoricoMedicoRepository historicoMedicoRepository)
+        public HistoricoMedicoUpdateCommandHandler(IValidator<HistoricoMedicoUpdateCommand> validatorHistoricoMedicoUpdateCommand, IHistoricoMedicoRepository historicoMedicoRepository)
         {
+            _validatorHistoricoMedicoUpdateCommand = validatorHistoricoMedicoUpdateCommand;
             _historicoMedicoRepository = historicoMedicoRepository;
         }
 
         public async Task<HistoricoMedico> Handle(HistoricoMedicoUpdateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorHistoricoMedicoUpdateCommand.ValidateAndThrowAsync(request);
+
             var historicoMedicoFound = await _historicoMedicoRepository.GetHistoricoById(request.Id);
 
             historicoMedicoFound = historicoMedicoFound ??

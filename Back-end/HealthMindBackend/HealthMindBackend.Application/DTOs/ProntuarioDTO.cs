@@ -18,6 +18,7 @@ namespace HealthMindBackend.Application.DTOs
         public String Descricao { get; set; }
         public DateTime? DataAbertura { get; set; }
         public StatusProntuarioEnum StatusProntuario { get; set; }
+        public ContatoEmergenciaDTO? ContatoEmergenciaDTO { get; set; }
         public List<MedicamentoDTO>? MedicamentosDTO { get; set; }
     }
 }

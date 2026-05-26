@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.ValueObjects.Saude;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,7 +15,7 @@ namespace HealthMindBackend.Application.Diagnosticos.Commands
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }
         public String Descricao { get; set; }
-        public String Cid { get; set; }
+        public Cid Cid { get; set; }
         public DateTime DataDiagnostico { get; set; }
         public StatusDiagnosticoEnum StatusDiagnostico { get; set; }
         public String Observacoes { get; set; }

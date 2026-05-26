@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Medicamentos.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Medicamentos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,15 +13,19 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
 {
     public class MedicamentoCreateCommandHandler : IRequestHandler<MedicamentoCreateCommand, Medicamento>
     {
+        private readonly IValidator<MedicamentoCreateCommand> _validatorMedicamentoCreateCommand;
         private readonly IProntuarioRepository _prontuarioRepository;
 
-        public MedicamentoCreateCommandHandler(IProntuarioRepository prontuarioRepository)
+        public MedicamentoCreateCommandHandler(IValidator<MedicamentoCreateCommand> validatorMedicamentoCreateCommand, IProntuarioRepository prontuarioRepository)
         {
+            _validatorMedicamentoCreateCommand = validatorMedicamentoCreateCommand;
             _prontuarioRepository = prontuarioRepository;
         }
 
         public async Task<Medicamento> Handle(MedicamentoCreateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorMedicamentoCreateCommand.ValidateAndThrowAsync(request);
+
             var medicamento = new Medicamento(request.Nome, request.Dosagem, request.Frequencia)
             {
                 ProntuarioId = request.ProntuarioId

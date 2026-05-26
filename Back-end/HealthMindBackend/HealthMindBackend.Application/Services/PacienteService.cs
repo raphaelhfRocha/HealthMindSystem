@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Pacientes.Commands;
@@ -25,8 +26,8 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AtualizarPaciente(PacienteDTO pacienteDto)
         {
-            var pacienteUpdareCommand = _mapper.Map<PacienteUpdateCommand>(pacienteDto);
-            await _mediator.Send(pacienteUpdareCommand);
+            var pacienteUpdateCommand = _mapper.Map<PacienteUpdateCommand>(pacienteDto);
+            await _mediator.Send(pacienteUpdateCommand);
         }
 
         public async Task CadastrarPaciente(PacienteDTO pacienteDto)

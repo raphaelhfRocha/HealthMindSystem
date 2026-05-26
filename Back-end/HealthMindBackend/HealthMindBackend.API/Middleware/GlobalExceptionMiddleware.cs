@@ -1,3 +1,4 @@
+using AutoMapper;
 using FluentValidation;
 using HealthMindBackend.Domain.Validations;
 
@@ -22,22 +23,42 @@ namespace HealthMindBackend.API.Middleware
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, "Erro de validação FluentValidation");
+                _logger.LogWarning(ex, "Erro de validaÃ§Ã£o FluentValidation");
                 await HandleFluentValidationException(context, ex);
             }
             catch (DomainExceptionValidation ex)
             {
-                _logger.LogWarning(ex, "Erro de validação de domínio");
+                _logger.LogWarning(ex, "Erro de validaÃ§Ã£o de domÃ­nio");
                 await HandleDomainException(context, ex);
+            }
+            catch (AutoMapperMappingException ex)
+            {
+                _logger.LogWarning(ex, "Erro de mapeamento");
+
+                var domainException = FindInnerException<DomainExceptionValidation>(ex);
+                if (domainException is not null)
+                {
+                    await HandleDomainException(context, domainException);
+                    return;
+                }
+
+                var validationException = FindInnerException<ValidationException>(ex);
+                if (validationException is not null)
+                {
+                    await HandleFluentValidationException(context, validationException);
+                    return;
+                }
+
+                await HandleUnexpectedException(context, ex);
             }
             catch (KeyNotFoundException ex)
             {
-                _logger.LogWarning(ex, "Recurso não encontrado");
+                _logger.LogWarning(ex, "Recurso nÃ£o encontrado");
                 await HandleNotFoundException(context, ex);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Erro não tratado");
+                _logger.LogError(ex, "Erro nÃ£o tratado");
                 await HandleUnexpectedException(context, ex);
             }
         }
@@ -49,7 +70,7 @@ namespace HealthMindBackend.API.Middleware
 
             var response = new
             {
-                error = "Falha na validação dos dados enviados",
+                error = "Falha na validaÃ§Ã£o dos dados enviados",
                 code = "VALIDATION_ERROR",
                 details = ex.Errors
                     .Where(failure => failure is not null)
@@ -88,6 +109,22 @@ namespace HealthMindBackend.API.Middleware
 
             var response = new { error = "Erro interno do servidor", code = "INTERN_ERROR" };
             return context.Response.WriteAsJsonAsync(response);
+        }
+
+        private static TException? FindInnerException<TException>(Exception ex)
+            where TException : Exception
+        {
+            var current = ex;
+
+            while (current is not null)
+            {
+                if (current is TException typedException)
+                    return typedException;
+
+                current = current.InnerException;
+            }
+
+            return null;
         }
     }
 }

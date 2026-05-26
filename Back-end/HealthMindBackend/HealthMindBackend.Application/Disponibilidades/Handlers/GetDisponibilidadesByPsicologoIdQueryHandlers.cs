@@ -1,6 +1,6 @@
 ﻿using HealthMindBackend.Application.Disponibilidades.Queries;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using MediatR;
 using System;
 using System.Collections.Generic;

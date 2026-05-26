@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+using AutoMapper;
+using FluentValidation;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Recepcionistas.Commands;

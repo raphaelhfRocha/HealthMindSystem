@@ -1,6 +1,8 @@
-﻿using HealthMindBackend.Application.Sessoes.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,30 +14,28 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
 {
     public class SessaoCreateCommandHandler : IRequestHandler<SessaoCreateCommand, Sessao>
     {
+        private readonly IValidator<SessaoCreateCommand> _validatorSessaoCreateCommand;
         private readonly ISessaoRepository _sessaoRepository;
 
-        public SessaoCreateCommandHandler(ISessaoRepository sessaoRepository)
+        public SessaoCreateCommandHandler(IValidator<SessaoCreateCommand> validatorSessaoCreateCommand, ISessaoRepository sessaoRepository)
         {
+            _validatorSessaoCreateCommand = validatorSessaoCreateCommand;
             _sessaoRepository = sessaoRepository;
         }
 
         public async Task<Sessao> Handle(SessaoCreateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorSessaoCreateCommand.ValidateAndThrowAsync(request);
+
             var sessao = new Sessao(request.PacienteId, request.PsicologoId, request.DataSessao,
                 request.HoraInicio, request.Observacoes, request.StatusTipoAtendimento, request.StatusSessao);
-
-            if (sessao == null)
-                throw new ArgumentNullException(nameof(sessao));
-
             
             var result = await _sessaoRepository.AgendarSessao(sessao);
 
-            request.PagamentoDTO.SessaoId = result.Id;
-
-            var pagamento = new Pagamento(request.PagamentoDTO.SessaoId, request.PagamentoDTO.Valor,
-                request.PagamentoDTO.DataPagamento, request.PagamentoDTO.FormaPagamento,
-                request.PagamentoDTO.StatusPagamento, request.PagamentoDTO.StatusParcelado,
-                request.PagamentoDTO.TotalParcelas);
+            var pagamento = new Pagamento(result.Id, request.Pagamento.Valor,
+                request.Pagamento.DataPagamento, request.Pagamento.FormaPagamento,
+                request.Pagamento.StatusPagamento, request.Pagamento.StatusParcelado,
+                request.Pagamento.TotalParcelas);
 
             var pagamentoDefinido = pagamento != null 
                 ? await _sessaoRepository.DefinirPagamento(result.Id, pagamento)

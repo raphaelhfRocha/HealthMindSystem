@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -42,7 +43,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public async Task<Paciente> GetPacienteByCpfCnpj(String cpfCnpj)
         {
-            return await _collection.Find(p => p.CpfCnpj == cpfCnpj).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.CpfCnpj.Numero == cpfCnpj).FirstOrDefaultAsync();
         }
 
         public Task<Paciente> GetPacienteByEmail(String email)
@@ -53,6 +54,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<Paciente> GetPacienteById(String pacienteId)
         {
             return await _collection.Find(p => p.Id == pacienteId).FirstOrDefaultAsync();
+        }
+
+        public Task<Paciente> GetPacienteByTelefone(String telefone)
+        {
+            return _collection.Find(p => p.Telefone.Numero == telefone).FirstOrDefaultAsync();
         }
 
         public async Task<List<Paciente>> GetPacientesByPsicologoId(String? psicologoId)

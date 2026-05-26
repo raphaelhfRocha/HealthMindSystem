@@ -1,6 +1,7 @@
-﻿using HealthMindBackend.Application.Pagamentos.Commands;
-using HealthMindBackend.Domain.Entities;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Pagamentos.Commands;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,15 +13,19 @@ namespace HealthMindBackend.Application.Pagamentos.Handlers
 {
     public class PagamentoUpdateCommandHandler : IRequestHandler<PagamentoUpdateCommand, Pagamento>
     {
+        private readonly IValidator<PagamentoUpdateCommand> _validatorPagamentoUpdateCommand;
         private readonly ISessaoRepository _sessaoRepository;
 
-        public PagamentoUpdateCommandHandler(ISessaoRepository sessaoRepository)
+        public PagamentoUpdateCommandHandler(IValidator<PagamentoUpdateCommand> validatorPagamentoUpdateCommand, ISessaoRepository sessaoRepository)
         {
+            _validatorPagamentoUpdateCommand = validatorPagamentoUpdateCommand;
             _sessaoRepository = sessaoRepository;            
         }
 
         public async Task<Pagamento> Handle(PagamentoUpdateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorPagamentoUpdateCommand.ValidateAndThrowAsync(request);
+
             var sessaoPagamentoFound = await _sessaoRepository.GetSessaoById(request.SessaoId);
 
             if (sessaoPagamentoFound == null)

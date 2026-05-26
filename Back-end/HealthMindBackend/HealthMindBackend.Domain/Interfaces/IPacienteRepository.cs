@@ -11,8 +11,9 @@ namespace HealthMindBackend.Domain.Interfaces
     {
         Task<IEnumerable<Paciente>> GetAllPacientes();
         Task<Paciente> GetPacienteById(String pacienteId);
-        Task<Paciente> GetPacienteByCpfCnpj(String cpfCnpj);
         Task<Paciente> GetPacienteByEmail(String email);
+        Task<Paciente> GetPacienteByCpfCnpj(String cpfCnpj);
+        Task<Paciente> GetPacienteByTelefone(String telefone);
         Task<List<Paciente>> GetPacientesByPsicologoId(String? psicologoId);
         Task<Paciente> CadastrarPaciente(Paciente paciente);
         Task<Paciente> EditarPaciente(String id, Paciente paciente);

@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Psicologos.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Psicologos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,21 +13,22 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
 {
     public class PsicologoCreateCommandHandler : IRequestHandler<PsicologoCreateCommand, Psicologo>
     {
+        private readonly IValidator<PsicologoCreateCommand> _validatorPsicologoCreateCommand;
         private readonly IPsicologoRepository _psicologoRepository;
 
-        public PsicologoCreateCommandHandler(IPsicologoRepository psicologoRepository)
+        public PsicologoCreateCommandHandler(IValidator<PsicologoCreateCommand> validatorPsicologoCreateCommand, IPsicologoRepository psicologoRepository)
         {
+            _validatorPsicologoCreateCommand = validatorPsicologoCreateCommand;
             _psicologoRepository = psicologoRepository;
         }
 
         public async Task<Psicologo> Handle(PsicologoCreateCommand request, CancellationToken cancellationToken)
         {
+            _validatorPsicologoCreateCommand.ValidateAndThrow(request);
+
             var psicologo = new Psicologo(request.Nome, request.Email, request.Senha,
                 request.StatusCargo, request.StatusRole, request.CpfCnpj,
                 request.Crp, request.Especialidade);
-
-            if (psicologo == null)
-                throw new ArgumentNullException(nameof(psicologo));
 
             return await _psicologoRepository.CadastrarPsicologo(psicologo);
         }

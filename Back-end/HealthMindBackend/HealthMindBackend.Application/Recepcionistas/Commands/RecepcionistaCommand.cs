@@ -1,6 +1,8 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.ValueObjects;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -13,9 +15,9 @@ namespace HealthMindBackend.Application.Recepcionistas
     public abstract class RecepcionistaCommand : IRequest<Recepcionista>
     {
         public String Nome { get; set; }
-        public String Email { get; set; }
+        public Email Email { get; set; }
         public String Senha { get; set; }
-        public String CpfCnpj { get; set; }
+        public CpfCnpj CpfCnpj { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }
         public StatusRoleEnum StatusRole { get; set; }
     }

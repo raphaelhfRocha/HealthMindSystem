@@ -6,12 +6,18 @@ using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.Medicamentos.Commands;
 using HealthMindBackend.Application.Pacientes.Commands;
 using HealthMindBackend.Application.Pagamentos.Commands;
+using HealthMindBackend.Application.PlanosSaude.Commands;
 using HealthMindBackend.Application.Progressoes.Commands;
 using HealthMindBackend.Application.Prontuarios.Commands;
 using HealthMindBackend.Application.Psicologos.Commands;
 using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
+using HealthMindBackend.Domain.ValueObjects.Saude;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,41 +30,171 @@ namespace HealthMindBackend.Application.Mappings
     {
         public DTOToCommandsMappingsProfile()
         {
-            CreateMap<PacienteDTO, PacienteCreateCommand>();
-            CreateMap<PacienteDTO, PacienteUpdateCommand>();
-            CreateMap<PsicologoDTO, PsicologoCreateCommand>();
+            CreateMap<PacienteDTO, PacienteCreateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Telefone,
+                    opt => opt.MapFrom(src => new Telefone(src.Telefone))
+                )
+                .ForMember(
+                    dest => dest.PlanoSaudePaciente,
+                    opt => opt.MapFrom(src => src.PlanoSaudePacienteDTO)
+                );
+            CreateMap<PacienteDTO, PacienteUpdateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Telefone,
+                    opt => opt.MapFrom(src => new Telefone(src.Telefone))
+                )
+                .ForMember(
+                    dest => dest.PlanoSaudePaciente,
+                    opt => opt.MapFrom(src => src.PlanoSaudePacienteDTO)
+                );
+            CreateMap<PsicologoDTO, PsicologoCreateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Crp,
+                    opt => opt.MapFrom(src => new Crp(src.Crp))
+                );
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>()
-                .ForMember(dest => dest.Disponibilidades, opt => opt
-                .MapFrom(src => src.DisponibilidadesDTO));
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Crp,
+                    opt => opt.MapFrom(src => new Crp(src.Crp))
+                )
+                .ForMember(
+                    dest => dest.Disponibilidades, 
+                    opt => opt.MapFrom(src => src.DisponibilidadesDTO)
+                );
             CreateMap<DisponibilidadeDTO, Disponibilidade>()
                 .ConstructUsing(src => new Disponibilidade(src.DataDisponibilidade, src.HoraInicio, src.StatusDisponibilidade))
-                .ForMember(dest => dest.PsicologoId, opt => opt.MapFrom(src => src.PsicologoId));
+                .ForMember(
+                    dest => dest.PsicologoId,
+                    opt => opt.MapFrom(src => src.PsicologoId)
+                );
             CreateMap<ProntuarioDTO, ProntuarioCreateCommand>()
-                .ForMember(dest => dest.Medicamentos, opt => opt
-                .MapFrom(src => src.MedicamentosDTO));
+                .ForMember(
+                    dest => dest.ContatoEmergencia,
+                    opt => opt.MapFrom(src => src.ContatoEmergenciaDTO)
+                )
+                .ForMember(
+                    dest => dest.Medicamentos,
+                    opt => opt.MapFrom(src => src.MedicamentosDTO)
+                );
             CreateMap<ProntuarioDTO, ProntuarioUpdateCommand>()
-                .ForMember(dest => dest.Medicamentos, opt => opt
-                .MapFrom(src => src.MedicamentosDTO));
+                .ForMember(
+                    dest => dest.ContatoEmergencia,
+                    opt => opt.MapFrom(src => src.ContatoEmergenciaDTO)
+                )
+                .ForMember(
+                    dest => dest.Medicamentos, 
+                    opt => opt.MapFrom(src => src.MedicamentosDTO)
+                );
             CreateMap<MedicamentoDTO, Medicamento>()
                 .ConstructUsing(src => new Medicamento(src.Nome, src.Dosagem, src.Frequencia))
-                .ForMember(dest => dest.ProntuarioId, opt => opt.MapFrom(src => src.ProntuarioId));
+                .ForMember(
+                    dest => dest.ProntuarioId,
+                    opt => opt.MapFrom(src => src.ProntuarioId)
+                );
             CreateMap<MedicamentoDTO, MedicamentoCreateCommand>();
             CreateMap<MedicamentoDTO, MedicamentoUpdateCommand>();
             CreateMap<SessaoDTO, SessaoCreateCommand>()
-    .ForMember(dest => dest.PagamentoDTO,
-        opt => opt.MapFrom(src => src.PagamentoDTO));
+                .ForMember(
+                    dest => dest.Pagamento,
+                    opt => opt.MapFrom(src => src.PagamentoDTO)
+                );
             CreateMap<SessaoDTO, SessaoUpdateCommand>()
-                .ForMember(dest => dest.PagamentoDTO,
-                    opt => opt.MapFrom(src => src.PagamentoDTO));
+                .ForMember(
+                    dest => dest.Pagamento,
+                    opt => opt.MapFrom(src => src.PagamentoDTO)
+                );
             CreateMap<PagamentoDTO, PagamentoUpdateCommand>();
-            CreateMap<DiagnosticoDTO, DiagnosticoCreateCommand>();
-            CreateMap<DiagnosticoDTO, DiagnosticoUpdateCommand>();
+            CreateMap<DiagnosticoDTO, DiagnosticoCreateCommand>()
+                .ForMember(
+                    dest => dest.Cid,
+                    opt => opt.MapFrom(src => new Cid(src.Cid))
+                );
+            CreateMap<DiagnosticoDTO, DiagnosticoUpdateCommand>()
+                .ForMember(
+                    dest => dest.Cid,
+                    opt => opt.MapFrom(src => new Cid(src.Cid))
+                );
             CreateMap<HistoricoMedicoDTO, HistoricoMedicoCreateCommand>();
             CreateMap<HistoricoMedicoDTO, HistoricoMedicoUpdateCommand>();
             CreateMap<ProgressaoDTO, ProgressaoCreateCommand>();
-            CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>();
-            CreateMap<RecepcionistaDTO, RecepcionistaUpdateCommand>();
+            CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                );
+            CreateMap<RecepcionistaDTO, RecepcionistaUpdateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                );
             CreateMap<DisponibilidadeDTO, DisponibilidadeCreateCommand>();
+            CreateMap<PlanoSaudeDTO, PlanoSaudeCreateCommand>()
+                .ForMember(
+                    dest => dest.Telefone,
+                    opt => opt.MapFrom(src => new Telefone(src.Telefone))
+                )
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CoberturaPlano,
+                    opt => opt.MapFrom(src => src.CoberturaPlanoDTO)
+                );
+            CreateMap<PlanoSaudeDTO, PlanoSaudeUpdateCommand>()
+                .ForMember(
+                    dest => dest.Telefone,
+                    opt => opt.MapFrom(src => new Telefone(src.Telefone))
+                )
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CoberturaPlano,
+                    opt => opt.MapFrom(src => src.CoberturaPlanoDTO)
+                );
         }
     }
 }

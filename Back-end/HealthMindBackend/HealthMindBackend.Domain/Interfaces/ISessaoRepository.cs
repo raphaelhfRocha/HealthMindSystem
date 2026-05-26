@@ -1,4 +1,5 @@
 ﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using System;
 using System.Collections.Generic;
 using System.Linq;
