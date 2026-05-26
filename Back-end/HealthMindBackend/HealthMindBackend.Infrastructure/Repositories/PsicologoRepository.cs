@@ -101,7 +101,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public async Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj)
         {
-            return await _collection.Find(p => p.CpfCnpj == cpfCnpj).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.CpfCnpj.Numero == cpfCnpj).FirstOrDefaultAsync();
         }
 
         public async Task<Psicologo> GetPsicologoByCrp(String crp)
