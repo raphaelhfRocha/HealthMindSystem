@@ -43,6 +43,20 @@ namespace HealthMindBackend.Application.Services
             return _mapper.Map<IEnumerable<PacienteDTO>>(result);
         }
 
+        public async Task<PacienteDTO> GetPacienteById(String id)
+        {
+            var getPacienteByIdQuery = new GetPacienteByIdQuery(id);
+            var result = await _mediator.Send(getPacienteByIdQuery);
+            return _mapper.Map<PacienteDTO>(result);
+        }
+
+        public async Task<List<PacienteDTO>> GetPacientesByNome(String nome)
+        {
+            var getPacientesByNomeQuery = new GetPacientesByNomeQuery(nome);
+            var result = await _mediator.Send(getPacientesByNomeQuery);
+            return _mapper.Map<List<PacienteDTO>>(result);
+        }
+
         public async Task<List<PacienteDTO>> GetPacientesByPsicologoId(String? psicologoId)
         {
             var getPacientesByPsicologoIdQuery = new GetPacientesByPsicologoIdQuery(psicologoId);

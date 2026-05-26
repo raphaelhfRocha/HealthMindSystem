@@ -10,6 +10,7 @@ namespace HealthMindBackend.Domain.Interfaces
     public interface IPacienteRepository
     {
         Task<IEnumerable<Paciente>> GetAllPacientes();
+        Task<List<Paciente>> GetPacientesByNome(String nome);
         Task<Paciente> GetPacienteById(String pacienteId);
         Task<Paciente> GetPacienteByEmail(String email);
         Task<Paciente> GetPacienteByCpfCnpj(String cpfCnpj);

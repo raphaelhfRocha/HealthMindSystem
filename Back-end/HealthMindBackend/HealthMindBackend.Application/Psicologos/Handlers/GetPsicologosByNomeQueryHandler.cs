@@ -21,11 +21,9 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
 
         public async Task<List<Psicologo>> Handle(GetPsicologosByNomeQuery request, CancellationToken cancellationToken)
         {
-            var psicologoFound = await _psicologoRepository.GetPsicologosByNome(request.Nome);
+            var psicologosFound = await _psicologoRepository.GetPsicologosByNome(request.Nome);
 
-            psicologoFound = psicologoFound ?? throw new KeyNotFoundException("Psicólogo não encontrado");
-
-            return psicologoFound;
+            return psicologosFound ?? throw new KeyNotFoundException("Psicologos não encontrados");
         }
     }
 }

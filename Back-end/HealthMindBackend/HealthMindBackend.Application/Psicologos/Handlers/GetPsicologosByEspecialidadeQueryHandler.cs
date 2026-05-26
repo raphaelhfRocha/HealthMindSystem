@@ -13,18 +13,17 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
     public class GetPsicologosByEspecialidadeQueryHandler : IRequestHandler<GetPsicologosByEspecialidadeQuery, List<Psicologo>>
     {
         private readonly IPsicologoRepository _psicologoRepository;
+
         public GetPsicologosByEspecialidadeQueryHandler(IPsicologoRepository psicologoRepository)
         {
-            _psicologoRepository = psicologoRepository;           
+            _psicologoRepository = psicologoRepository;
         }
 
         public async Task<List<Psicologo>> Handle(GetPsicologosByEspecialidadeQuery request, CancellationToken cancellationToken)
         {
             var psicologosFound = await _psicologoRepository.GetPsicologosByEspecialidade(request.Especialidade);
 
-            psicologosFound = psicologosFound ?? throw new KeyNotFoundException("Psicólogos não encontrados");
-
-            return psicologosFound;
+            return psicologosFound ?? throw new KeyNotFoundException("Psicólogos não encontrados");
         }
     }
 }

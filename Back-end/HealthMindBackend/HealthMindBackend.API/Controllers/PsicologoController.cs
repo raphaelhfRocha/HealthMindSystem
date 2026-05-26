@@ -43,6 +43,74 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
+        /// Lista de psicólogos por nome
+        /// </summary>
+        /// <response code="200">Psicólogos encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Psicólogos não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de Psicólogos por nome**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Nome do psicólogo registrado no campo do parâmetro nome**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Psicologo/nome/{nome}**
+        /// </remarks>
+        /// <param name="nome">
+        /// Nome
+        /// </param>
+        [HttpGet("nome/{nome}")]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPsicologosByNome(String nome)
+        {
+            if (nome == null)
+                return BadRequest(nameof(nome));
+
+            return Ok(await _psicologoService.GetPsicologosByNome(nome));
+        }
+
+        /// <summary>
+        /// Lista de psicólogos por especialidade
+        /// </summary>
+        /// <response code="200">Psicólogos encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Psicólogos não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de Psicólogos por especialidade**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite a Especialidade do psicólogo registrado no campo do parâmetro especialidade**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Psicologo/especialidade/{especialidade}**
+        /// </remarks>
+        /// <param name="especialidade">
+        /// Especialidade
+        /// </param>
+        [HttpGet("especialidade/{especialidade}")]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPsicologosByEspecialidade(String especialidade)
+        {
+            if (especialidade == null)
+                return BadRequest(nameof(especialidade));
+
+            return Ok(await _psicologoService.GetPsicologosByEspecialidade(especialidade));
+        }
+
+        /// <summary>
         /// Lista de disponbilidades por Id psicólogo
         /// </summary>
         /// <response code="200">Disponibilidades encontradas</response>
@@ -65,6 +133,7 @@ namespace HealthMindBackend.API.Controllers
         /// </param>
         [HttpGet("{psicologoId}/disponibilidades")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDisponibilidadesByPsicologoId(String psicologoId)

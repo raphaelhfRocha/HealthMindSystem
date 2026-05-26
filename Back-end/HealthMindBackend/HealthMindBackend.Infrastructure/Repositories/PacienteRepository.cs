@@ -56,6 +56,11 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(p => p.Id == pacienteId).FirstOrDefaultAsync();
         }
 
+        public async Task<List<Paciente>> GetPacientesByNome(String nome)
+        {
+            return await _collection.Find(p => p.Nome == nome).ToListAsync();
+        }
+
         public Task<Paciente> GetPacienteByTelefone(String telefone)
         {
             return _collection.Find(p => p.Telefone.Numero == telefone).FirstOrDefaultAsync();

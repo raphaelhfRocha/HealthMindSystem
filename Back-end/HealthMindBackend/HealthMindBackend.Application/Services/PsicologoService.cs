@@ -19,7 +19,6 @@ namespace HealthMindBackend.Application.Services
     {
         private readonly IMapper _mapper;
         private readonly IMediator _mediator;
-        private readonly IValidator<PsicologoDTO> _psicologoDtoValidator;
 
         public PsicologoService(IMapper mapper, IMediator mediator)
         {
@@ -70,7 +69,7 @@ namespace HealthMindBackend.Application.Services
             var result = await _mediator.Send(getDisponibilidadesByPsicologoIdQuery);
             return _mapper.Map<List<DisponibilidadeDTO>>(result);
         }
-
+ 
         public async Task<List<PsicologoDTO>> GetPsicologosByNome(String nome)
         {
             var getPsicologoByNomeQuery = new GetPsicologosByNomeQuery(nome);

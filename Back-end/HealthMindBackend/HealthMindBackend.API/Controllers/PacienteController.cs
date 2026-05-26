@@ -43,6 +43,73 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
+        /// Obter paciente por Id
+        /// </summary>
+        /// <response code="200">Paciente encontrado</response>
+        /// <response code="400">Dados inválido</response>
+        /// <response code="404">Paciente não encontrado</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a obter paciente por Id**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do paciente registrado no campo do parâmetro Id**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Paciente/{id}**
+        /// </remarks>
+        /// <param name="id">
+        /// ID Paciente
+        /// </param>
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPacienteById(String id)
+        {
+            if (id == null)
+                return BadRequest(nameof(id));
+
+            return Ok(await _pacienteService.GetPacienteById(id));
+        }
+
+        /// <summary>
+        /// Lista de pacientes por Nome
+        /// </summary>
+        /// <response code="200">Pacientes encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Pacientes não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de pacientes por Nome**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o nome dos pacientes registrados no campo do parâmetro nome**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Paciente/nome/{nome}**
+        /// </remarks>
+        /// <param name="nome">
+        /// Nome paciente
+        /// </param>
+        [HttpGet("nome/{nome}")]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPacientesByNome(String nome)
+        {
+            if (nome == null)
+                return BadRequest(nameof(nome));
+
+            return Ok(await _pacienteService.GetPacientesByNome(nome));
+        }
+        /// <summary>
         /// Lista de pacientes por Id Psicologo
         /// </summary>
         /// <response code="200">Pacientes encontrados</response>
