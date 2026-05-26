@@ -1,5 +1,6 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -16,6 +17,7 @@ namespace HealthMindBackend.Domain.Entities
         public String Descricao { get; private set; }
         public DateTime DataAbertura { get; private set; }
         public StatusProntuarioEnum StatusProntuario { get; private set; }
+        public ContatoEmergencia? ContatoEmergencia { get; private set; }
         public List<Medicamento>? Medicamentos { get; private set; }
 
         public Prontuario()

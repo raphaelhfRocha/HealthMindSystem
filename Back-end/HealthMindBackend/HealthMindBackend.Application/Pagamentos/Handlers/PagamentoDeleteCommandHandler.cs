@@ -1,6 +1,6 @@
 ﻿using HealthMindBackend.Application.Pagamentos.Commands;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;

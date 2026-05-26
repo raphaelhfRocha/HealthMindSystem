@@ -1,6 +1,8 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -22,32 +24,33 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public Usuario(String id, String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj) : base(id, nome, email, cpfCnpj)
+        public Usuario(String id, String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(id, nome, email, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
-            ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
+            ValidateUserDomain(nome, senha, statusCargo, statusRole);
+            CpfCnpj = cpfCnpj;
+            Email = email;
         }
 
-        public Usuario(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
+        public Usuario(String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
         {
-            ValidateUserDomain(nome, email, senha, statusCargo, statusRole, cpfCnpj);
+            ValidateUserDomain(nome, senha, statusCargo, statusRole);
+            Email = email;
+            CpfCnpj = cpfCnpj;
         }
 
-        protected void ValidateUserDomain(String nome, String email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, String cpfCnpj)
+        protected void ValidateUserDomain(String nome, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(nome), "Nome está vazio.");
             DomainExceptionValidation.Validate(nome.Length < 8, "Nome do usuário deverá ter no mínimo 8 caracteres.");
             DomainExceptionValidation.Validate(nome.Length > 120, "Nome do usuário deverá ter no máximo 150 caracteres.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(email), "O e-mail está vazio.");
             DomainExceptionValidation.Validate(statusRole == StatusRoleEnum.StsNone, "Role inválida");
             DomainExceptionValidation.Validate(statusCargo == StatusCargoEnum.StsNone, "Cargo inválido");
 
             Nome = nome;
-            Email = email;
             Senha = senha;
             StatusCargo = statusCargo;
             StatusRole = statusRole;
-            CpfCnpj = cpfCnpj;
         }
     }
 }

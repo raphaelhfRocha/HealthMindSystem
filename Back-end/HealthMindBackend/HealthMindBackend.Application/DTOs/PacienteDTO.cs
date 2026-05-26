@@ -1,6 +1,4 @@
-﻿using HealthMindBackend.Domain.Entities;
-using HealthMindBackend.Domain.ValueObjects;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -19,8 +17,10 @@ namespace HealthMindBackend.Application.DTOs
         public String Email { get; set; }
         [Required(ErrorMessage = "CPF/CNPJ paciente obrigatório")]
         public String CpfCnpj { get; set; }
+        public String Telefone { get; set; }
         [Required(ErrorMessage = "Data de nascimento obrigatória")]
         public DateTime DataNascimento { get; set; }
+        public PlanoSaudePacienteDTO? PlanoSaudePacienteDTO { get; set; }
         public String PsicologoId { get; set; }
     }
 }

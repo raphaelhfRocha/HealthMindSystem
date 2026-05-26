@@ -11,6 +11,8 @@ namespace HealthMindBackend.Application.Interfaces
     {
         Task<IEnumerable<PsicologoDTO>> GetAllPsicologos();
         Task<List<DisponibilidadeDTO>> GetDisponibilidadesByPsicologoId(String psicologoId);
+        Task<List<PsicologoDTO>> GetPsicologosByNome(String nome);
+        Task<List<PsicologoDTO>> GetPsicologosByEspecialidade(String especialidade);
         Task CadastrarPsicologo(PsicologoDTO psicologoDto);
         Task AtualizarPsicologo(PsicologoDTO psicologoDto);
         Task ExcluirPsicologo(String psicologoId);

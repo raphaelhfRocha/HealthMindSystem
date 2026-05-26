@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -97,9 +99,34 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return psicologo.Disponibilidades.ToList();
         }
 
+        public async Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj)
+        {
+            return await _collection.Find(p => p.CpfCnpj.Numero == cpfCnpj).FirstOrDefaultAsync();
+        }
+
+        public async Task<Psicologo> GetPsicologoByCrp(String crp)
+        {
+            return await _collection.Find(p => p.Crp.Numero == crp).FirstOrDefaultAsync();
+        }
+
+        public async Task<Psicologo> GetPsicologoByEmail(String email)
+        {
+            return await _collection.Find(p => p.Email.Endereco == email).FirstOrDefaultAsync();
+        }
+
         public async Task<Psicologo> GetPsicologoById(String psicologoId)
         {
             return await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByEspecialidade(String especialidade)
+        {
+            return await _collection.Find(p => p.Especialidade == especialidade).ToListAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByNome(String nome)
+        {
+            return await _collection.Find(p => p.Nome == nome).ToListAsync();
         }
     }
 }

@@ -1,5 +1,5 @@
-﻿using HealthMindBackend.Domain.Entities;
-using HealthMindBackend.Domain.Enums;
+﻿using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using MediatR;
 using System;
 using System.Collections.Generic;

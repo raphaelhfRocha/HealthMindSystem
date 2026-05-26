@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using HealthMindBackend.Infrastructure.Mappings.EnumMappings;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;

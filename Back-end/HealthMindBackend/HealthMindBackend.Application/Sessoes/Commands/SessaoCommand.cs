@@ -1,6 +1,7 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,6 @@ namespace HealthMindBackend.Application.Sessoes.Commands
         public String Observacoes { get; set; }
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }
-        public PagamentoDTO? PagamentoDTO { get; set; }
+        public Pagamento? Pagamento { get; set; }
     }
 }

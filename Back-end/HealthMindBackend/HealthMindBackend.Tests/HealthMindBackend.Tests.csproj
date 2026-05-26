@@ -23,12 +23,17 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Disponibilidades\Commands\" />
-    <Folder Include="HistoricosMedicos\Commands\" />
-    <Folder Include="Medicamentos\Commands\" />
-    <Folder Include="Pagamentos\Commands\" />
-    <Folder Include="Progressoes\Commands\" />
-    <Folder Include="Sessoes\Commands\" />
+    <Folder Include="Application\Disponibilidades\Commands\" />
+    <Folder Include="Application\HistoricosMedicos\Commands\" />
+    <Folder Include="Application\Medicamentos\Commands\" />
+    <Folder Include="Application\Services\" />
+    <Folder Include="Application\Pagamentos\Commands\" />
+    <Folder Include="Application\Progressoes\Commands\" />
+    <Folder Include="Application\Sessoes\Commands\" />
+    <Folder Include="Domain\ValueObjects\" />
+    <Folder Include="Domain\Validations\" />
+    <Folder Include="Infrastructure\Repositories\" />
+    <Folder Include="Shared\Fixtures\" />
   </ItemGroup>
 
   <ItemGroup>

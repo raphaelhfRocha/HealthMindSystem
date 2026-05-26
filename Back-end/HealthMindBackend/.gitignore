@@ -144,6 +144,10 @@ node_modules/
 npm-debug.log
 yarn-error.log
 
+# Docker files
+Dockerfile
+docker-compose.yml
+
 # Secrets and sensitive files
 *.pem
 *.key

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using HealthMindBackend.Application.Pacientes.Commands;
+using HealthMindBackend.Application.Validators.Common;
 using HealthMindBackend.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace HealthMindBackend.Application.Validators.Pacientes
                 .MinimumLength(8).WithMessage("Nome Paciente deve ter no mínimo 8 caracteres")
                 .MaximumLength(120).WithMessage("Nome Paciente deve ter no máximo 120 caracteres");
 
-            RuleFor(p => p.Email)
+            RuleFor(p => p.Email.Endereco)
                 .NotEmpty().WithMessage("E-mail Paciente Obrigatório")
                 .EmailAddress().WithMessage("E-mail Inválido")
                 .MustAsync(async (email, cancellationToken) =>
@@ -36,16 +37,25 @@ namespace HealthMindBackend.Application.Validators.Pacientes
             RuleFor(p => p.DataNascimento)
                 .NotEmpty().WithMessage("Data Nascimento Obrigatória");
 
-            RuleFor(p => p.CpfCnpj)
-                .NotEmpty().WithMessage("CPF/CNPJ paciente obrigatório")
-                .MinimumLength(11).WithMessage("CPF/CNPJ deve ter no mínimo 11 caracteres")
-                .MaximumLength(14).WithMessage("CPF/CNPJ deve ter no máximo 14 caracteres")
+            RuleFor(p => p.CpfCnpj.Numero)
+                .NotEmpty().WithMessage("CPF/CNPJ Paciente Obrigatório")
+                .Must(CpfCnpjValidationHelper.IsValid).WithMessage("CPF/CNPJ Inválido")
                 .MustAsync(async (cpfCnpj, cancellationToken) =>
                 {
                     var pacienteExistente = await _pacienteRepository.GetPacienteByCpfCnpj(cpfCnpj);
                     return pacienteExistente == null;
                 })
                 .WithMessage("CPF/CNPJ já cadastrado no sistema");
+
+            RuleFor(p => p.Telefone.Numero)
+                .NotEmpty().WithMessage("Telefone Paciente Obrigatório")
+                .Must(TelefoneValidationHelper.IsValid).WithMessage("Telefone Inválido")
+                .MustAsync(async (telefone, cancellationToken) =>
+                {
+                    var pacienteExistente = await _pacienteRepository.GetPacienteByTelefone(telefone);
+                    return pacienteExistente == null;
+                })
+                .WithMessage("Telefone já cadastrado no sistema");
 
             RuleFor(p => p.PsicologoId)
                 .NotEmpty().WithMessage("Psicólogo responsável deve ser atribuído")

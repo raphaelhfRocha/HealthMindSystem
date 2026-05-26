@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Infrastructure.Mappings.EnumMappings;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
@@ -13,7 +14,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class DiagnosticoRepository : IDiagnosticoRepository
     {
-        private const string SequenceName = "DIAGNOSTICO";
+        private const String SequenceName = "DIAGNOSTICO";
         private readonly IMongoCollection<Diagnostico> _collection;
         private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
