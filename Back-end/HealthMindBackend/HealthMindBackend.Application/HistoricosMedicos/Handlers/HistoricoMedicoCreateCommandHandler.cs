@@ -2,6 +2,8 @@
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
+using HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -26,12 +28,23 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
         {
             await _validatorHistoricoMedicoCreateCommand.ValidateAndThrowAsync(request);
 
-            var historicoMedico = new HistoricoMedico(request.PacienteId, request.ProntuarioId, request.Descricao, request.DataRegistro);
 
-            historicoMedico = historicoMedico ??
-                throw new ArgumentNullException(nameof(historicoMedico));
+            var historicoMedico = new HistoricoMedico(request.PacienteId, request.ProntuarioId,
+                request.RazaoAtendimento, request.ImpactoRazao, 
+                request.ExpectativaAtendimento,
+                request.DataRegistro, request.MetasTerapeuticas);
 
-            return await _historicoMedicoRepository.AdicionarHistoricoMedico(historicoMedico);
+            var historicoMedicoRegistrado = await _historicoMedicoRepository.AdicionarHistoricoMedico(historicoMedico);
+
+            var saudeMental = new SaudeMental(historicoMedicoRegistrado.Id, request.SaudeMentalCommand.DiagnosticoPrevio, request.SaudeMentalCommand.Acompanhamento, request.SaudeMentalCommand.StatusInternacao, request.SaudeMentalCommand.Antecentes);
+
+            var saudeMentalDefinida = saudeMental != null
+                ? await _historicoMedicoRepository.DefinirSaudeMental(historicoMedicoRegistrado.Id, saudeMental)
+                : null;
+
+            historicoMedicoRegistrado.SaudeMental = saudeMentalDefinida;
+
+            return historicoMedico;
         }
     }
 }

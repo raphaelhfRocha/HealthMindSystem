@@ -231,8 +231,6 @@ namespace HealthMindBackend.API.Controllers
         {
             if (psicologoId == null)
                 return BadRequest(nameof(psicologoId));
-            if (!ModelState.IsValid)
-                return BadRequest(nameof(psicologoDto));
 
             psicologoDto.Id = psicologoId;
             await _psicologoService.AtualizarPsicologo(psicologoDto);
@@ -273,7 +271,7 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> ExcluirMedicamento(String psicologoId, String disponibilidadeId)
+        public async Task<IActionResult> ExcluirDisponibilidade(String psicologoId, String disponibilidadeId)
         {
             if (psicologoId == null)
                 return BadRequest(nameof(psicologoId));

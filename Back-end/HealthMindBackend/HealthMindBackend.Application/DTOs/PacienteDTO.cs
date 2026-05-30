@@ -10,15 +10,10 @@ namespace HealthMindBackend.Application.DTOs
     public class PacienteDTO
     {
         public String? Id { get; set; }
-        [Required(ErrorMessage = "Nome paciente obrigatório")]
-
         public String Nome { get; set; }
-        [Required(ErrorMessage = "E-mail paciente obrigatório")]
         public String Email { get; set; }
-        [Required(ErrorMessage = "CPF/CNPJ paciente obrigatório")]
         public String CpfCnpj { get; set; }
         public String Telefone { get; set; }
-        [Required(ErrorMessage = "Data de nascimento obrigatória")]
         public DateTime DataNascimento { get; set; }
         public PlanoSaudePacienteDTO? PlanoSaudePacienteDTO { get; set; }
         public String PsicologoId { get; set; }

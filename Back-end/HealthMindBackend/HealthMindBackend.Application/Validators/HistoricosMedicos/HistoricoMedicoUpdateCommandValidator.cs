@@ -41,8 +41,8 @@ namespace HealthMindBackend.Application.Validators.HistoricosMedicos
                 })
                 .WithMessage("O Prontuario/Paciente não existe para registro do histórico médico");
 
-            RuleFor(h => h.Descricao)
-                .NotEmpty().WithMessage("Descrição obrigatória");
+            //RuleFor(h => h.Descricao)
+            //    .NotEmpty().WithMessage("Descrição obrigatória");
 
             RuleFor(h => h.DataRegistro)
                 .NotEmpty().WithMessage("Data Registro obrigatória");

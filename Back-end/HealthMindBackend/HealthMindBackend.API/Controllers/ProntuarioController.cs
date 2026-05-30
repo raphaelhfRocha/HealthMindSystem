@@ -198,7 +198,7 @@ namespace HealthMindBackend.API.Controllers
         /// **3. Em seguida clique no botão Execute**
         /// 
         /// </remarks>
-        [HttpDelete("{prontuarioId}")]
+        [HttpDelete("{prontuarioId}/medicamentos/{medicamentoId}")]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status404NotFound)]

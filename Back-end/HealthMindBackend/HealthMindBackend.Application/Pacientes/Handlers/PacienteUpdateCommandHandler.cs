@@ -2,6 +2,7 @@
 using HealthMindBackend.Application.Pacientes.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Convenios.PlanoSaudePaciente;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -29,9 +30,23 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
 
             pacienteFound = pacienteFound ?? throw new KeyNotFoundException("Paciente não encontrado");
 
-            pacienteFound.Update(request.Nome, request.Email, request.CpfCnpj, request.Telefone, request.PsicologoId, request.DataNascimento);
+            pacienteFound.Update(request.Nome, request.Email, request.CpfCnpj, request.Telefone, request.PsicologoId, request.DataNascimento, request.PlanoSaudePaciente);
 
-            return await _pacienteRepository.EditarPaciente(request.Id, pacienteFound);
+            var result = await _pacienteRepository.EditarPaciente(request.Id, pacienteFound);
+
+            var planoSaudePaciente = new PlanoSaudePaciente(
+                    result.Id, request.PlanoSaudePaciente.PlanoSaudeId,
+                    request.PlanoSaudePaciente.NumeroCarteirinha,
+                    request.PlanoSaudePaciente.DataValidade
+                );
+
+            var planoSaudePacienteDefinido = planoSaudePaciente != null
+                ? await _pacienteRepository.DefinirPlanoSaudePaciente(result.Id, planoSaudePaciente)
+                : null;
+
+            result.PlanoSaudePaciente = planoSaudePacienteDefinido;
+
+            return result;
         }
     }
 }

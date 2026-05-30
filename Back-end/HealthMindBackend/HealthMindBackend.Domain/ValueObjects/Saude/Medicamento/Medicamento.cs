@@ -1,4 +1,5 @@
 ﻿using HealthMindBackend.Domain.Validations;
+using HealthMindBackend.Domain.ValueObjects.Base;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -6,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HealthMindBackend.Domain.Entities
+namespace HealthMindBackend.Domain.ValueObjects.Saude.Medicamento
 {
     [BsonIgnoreExtraElements]
-    public class Medicamento
+    public class Medicamento : ValueObject
     {
         public String Id { get; private set; }
         public String ProntuarioId { get; set; }
@@ -43,6 +44,18 @@ namespace HealthMindBackend.Domain.Entities
         {
             DomainExceptionValidation.Validate(String.IsNullOrWhiteSpace(id), "Id inválido.");
             Id = id;
+        }
+
+        protected override IEnumerable<Object> GetEqualityComponents()
+        {
+            yield return new Object[]
+            {
+                Id,
+                ProntuarioId,
+                Nome,
+                Dosagem,
+                Frequencia
+            };
         }
     }
 }

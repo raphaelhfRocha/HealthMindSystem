@@ -14,13 +14,13 @@ namespace HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj
 
         public CpfCnpj(String numero)
         {
+            numero = RemoverMascara(numero);
 
             DomainExceptionValidation.Validate(
                 String.IsNullOrWhiteSpace(numero),
                 "CPF/CNPJ inválido."
             );
 
-            numero = RemoverMascara(numero);
 
             if (numero.Length == 11)
             {

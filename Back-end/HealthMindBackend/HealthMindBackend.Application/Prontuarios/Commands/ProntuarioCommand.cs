@@ -2,6 +2,7 @@
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HealthMindBackend.Domain.ValueObjects.Endereco
+namespace HealthMindBackend.Domain.ValueObjects.Local
 {
     public class Endereco : ValueObject
     {

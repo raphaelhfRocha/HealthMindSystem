@@ -80,13 +80,6 @@ namespace HealthMindBackend.Application.Services
         public async Task RegistrarProntuario(ProntuarioDTO prontuarioDto)
         {
             var prontuarioCreateCommand = _mapper.Map<ProntuarioCreateCommand>(prontuarioDto);
-            //try
-            //{
-            //    var json = JsonSerializer.Serialize(prontuarioCreateCommand, new JsonSerializerOptions { WriteIndented = true });
-            //    _logger?.LogInformation("Mapped ProntuarioCreateCommand: {json}", json);
-            //}
-            //catch {}
-
             await _mediator.Send(prontuarioCreateCommand);
         }
     }

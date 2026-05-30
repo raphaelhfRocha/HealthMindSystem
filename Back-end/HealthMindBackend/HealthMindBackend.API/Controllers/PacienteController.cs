@@ -130,7 +130,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
-        [HttpGet("psicologo/{psicologoId}")]
+        [HttpGet("psicologos/{psicologoId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]

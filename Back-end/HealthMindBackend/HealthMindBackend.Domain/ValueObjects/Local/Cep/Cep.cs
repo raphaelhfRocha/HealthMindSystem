@@ -2,7 +2,7 @@
 using HealthMindBackend.Domain.ValueObjects.Base;
 using System.Text.RegularExpressions;
 
-namespace HealthMindBackend.Domain.ValueObjects.Endereco
+namespace HealthMindBackend.Domain.ValueObjects.Local
 {
     public class Cep : ValueObject
     {

@@ -12,12 +12,14 @@ using HealthMindBackend.Application.Prontuarios.Commands;
 using HealthMindBackend.Application.Psicologos.Commands;
 using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Sessoes.Commands;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using HealthMindBackend.Domain.ValueObjects.Contato;
 using HealthMindBackend.Domain.ValueObjects.Documento;
 using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
+using HealthMindBackend.Domain.ValueObjects.Evolucao.MetasTerapeuticas;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.CoberturaPlano;
 using HealthMindBackend.Domain.ValueObjects.Saude;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -95,7 +97,10 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => src.DisponibilidadesDTO)
                 );
             CreateMap<DisponibilidadeDTO, Disponibilidade>()
-                .ConstructUsing(src => new Disponibilidade(src.DataDisponibilidade, src.HoraInicio, src.StatusDisponibilidade))
+                .ConstructUsing(
+                    src => new Disponibilidade(src.DataDisponibilidade,
+                    src.HoraInicio, src.StatusDisponibilidade)
+                )
                 .ForMember(
                     dest => dest.PsicologoId,
                     opt => opt.MapFrom(src => src.PsicologoId)
@@ -119,7 +124,9 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => src.MedicamentosDTO)
                 );
             CreateMap<MedicamentoDTO, Medicamento>()
-                .ConstructUsing(src => new Medicamento(src.Nome, src.Dosagem, src.Frequencia))
+                .ConstructUsing(
+                    src => new Medicamento(src.Nome, src.Dosagem, src.Frequencia)
+                )
                 .ForMember(
                     dest => dest.ProntuarioId,
                     opt => opt.MapFrom(src => src.ProntuarioId)
@@ -147,8 +154,33 @@ namespace HealthMindBackend.Application.Mappings
                     dest => dest.Cid,
                     opt => opt.MapFrom(src => new Cid(src.Cid))
                 );
-            CreateMap<HistoricoMedicoDTO, HistoricoMedicoCreateCommand>();
-            CreateMap<HistoricoMedicoDTO, HistoricoMedicoUpdateCommand>();
+            CreateMap<MetaTerapeuticaDTO, MetaTerapeutica>()
+                .ConstructUsing(
+                    src => new MetaTerapeutica(src.Titulo, src.StatusMetaTerapeutica,
+                    src.Observacoes)
+                )
+                .ForMember(
+                    dest => dest.HistoricoMedicoId,
+                    opt => opt.MapFrom(src => src.HistoricoMedicoId)
+                );
+            CreateMap<HistoricoMedicoDTO, HistoricoMedicoCreateCommand>()
+                .ForMember(
+                    dest => dest.SaudeMentalCommand,
+                    opt => opt.MapFrom(src => src.SaudeMentalDTO)
+                )
+                .ForMember(
+                    dest =>  dest.MetasTerapeuticas,
+                    opt => opt.MapFrom(src => src.MetasTerapeuticasDTO)
+                );
+            CreateMap<HistoricoMedicoDTO, HistoricoMedicoUpdateCommand>()
+                .ForMember(
+                    dest => dest.SaudeMentalCommand,
+                    opt => opt.MapFrom(src => src.SaudeMentalDTO)
+                )
+                .ForMember(
+                    dest => dest.MetasTerapeuticas,
+                    opt => opt.MapFrom(src => src.MetasTerapeuticasDTO)
+                );
             CreateMap<ProgressaoDTO, ProgressaoCreateCommand>();
             CreateMap<RecepcionistaDTO, RecepcionistaCreateCommand>()
                 .ForMember(
@@ -169,6 +201,11 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
                 );
             CreateMap<DisponibilidadeDTO, DisponibilidadeCreateCommand>();
+            CreateMap<CoberturaPlanoDTO, CoberturaPlano>()
+                .ConstructUsing(
+                    src => new CoberturaPlano(src.Especialidade, src.ValorMaximoCobertura,
+                    src.PercentualCobertura)
+                );
             CreateMap<PlanoSaudeDTO, PlanoSaudeCreateCommand>()
                 .ForMember(
                     dest => dest.Telefone,
@@ -179,8 +216,8 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => new Email(src.Email))
                 )
                 .ForMember(
-                    dest => dest.CoberturaPlano,
-                    opt => opt.MapFrom(src => src.CoberturaPlanoDTO)
+                    dest => dest.CoberturasPlano,
+                    opt => opt.MapFrom(src => src.CoberturasPlanoDTO)
                 );
             CreateMap<PlanoSaudeDTO, PlanoSaudeUpdateCommand>()
                 .ForMember(
@@ -192,8 +229,8 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => new Email(src.Email))
                 )
                 .ForMember(
-                    dest => dest.CoberturaPlano,
-                    opt => opt.MapFrom(src => src.CoberturaPlanoDTO)
+                    dest => dest.CoberturasPlano,
+                    opt => opt.MapFrom(src => src.CoberturasPlanoDTO)
                 );
         }
     }

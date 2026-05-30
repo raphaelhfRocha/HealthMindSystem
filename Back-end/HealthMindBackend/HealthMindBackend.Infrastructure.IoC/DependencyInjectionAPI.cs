@@ -75,6 +75,8 @@ namespace HealthMindBackend.Infrastructure.IoC
                 new StatusTipoAtendimentoEnumSerializer());
             BsonSerializer.TryRegisterSerializer(typeof(StatusPlanoSaudeEnum),
                 new StatusPlanoSaudeEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusMetaTerapeuticaEnum),
+                new StatusMetaTerapeuticaEnumSerializer());
 
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();

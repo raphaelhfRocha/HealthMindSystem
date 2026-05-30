@@ -8,6 +8,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class PlanoSaudePacienteDTO
     {
+        public String? PacienteId { get; set; }
         public String PlanoSaudeId { get; set; }
         public String NumeroCarteirinha { get; set; }
         public DateTime DataValidade { get; set; }

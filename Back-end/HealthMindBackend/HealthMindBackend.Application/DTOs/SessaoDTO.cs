@@ -24,5 +24,7 @@ namespace HealthMindBackend.Application.DTOs
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public PagamentoDTO? PagamentoDTO { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }
+        public List<RegistroSessaoDTO>? RegistrosSessoesDTO { get; set; }
+        public List<EscalaSessaoDTO>? EscalasSessoesDTO { get; set; }
     }
 }

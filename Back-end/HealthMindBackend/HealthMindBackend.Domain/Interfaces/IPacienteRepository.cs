@@ -1,4 +1,5 @@
 ﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Convenios.PlanoSaudePaciente;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,6 +18,7 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<Paciente> GetPacienteByTelefone(String telefone);
         Task<List<Paciente>> GetPacientesByPsicologoId(String? psicologoId);
         Task<Paciente> CadastrarPaciente(Paciente paciente);
+        Task<PlanoSaudePaciente> DefinirPlanoSaudePaciente(String pacienteId, PlanoSaudePaciente planoSaudePaciente);
         Task<Paciente> EditarPaciente(String id, Paciente paciente);
     }
 }

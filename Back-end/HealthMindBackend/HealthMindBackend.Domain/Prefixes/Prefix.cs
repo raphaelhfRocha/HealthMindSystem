@@ -8,17 +8,20 @@ namespace HealthMindBackend.Domain.Prefixes
 {
     public static class Prefix
     {
-        public const string Paciente = "PAC";
-        public const string Sessao = "SES";
-        public const string Psicologo = "PSI";
-        public const string Recepcionista = "REC";
-        public const string Usuario = "USR";
-        public const string Prontuario = "PRT";
-        public const string Diagnostico = "DIA";
-        public const string HistoricoMedico = "HIS";
-        public const string Progressao = "PRG";
-        public const string Medicamento = "MED";
-        public const string Disponibilidade = "DIS";
-        public const string PlanoSaude = "PLN";
+        public const String Paciente = "PAC";
+        public const String Sessao = "SES";
+        public const String Psicologo = "PSI";
+        public const String Recepcionista = "REC";
+        public const String Usuario = "USR";
+        public const String Prontuario = "PRT";
+        public const String Diagnostico = "DIA";
+        public const String HistoricoMedico = "HIS";
+        public const String Progressao = "PRG";
+        public const String Medicamento = "MED";
+        public const String Disponibilidade = "DIS";
+        public const String PlanoSaude = "PLN";
+        public const String RegistroSessao = "RGS";
+        public const String MetaTerapeutica = "MET";
+        public const String EscalaSessao = "ESC";
     }
 }

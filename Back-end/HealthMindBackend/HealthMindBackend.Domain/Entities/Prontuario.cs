@@ -1,6 +1,7 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;

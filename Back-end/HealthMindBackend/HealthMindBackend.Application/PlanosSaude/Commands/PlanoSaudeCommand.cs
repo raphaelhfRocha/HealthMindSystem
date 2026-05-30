@@ -18,6 +18,6 @@ namespace HealthMindBackend.Application.PlanosSaude.Commands
         public StatusPlanoSaudeEnum StatusPlanoSaude { get; set; } 
         public Telefone Telefone { get; set; }
         public Email Email { get; set; }
-        public CoberturaPlano CoberturaPlano { get; set; }
+        public ICollection<CoberturaPlano>? CoberturasPlano { get; set; }
     }
 }

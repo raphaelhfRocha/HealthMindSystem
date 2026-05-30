@@ -11,9 +11,15 @@ namespace HealthMindBackend.Application.Interfaces
     {
         Task<IEnumerable<SessaoDTO>> GetAllSessoes();
         Task<List<SessaoDTO>> GetSessoesByPsicologoId(String psicologoId);
+        Task<List<RegistroSessaoDTO>> GetRegistrosSessoesBySessaoId(String sessaoId);
+        Task<List<EscalaSessaoDTO>> GetEscalasSessoesBySessaoId(String sessaoId);
         Task<SessaoDTO> GetSessaoById(String sessaoId);
         Task<SessaoDTO> AgendarSessao(SessaoDTO sessaoDto);
+        Task AdicionarEscalaSessao(EscalaSessaoDTO escalaSessaoDto);
+        Task AdicionarRegistroSessao(RegistroSessaoDTO registroSessaoDto);
         Task AlterarSessao(SessaoDTO sessaoDto);
+        Task AlterarEscalaSessao(EscalaSessaoDTO escalaSessaoDto);
+        Task AlterarRegistroSessao(RegistroSessaoDTO registroSessaoDto);
         Task DefinirPagamento(PagamentoDTO pagamentoDto);
         Task ExcluirPagamento(String sessaoId);
     }

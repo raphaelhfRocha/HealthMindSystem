@@ -1,6 +1,8 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Convenios.PlanoSaudePaciente;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -48,7 +50,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public Task<Paciente> GetPacienteByEmail(String email)
         {
-            return _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
+            return _collection.Find(p => p.Email.Endereco == email).FirstOrDefaultAsync();
         }
 
         public async Task<Paciente> GetPacienteById(String pacienteId)
@@ -69,6 +71,19 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<List<Paciente>> GetPacientesByPsicologoId(String? psicologoId)
         {
             return await _collection.Find(p => p.PsicologoId == psicologoId).ToListAsync();
+        }
+
+        public async Task<PlanoSaudePaciente> DefinirPlanoSaudePaciente(String pacienteId, PlanoSaudePaciente planoSaudePaciente)
+        {
+            var update = Builders<Paciente>.Update
+                .Set(p => p.PlanoSaudePaciente, planoSaudePaciente);
+
+            await _collection.UpdateOneAsync(
+                p => p.Id == pacienteId,
+                update
+            );
+
+            return planoSaudePaciente;
         }
     }
 }

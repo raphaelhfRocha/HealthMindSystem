@@ -41,19 +41,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllSessoes()
         {
-            try
-            {
-                var result = await _sessaoService.GetAllSessoes();
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+            var result = await _sessaoService.GetAllSessoes();
+            return Ok(result);
         }
 
 
@@ -86,19 +75,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (psicologoId == null)
                 return BadRequest(nameof(psicologoId));
-            try
-            {
-                var result = await _sessaoService.GetSessoesByPsicologoId(psicologoId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            var result = await _sessaoService.GetSessoesByPsicologoId(psicologoId);
+            return Ok(result);
         }
 
         /// <summary>
@@ -130,19 +109,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (sessaoId == null)
                 return BadRequest(nameof(sessaoId));
-            try
-            {
-                var result = await _sessaoService.GetSessaoById(sessaoId);
-                return Ok(result);
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            var result = await _sessaoService.GetSessaoById(sessaoId);
+            return Ok(result);
         }
 
 
@@ -194,23 +163,38 @@ namespace HealthMindBackend.API.Controllers
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            try
-            {
-                var result = await _sessaoService.AgendarSessao(sessaoDto);
-                return CreatedAtAction(nameof(GetSessaoById),
-                    new { sessaoId = result.Id }, result);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            var result = await _sessaoService.AgendarSessao(sessaoDto);
+            return CreatedAtAction(nameof(GetSessaoById),
+                new { sessaoId = result.Id }, result);
         }
 
+        [HttpPost("{sessaoId}/registros-sessoes")]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AdicionarRegistroSessao(String sessaoId, [FromBody] RegistroSessaoDTO registroSessaoDto)
+        {
+            if (sessaoId == null)
+                return BadRequest(nameof(sessaoId));
 
+            registroSessaoDto.SessaoId = sessaoId;
+            await _sessaoService.AdicionarRegistroSessao(registroSessaoDto);
+            return Created($"/api/Sessao/{sessaoId}/registro-sessao", registroSessaoDto);
+        }
+        [HttpPost("{sessaoId}/escalas-sessoes")]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AdicionarEscalaSessao(String sessaoId, [FromBody] EscalaSessaoDTO escalaSessaoDto)
+        {
+            if (sessaoId == null)
+                return BadRequest(nameof(sessaoId));
+
+            escalaSessaoDto.SessaoId = sessaoId;
+            await _sessaoService.AdicionarEscalaSessao(escalaSessaoDto);
+            return Created($"/api/Sessao/{sessaoId}/escala-sessao", escalaSessaoDto);
+        }
         /// <summary>
         /// Alteração de Sessão
         /// </summary>
@@ -267,26 +251,47 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(sessaoId));
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
-            try
-            {
-                sessaoDto.Id = sessaoId;
-                await _sessaoService.AlterarSessao(sessaoDto);
-                return Ok(sessaoDto);
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            sessaoDto.Id = sessaoId;
+            await _sessaoService.AlterarSessao(sessaoDto);
+            return Ok(sessaoDto);
         }
 
+        [HttpPut("{sessaoId}/registros-sessoes/{registroSessaoId}")]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AlterarRegistroSessao(String registroSessaoId, String sessaoId, [FromBody] RegistroSessaoDTO registroSessaoDto)
+        {
+            if (registroSessaoId == null)
+                return BadRequest(nameof(registroSessaoId));
+            if (sessaoId == null)
+                return BadRequest(nameof(sessaoId));
+
+            registroSessaoDto.Id = registroSessaoId;
+            registroSessaoDto.SessaoId = sessaoId;
+            await _sessaoService.AlterarRegistroSessao(registroSessaoDto);
+            return Ok(registroSessaoDto);
+        }
+
+        [HttpPut("{sessaoId}/escalas-sessoes/{escalaSessaoId}")]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AlterarEscalaSessao(String escalaSessaoId, String sessaoId, [FromBody] EscalaSessaoDTO escalaSessaoDto)
+        {
+            if (escalaSessaoId == null)
+                return BadRequest(nameof(escalaSessaoId));
+            if (sessaoId == null)
+                return BadRequest(nameof(sessaoId));
+
+            escalaSessaoDto.Id = escalaSessaoId;
+            escalaSessaoDto.SessaoId = sessaoId;
+            await _sessaoService.AlterarEscalaSessao(escalaSessaoDto);
+            return Ok(escalaSessaoDto);
+        }
 
         /// <summary>
         /// Exclusão de pagamento da sessão.
@@ -319,23 +324,9 @@ namespace HealthMindBackend.API.Controllers
         {
             if (sessaoId == null)
                 return BadRequest(nameof(sessaoId));
-            try
-            {
-                await _sessaoService.ExcluirPagamento(sessaoId);
-                return NoContent();
-            }
-            catch (DomainExceptionValidation br)
-            {
-                return StatusCode(StatusCodes.Status400BadRequest, $"Bad Request 400: {br}");
-            }
-            catch (KeyNotFoundException nf)
-            {
-                return StatusCode(StatusCodes.Status404NotFound, $"Not Found 404: {nf}");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro interno 500: {ex}");
-            }
+
+            await _sessaoService.ExcluirPagamento(sessaoId);
+            return NoContent();
         }
     }
 }

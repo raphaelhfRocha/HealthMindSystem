@@ -17,7 +17,7 @@ namespace HealthMindBackend.Domain.Entities
         public StatusPlanoSaudeEnum StatusPlanoSaude { get; private set; }
         public Telefone Telefone { get; private set; }
         public Email Email { get; private set; }
-        public CoberturaPlano CoberturaPlano { get; private set; }
+        public ICollection<CoberturaPlano>? CoberturasPlano { get; private set; }
 
         public PlanoSaude()
         {
@@ -32,11 +32,12 @@ namespace HealthMindBackend.Domain.Entities
             Email = email;
         }
 
-        public PlanoSaude(String nome, String codigo, StatusPlanoSaudeEnum statusPlanoSaude, Telefone telefone, Email email)
+        public PlanoSaude(String nome, String codigo, StatusPlanoSaudeEnum statusPlanoSaude, Telefone telefone, Email email, ICollection<CoberturaPlano>? coberturasPlano)
         {
             ValidateDomainPlanoSaude(nome, codigo, statusPlanoSaude);
             Telefone = telefone;
             Email = email;
+            CoberturasPlano = coberturasPlano;
         }
 
         private void ValidateDomainPlanoSaude(String nome, String codigo, StatusPlanoSaudeEnum statusPlanoSaude)
@@ -49,11 +50,12 @@ namespace HealthMindBackend.Domain.Entities
             StatusPlanoSaude = statusPlanoSaude;
         }
 
-        public void Update(String nome, String codigo, StatusPlanoSaudeEnum statusPlanoSaude, Telefone telefone, Email email)
+        public void Update(String nome, String codigo, StatusPlanoSaudeEnum statusPlanoSaude, Telefone telefone, Email email, ICollection<CoberturaPlano> coberturasPlano)
         {
             ValidateDomainPlanoSaude(nome, codigo, statusPlanoSaude);
             Telefone = telefone;
             Email = email;
+            CoberturasPlano = coberturasPlano;
         }
     }
 }

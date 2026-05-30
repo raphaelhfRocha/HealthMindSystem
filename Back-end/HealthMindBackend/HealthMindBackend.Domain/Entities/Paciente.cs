@@ -16,7 +16,7 @@ namespace HealthMindBackend.Domain.Entities
     {
         public Telefone Telefone { get; private set; }
         public DateTime DataNascimento { get; private set; }
-        public PlanoSaudePaciente? PlanoSaudePaciente { get; private set; }
+        public PlanoSaudePaciente? PlanoSaudePaciente { get; set; }
         public String PsicologoId { get; private set; }
 
         public Paciente()
@@ -31,12 +31,13 @@ namespace HealthMindBackend.Domain.Entities
             CpfCnpj = cpfCnpj;
         }
 
-        public Paciente(String nome, Email email, CpfCnpj cpfCnpj, Telefone telefone, String psicologoId, DateTime dataNascimento)
+        public Paciente(String nome, Email email, CpfCnpj cpfCnpj, Telefone telefone, String psicologoId, DateTime dataNascimento, PlanoSaudePaciente? planoSaudePaciente)
         {
             ValidatePacienteDomain(nome, psicologoId, dataNascimento);
             Email = email;
             Telefone = telefone;
             CpfCnpj = cpfCnpj;
+            PlanoSaudePaciente = planoSaudePaciente;
         }
 
         private void ValidatePacienteDomain(String nome, String psicologoId, DateTime dataNascimento)
@@ -46,12 +47,13 @@ namespace HealthMindBackend.Domain.Entities
             DataNascimento = dataNascimento;
         }
 
-        public void Update(String nome, Email email, CpfCnpj cpfCnpj, Telefone telefone, String psicologoId, DateTime dataNascimento)
+        public void Update(String nome, Email email, CpfCnpj cpfCnpj, Telefone telefone, String psicologoId, DateTime dataNascimento, PlanoSaudePaciente? planoSaudePaciente)
         {
             ValidatePacienteDomain(nome, psicologoId, dataNascimento);
             Email = email;
             CpfCnpj = cpfCnpj;
             Telefone = telefone;
+            PlanoSaudePaciente = planoSaudePaciente;
         }
     }
 }

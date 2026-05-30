@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Application.Services;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Validations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -162,6 +164,30 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(historicoId));
 
             historicoMedicoDto.Id = historicoId;
+
+            // Busca as metas terapeuticas existentes existentes no banco de dados
+            var metasTerapeuticasExistentes = await _historicoMedicoService.GetMetaTerapeuticasByHistoricoMedicoId(historicoId) ?? new List<MetaTerapeuticaDTO>();
+
+            if (historicoMedicoDto.MetasTerapeuticasDTO != null)
+            {
+                foreach (var metaTerapeuticaDto in historicoMedicoDto.MetasTerapeuticasDTO)
+                {
+                    metaTerapeuticaDto.HistoricoMedicoId = historicoId;
+
+                    if (!String.IsNullOrWhiteSpace(metaTerapeuticaDto.Id))
+                    {
+                        var metaTerapeuticaExistente = metasTerapeuticasExistentes.FirstOrDefault(m => m.Id == metaTerapeuticaDto.Id);
+                        if (metaTerapeuticaExistente != null)
+                        {
+                            await _historicoMedicoService.AlterarMetaTerapeutica(historicoId, metaTerapeuticaDto.Id, metaTerapeuticaDto);
+                        }
+                    }
+                    else
+                    {
+                        await _historicoMedicoService.AdicionarMetaTerapeutica(metaTerapeuticaDto);
+                    }
+                }
+            }
             await _historicoMedicoService.AtualizarHistoricoMedico(historicoMedicoDto);
             return Ok(historicoMedicoDto);
         }

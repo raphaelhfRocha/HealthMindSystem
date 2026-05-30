@@ -24,7 +24,7 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
 
         public async Task<Psicologo> Handle(PsicologoCreateCommand request, CancellationToken cancellationToken)
         {
-            _validatorPsicologoCreateCommand.ValidateAndThrow(request);
+            await _validatorPsicologoCreateCommand.ValidateAndThrowAsync(request);
 
             var psicologo = new Psicologo(request.Nome, request.Email, request.Senha,
                 request.StatusCargo, request.StatusRole, request.CpfCnpj,

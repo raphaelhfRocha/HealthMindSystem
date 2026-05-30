@@ -1,6 +1,8 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
+using HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao;
+using HealthMindBackend.Domain.ValueObjects.Sessao.RegistroSessao;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -21,6 +23,9 @@ namespace HealthMindBackend.Domain.Entities
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public Pagamento? Pagamento { get; set; }
         public StatusSessaoEnum StatusSessao { get; private set; }
+        public List<RegistroSessao>? RegistrosSessoes { get; private set; }
+        public List<EscalaSessao>? EscalasSessoes { get; private set; }
+
 
         public Sessao()
         {

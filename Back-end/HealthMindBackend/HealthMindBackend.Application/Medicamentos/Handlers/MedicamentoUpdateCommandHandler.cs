@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using HealthMindBackend.Application.Medicamentos.Commands;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;

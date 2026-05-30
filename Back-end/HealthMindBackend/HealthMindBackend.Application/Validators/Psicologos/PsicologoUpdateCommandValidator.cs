@@ -30,10 +30,10 @@ namespace HealthMindBackend.Application.Validators.Psicologos
             RuleFor(p => p.Email.Endereco)
                 .NotEmpty().WithMessage("E-mail Psicólogo Obrigatório")
                 .EmailAddress().WithMessage("E-mail inválido")
-                .MustAsync(async (email, cancellationToken) =>
+                .MustAsync(async (command, email, cancellationToken) =>
                 {
-                    var emailExistente = await _psicologoRepository.GetPsicologoByEmail(email);
-                    return emailExistente == null;
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByEmail(email);
+                    return dadoExistente == null || dadoExistente.Id == command.Id;
                 })
                 .WithMessage("E-mail já cadastrado");
 
@@ -46,21 +46,20 @@ namespace HealthMindBackend.Application.Validators.Psicologos
             RuleFor(p => p.CpfCnpj.Numero)
                 .NotEmpty().WithMessage("CPF/CNPJ Psicólogo Obrigatório")
                 .Must(CpfCnpjValidationHelper.IsValid).WithMessage("CPF/CNPJ Inválido")
-                .MustAsync(async (cpfCnpj, cancellationToken) =>
+                .MustAsync(async (command, cpfCnpj, cancellationToken) =>
                 {
-                    var cpfCnpjExistente = await _psicologoRepository.GetPsicologoByCpfCnpj(cpfCnpj);
-                    return cpfCnpjExistente == null;
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByCpfCnpj(cpfCnpj);
+                    return dadoExistente == null || dadoExistente.Id == command.Id;
 
                 }).WithMessage("CPF/CNPJ já cadastrado");
 
             RuleFor(p => p.Crp.Numero)
                 .NotEmpty().WithMessage("CRP Psicólogo Obrigatório")
                 .Must(CrpValidationHelper.IsValid).WithMessage("CRP Inválido")
-                .MustAsync(async (crp, cancellationToken) =>
+                .MustAsync(async (command, crp, cancellationToken) =>
                 {
-                    var crpExistente = await _psicologoRepository.GetPsicologoByCrp(crp);
-                    return crpExistente == null;
-
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByCrp(crp);
+                    return dadoExistente == null || dadoExistente.Id == command.Id;
                 }).WithMessage("CRP já cadastrado");
 
             RuleFor(p => p.Especialidade)

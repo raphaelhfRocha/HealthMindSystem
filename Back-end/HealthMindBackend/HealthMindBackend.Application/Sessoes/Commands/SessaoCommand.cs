@@ -1,4 +1,6 @@
 ﻿using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Application.EscalasSessoes.Commands;
+using HealthMindBackend.Application.RegistrosSessoes.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
@@ -21,5 +23,8 @@ namespace HealthMindBackend.Application.Sessoes.Commands
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public StatusSessaoEnum StatusSessao { get; set; }
         public Pagamento? Pagamento { get; set; }
+        public List<RegistroSessaoCommand>? RegistroSessoesCommand { get; set; }
+        public List<EscalaSessaoCommand>? EscalasSessoesCommand { get; set; }
+
     }
 }

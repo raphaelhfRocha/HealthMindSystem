@@ -12,7 +12,6 @@ namespace HealthMindBackend.Application.DTOs
         public String Nome { get; set; }
         public String Telefone { get; set; }
         public String RelacaoParentesco { get; set; }
-        public String Endereco { get; set; }
-        public String Cep { get; set; }
+        public EnderecoDTO EnderecoDTO { get; set; }
     }
 }
