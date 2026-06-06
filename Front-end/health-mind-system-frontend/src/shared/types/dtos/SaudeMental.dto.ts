@@ -1,5 +1,5 @@
 export interface SaudeMentalDTO {
-    historicoMedicoId: string,
+    historicoMedicoId?: string,
     diagnosticoPrevio: string,
     acompanhamento: string,
     statusInternacao: string,

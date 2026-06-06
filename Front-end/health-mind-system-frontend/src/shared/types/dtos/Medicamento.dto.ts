@@ -3,5 +3,6 @@ export interface MedicamentoDTO {
     prontuarioId?: string,
     nome: string,
     dosagem: string,
-    frequencia: string
+    frequencia: string,
+    statusMedicamentoUso: StatusMedicamentoUsoEnum
 }

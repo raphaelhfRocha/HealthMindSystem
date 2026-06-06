@@ -21,7 +21,9 @@ namespace HealthMindBackend.Application.EscalasSessoes.Handlers
 
         public async Task<List<EscalaSessao>> Handle(GetEscalasSessoesBySessaoIdQuery request, CancellationToken cancellationToken)
         {
-            return await _sessaoRepository.GetEscalasSessoesBySessaoId(request.SessaoId);
+            var escalasSessoesFound = await _sessaoRepository.GetEscalasSessoesBySessaoId(request.SessaoId);
+
+            return escalasSessoesFound;
         }
     }
 }

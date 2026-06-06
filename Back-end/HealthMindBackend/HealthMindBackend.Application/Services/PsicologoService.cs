@@ -83,5 +83,12 @@ namespace HealthMindBackend.Application.Services
             var result = await _mediator.Send(getPsicologosByEspecialidadeQuery);
             return _mapper.Map<List<PsicologoDTO>>(result);
         }
+
+        public async Task<PsicologoDTO> GetPsicologoById(String psicologoId)
+        {
+            var getPsicologoByIdQuery = new GetPsicologoByIdQuery(psicologoId);
+            var result = await _mediator.Send(getPsicologoByIdQuery);
+            return _mapper.Map<PsicologoDTO>(result);
+        }
     }
 }

@@ -28,23 +28,38 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
         {
             await _validatorHistoricoMedicoCreateCommand.ValidateAndThrowAsync(request);
 
-
-            var historicoMedico = new HistoricoMedico(request.PacienteId, request.ProntuarioId,
-                request.RazaoAtendimento, request.ImpactoRazao, 
+            var historicoMedico = new HistoricoMedico(
+                request.PacienteId,
+                request.ProntuarioId,
+                request.RazaoAtendimento,
+                request.ImpactoRazao,
                 request.ExpectativaAtendimento,
-                request.DataRegistro, request.MetasTerapeuticas);
+                request.DataRegistro,
+                request.MetasTerapeuticas
+            );
 
             var historicoMedicoRegistrado = await _historicoMedicoRepository.AdicionarHistoricoMedico(historicoMedico);
 
-            var saudeMental = new SaudeMental(historicoMedicoRegistrado.Id, request.SaudeMentalCommand.DiagnosticoPrevio, request.SaudeMentalCommand.Acompanhamento, request.SaudeMentalCommand.StatusInternacao, request.SaudeMentalCommand.Antecentes);
+            if (request.SaudeMentalCommand != null)
+            {
+                var saudeMental = new SaudeMental(
+                    historicoMedicoRegistrado.Id,
+                    request.SaudeMentalCommand.DiagnosticoPrevio,
+                    request.SaudeMentalCommand.Acompanhamento,
+                    request.SaudeMentalCommand.StatusInternacao,
+                    request.SaudeMentalCommand.Antecedentes
+                );
 
-            var saudeMentalDefinida = saudeMental != null
-                ? await _historicoMedicoRepository.DefinirSaudeMental(historicoMedicoRegistrado.Id, saudeMental)
-                : null;
+                var saudeMentalDefinida = saudeMental != null
+                    ? await _historicoMedicoRepository.DefinirSaudeMental(historicoMedicoRegistrado.Id, saudeMental)
+                    : null;
 
-            historicoMedicoRegistrado.SaudeMental = saudeMentalDefinida;
+                historicoMedicoRegistrado.SaudeMental = saudeMentalDefinida;
 
-            return historicoMedico;
+                return historicoMedicoRegistrado;
+            }
+
+            return historicoMedicoRegistrado;
         }
     }
 }

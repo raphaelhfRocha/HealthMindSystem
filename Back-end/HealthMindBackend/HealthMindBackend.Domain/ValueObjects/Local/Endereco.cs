@@ -9,13 +9,25 @@ namespace HealthMindBackend.Domain.ValueObjects.Local
 {
     public class Endereco : ValueObject
     {
+
         public Cep Cep { get; private set; }
         public String Logradouro { get; private set; }
-        public String Complemento { get; private set; }
+        public String? Complemento { get; private set; }
         public String Bairro { get; private set; }
         public String UF { get; private set; }
         public String Localidade { get; private set; }
         public String Regiao { get; private set; }
+
+        public Endereco(Cep cep, String logradouro, String? complemento, String bairro, String uf, String localidade, String regiao)
+        {
+            Cep = cep;
+            Logradouro = logradouro;
+            Complemento = complemento;
+            Bairro = bairro;
+            UF = uf;
+            Localidade = localidade;
+            Regiao = regiao;
+        }
 
         protected override IEnumerable<Object> GetEqualityComponents()
         {

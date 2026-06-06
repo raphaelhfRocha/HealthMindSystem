@@ -19,10 +19,9 @@ namespace HealthMindBackend.Domain.Entities
         public String PsicologoId { get; private set; }
         public DateTime DataSessao { get; private set; }
         public TimeSpan HoraInicio { get; private set; }
-        public String Observacoes { get; private set; }
         public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public Pagamento? Pagamento { get; set; }
-        public StatusSessaoEnum StatusSessao { get; private set; }
+        //public StatusSessaoEnum StatusSessao { get; private set; }
         public List<RegistroSessao>? RegistrosSessoes { get; private set; }
         public List<EscalaSessao>? EscalasSessoes { get; private set; }
 
@@ -32,32 +31,34 @@ namespace HealthMindBackend.Domain.Entities
         }
 
         public Sessao(String id, String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
-            String observacoes,
-            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
+            StatusTipoAtendimentoEnum statusTipoAtendimento)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
             DefinirId(id);
-            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
+            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, statusTipoAtendimento);
         }
 
-        public Sessao(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
-            String observacoes,
-            StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
+        public Sessao(String pacienteId, String psicologoId,
+            DateTime dataSessao,
+            TimeSpan horaInicio,
+            StatusTipoAtendimentoEnum statusTipoAtendimento)
         {
-            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
+            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, statusTipoAtendimento);
+            RegistrosSessoes = new List<RegistroSessao>();
+            EscalasSessoes = new List<EscalaSessao>();
         }
 
         public Sessao(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio,
-            String observacoes, StatusTipoAtendimentoEnum statusTipoAtendimento,
-            Pagamento pagamento, StatusSessaoEnum statusSessao
+            StatusTipoAtendimentoEnum statusTipoAtendimento,
+            Pagamento? pagamento
             )
         {
-            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
+            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, statusTipoAtendimento);
             Pagamento = pagamento;
         }
 
 
-        private void ValidateSessaoDomain(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio, String observacoes, StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
+        private void ValidateSessaoDomain(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio, StatusTipoAtendimentoEnum statusTipoAtendimento)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(pacienteId), "Id do paciente inválido.");
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(psicologoId), "Id do psicologo inválido.");
@@ -70,14 +71,12 @@ namespace HealthMindBackend.Domain.Entities
             PsicologoId = psicologoId;
             DataSessao = dataSessao;
             HoraInicio = horaInicio;
-            Observacoes = observacoes;
             StatusTipoAtendimento = statusTipoAtendimento;
-            StatusSessao = statusSessao;
         }
 
-        public void Update(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio, String observacoes, StatusTipoAtendimentoEnum statusTipoAtendimento, StatusSessaoEnum statusSessao)
+        public void Update(String pacienteId, String psicologoId, DateTime dataSessao, TimeSpan horaInicio, StatusTipoAtendimentoEnum statusTipoAtendimento)
         {
-            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, observacoes, statusTipoAtendimento, statusSessao);
+            ValidateSessaoDomain(pacienteId, psicologoId, dataSessao, horaInicio, statusTipoAtendimento);
         }
     }
 }

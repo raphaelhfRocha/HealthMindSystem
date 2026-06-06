@@ -15,6 +15,7 @@ namespace HealthMindBackend.Application.Interfaces
         Task AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
         Task AtualizarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
         Task ExcluirHistoricoMedico(String historicoId);
+        Task ExcluirSaudeMental(String historicoId);
         Task AdicionarMetaTerapeutica(MetaTerapeuticaDTO metaTerapeuticaDto);
         Task AlterarMetaTerapeutica(String historicoId, String metaTerapeuticaId, MetaTerapeuticaDTO metaTerapeuticaDto);
     }

@@ -8,10 +8,10 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class ContatoEmergenciaDTO
     {
-        public String ProntuarioId { get; set; }
+        public String? ProntuarioId { get; set; }
         public String Nome { get; set; }
         public String Telefone { get; set; }
         public String RelacaoParentesco { get; set; }
-        public EnderecoDTO EnderecoDTO { get; set; }
+        public EnderecoDTO? EnderecoDTO { get; set; }
     }
 }

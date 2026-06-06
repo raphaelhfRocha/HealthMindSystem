@@ -43,6 +43,25 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
+        /// Consulta um prontuário pelo ID.
+        /// </summary>
+        /// <param name="prontuarioId">Id do prontuário.</param>
+        /// <response code="200">Prontuário encontrado</response>
+        /// <response code="404">Prontuário não encontrado</response>
+        /// <response code="500">Erro interno</response>
+        [HttpGet("{prontuarioId}")]
+        [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetProntuarioById(String prontuarioId)
+        {
+            if (String.IsNullOrWhiteSpace(prontuarioId))
+                return BadRequest("Id do prontuário é obrigatório.");
+
+            return Ok(await _prontuarioService.GetProntuarioById(prontuarioId));
+        }
+
+        /// <summary>
         /// Cadastro de prontuário
         /// </summary>
         /// <response code="201">Prontuário cadastrado</response>
@@ -178,6 +197,44 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
+        /// Adiciona um medicamento ao prontuário.
+        /// </summary>
+        [HttpPost("{prontuarioId}/medicamentos")]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RegistrarMedicamento(String prontuarioId, [FromBody] MedicamentoDTO medicamentoDto)
+        {
+            if (String.IsNullOrWhiteSpace(prontuarioId))
+                return BadRequest("Id do prontuário é obrigatório.");
+
+            medicamentoDto.ProntuarioId = prontuarioId;
+            await _prontuarioService.RegistrarMedicamento(medicamentoDto);
+            return StatusCode(StatusCodes.Status201Created, medicamentoDto);
+        }
+
+        /// <summary>
+        /// Atualiza um medicamento do prontuário.
+        /// </summary>
+        [HttpPut("{prontuarioId}/medicamentos/{medicamentoId}")]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditarMedicamento(String prontuarioId, String medicamentoId, [FromBody] MedicamentoDTO medicamentoDto)
+        {
+            if (String.IsNullOrWhiteSpace(prontuarioId))
+                return BadRequest("Id do prontuário é obrigatório.");
+            if (String.IsNullOrWhiteSpace(medicamentoId))
+                return BadRequest("Id do medicamento é obrigatório.");
+
+            medicamentoDto.ProntuarioId = prontuarioId;
+            medicamentoDto.Id = medicamentoId;
+            await _prontuarioService.EditarMedicamento(prontuarioId, medicamentoId, medicamentoDto);
+            return Ok(medicamentoDto);
+        }
+
+        /// <summary>
         /// Exclusão de medicamento do prontuário.
         /// </summary>
         /// <param name="prontuarioId">Id Prontuário</param>
@@ -209,7 +266,7 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(prontuarioId));
             if (medicamentoId == null)
                 return BadRequest(nameof(medicamentoId));
-            
+
             await _prontuarioService.ExcluirMedicamento(prontuarioId, medicamentoId);
             return NoContent();
         }

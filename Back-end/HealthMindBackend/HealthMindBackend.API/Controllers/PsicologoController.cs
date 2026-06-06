@@ -43,6 +43,40 @@ namespace HealthMindBackend.API.Controllers
         }
 
         /// <summary>
+        /// Obter psicólogo por ID
+        /// </summary>
+        /// <response code="200">Psicólogos encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Psicólogos não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a obtenção de psicólogo por ID**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o ID do psicólogo registrado no campo do parâmetro psicologoId**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Psicologo/{psicologoId}**
+        /// </remarks>
+        /// <param name="psicologoId">
+        /// PsicologoId
+        /// </param>
+        [HttpGet("{psicologoId}")]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPsicologosById(String psicologoId)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+
+            return Ok(await _psicologoService.GetPsicologoById(psicologoId));
+        }
+
+        /// <summary>
         /// Lista de psicólogos por nome
         /// </summary>
         /// <response code="200">Psicólogos encontrados</response>

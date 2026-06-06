@@ -12,7 +12,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao
     [BsonIgnoreExtraElements]
     public class EscalaSessao : ValueObject
     {
-        public String Id { get; private set; }
+        public String? Id { get; private set; }
         public String SessaoId { get; set; }
         public Int32 Humor { get; private set; }
         public Int32 Ansiedade { get; private set; }
@@ -23,7 +23,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao
         {
         }
 
-        public EscalaSessao(String id, String sessaoId, Int32 humor, Int32 ansiedade, Int32 sono, Int32 funcSocial)
+        public EscalaSessao(String? id, String sessaoId, Int32 humor, Int32 ansiedade, Int32 sono, Int32 funcSocial)
         {
             Id = id;
             SessaoId = sessaoId;
@@ -48,7 +48,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao
             FuncSocial = funcSocial;
         }
 
-        public void DefinirId(String id)
+        public void DefinirId(String? id)
         {
             DomainExceptionValidation.Validate(String.IsNullOrWhiteSpace(id), "Id inválido.");
             Id = id;

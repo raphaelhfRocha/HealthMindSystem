@@ -2,6 +2,8 @@
 using HealthMindBackend.Application.Prontuarios.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Local;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using System;
@@ -33,9 +35,58 @@ namespace HealthMindBackend.Application.Prontuarios.Handlers
             if (prontuarioFound == null)
                 throw new KeyNotFoundException("Prontuario não encontrado.");
 
-            prontuarioFound.Update(request.PacienteId, request.Descricao, request.StatusProntuario);
+            prontuarioFound.Update(request.PacienteId, request.Anotacoes, request.StatusProntuario);
 
-            return await _prontuarioRepository.EditarProntuario(prontuarioFound);
+            var result = await _prontuarioRepository.EditarProntuario(prontuarioFound);
+
+            if (request.ContatoEmergencia != null)
+            {
+                if (request.ContatoEmergencia.Endereco != null)
+                {
+                    var endereco = new Endereco(
+                        request.ContatoEmergencia.Endereco.Cep,
+                        request.ContatoEmergencia.Endereco.Logradouro,
+                        request.ContatoEmergencia.Endereco.Complemento,
+                        request.ContatoEmergencia.Endereco.Bairro,
+                        request.ContatoEmergencia.Endereco.UF,
+                        request.ContatoEmergencia.Endereco.Localidade,
+                        request.ContatoEmergencia.Endereco.Regiao
+                    );
+
+                    var contatoEmergenciaComEndereco = new ContatoEmergencia(
+                        result.Id,
+                        request.ContatoEmergencia.Nome,
+                        request.ContatoEmergencia.Telefone,
+                        request.ContatoEmergencia.RelacaoParentesco,
+                        endereco
+                    );
+
+                    var contatoEmergenciaComEnderecoDefinido = contatoEmergenciaComEndereco != null
+                    ? await _prontuarioRepository.DefinirContatoEmergencia(result.Id, contatoEmergenciaComEndereco)
+                    : null;
+
+                    result.ContatoEmergencia = contatoEmergenciaComEnderecoDefinido;
+
+                    return result;
+                }
+
+                var contatoEmergenciaSemEndereco = new ContatoEmergencia(
+                    result.Id,
+                    request.ContatoEmergencia.Nome,
+                    request.ContatoEmergencia.Telefone,
+                    request.ContatoEmergencia.RelacaoParentesco
+                );
+
+                var contatoEmergenciaSemEnderecoDefinido = contatoEmergenciaSemEndereco != null
+                    ? await _prontuarioRepository.DefinirContatoEmergencia(result.Id, contatoEmergenciaSemEndereco)
+                    : null;
+
+                result.ContatoEmergencia = contatoEmergenciaSemEnderecoDefinido;
+
+                return result;
+            }
+
+            return result;
         }
     }
 }

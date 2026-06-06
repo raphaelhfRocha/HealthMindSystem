@@ -1,30 +1,78 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
-
-const ANOTACOES_MOCK = {
-  1:  "Paciente demonstra dificuldade em estabelecer limites em relacionamentos interpessoais. Apresenta padrão de autoexigência elevada.",
-  2:  "Relata episódios de ansiedade antecipatória. Boa adesão ao processo terapêutico. Comprometido com as sessões.",
-  3:  "Histórico de luto recente (perda do pai). Processo de elaboração em andamento. Rede de apoio familiar presente.",
-  4:  "Queixas relacionadas ao ambiente de trabalho. Sinais de esgotamento profissional. Avaliar critérios de burnout.",
-  5:  "Paciente relata melhora significativa nos episódios de insônia após técnicas de higiene do sono introduzidas na última sessão.",
-  6:  "Dificuldade em lidar com críticas. Padrão de comportamento defensivo observado. Trabalhar autoestima e assertividade.",
-  7:  "Relacionamento conjugal instável relatado. Considera terapia de casal. Encaminhar para avaliação conjunta.",
-  8:  "Boa evolução no manejo da raiva. Técnicas de regulação emocional sendo aplicadas com sucesso no cotidiano.",
-  9:  "Histórico de transtorno de ansiedade generalizada. Faz uso de medicação prescrita por psiquiatra. Acompanhamento conjunto.",
-  10: "Percebo uma resistência ao falar sobre a figura paterna. João parece evitar contato visual quando o assunto é o chefe. Hipótese de transferência a ser explorada na próxima sessão.",
-};
+import { editarProntuario, getProntuarioById } from "../../shared/services/prontuario.service";
+import { ProntuarioDTO } from "../../shared/types/dtos/Prontuario.dto";
 
 export default function EditarAnotacoesPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [texto, setTexto] = useState(ANOTACOES_MOCK[Number(id)] || "");
+  const [prontuario, setProntuario] = useState<ProntuarioDTO | null>(null);
+  const [texto, setTexto] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => { setSaved(false); navigate(`/prontuario/${id}`); }, 1500);
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      if (!id) {
+        setError("Prontuário não informado.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+        const prontuarioCarregado = await getProntuarioById(id);
+        if (!active) return;
+        setProntuario(prontuarioCarregado);
+        setTexto(prontuarioCarregado.anotacoes ?? "");
+      } catch {
+        if (active) setError("Anotações não encontradas.");
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { active = false; };
+  }, [id]);
+
+  const handleSave = async () => {
+    if (!prontuario) return;
+
+    try {
+      const payload: ProntuarioDTO = {
+        ...prontuario,
+        anotacoes: texto,
+      };
+
+      await editarProntuario(prontuario.id ?? id ?? "", payload);
+      setSaved(true);
+      setTimeout(() => { setSaved(false); navigate(`/prontuario/${prontuario.id ?? id}`); }, 1500);
+    } catch {
+      setError("Não foi possível salvar as anotações.");
+    }
   };
+
+  if (loading) {
+    return (
+      <AppLayout breadcrumb="Prontuário > Anotações > Editar">
+        <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "15px" }}>Carregando anotações...</div>
+      </AppLayout>
+    );
+  }
+
+  if (!prontuario) {
+    return (
+      <AppLayout breadcrumb="Prontuário > Anotações > Editar">
+        <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "15px" }}>{error ?? "Anotações não encontradas."}</div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout breadcrumb="Prontuário > Anotações > Editar">
@@ -34,7 +82,7 @@ export default function EditarAnotacoesPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
-              onClick={() => navigate(`/prontuario/${id}`)}
+              onClick={() => navigate(`/prontuario/${prontuario.id ?? id}`)}
               style={{ background: "none", border: "1px solid #dde3f0", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px", color: "#1A4FA3", fontWeight: "600" }}
               onMouseEnter={e => e.currentTarget.style.background = "#f0f4ff"}
               onMouseLeave={e => e.currentTarget.style.background = "none"}
@@ -68,6 +116,12 @@ export default function EditarAnotacoesPage() {
             )}
           </button>
         </div>
+
+          {error && (
+            <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
+              {error}
+            </div>
+          )}
 
         {/* Form card */}
         <div style={{

@@ -10,6 +10,11 @@ export async function getAllPsicologos(): Promise<PsicologoDTO[]> {
     return response.data;
 }
 
+export async function getPsicologoById(psicologoId: string): Promise<PsicologoDTO> {
+    const response = await api.get<Psicologo>(`${controller}/${psicologoId}`);
+    return response.data;
+}
+
 export async function getPsicologosByNome(nome: string): Promise<PsicologoDTO[]> {
     const response = await api.get<PsicologoDTO[]>(`${controller}/nome/${nome}`);
     return response.data;
@@ -33,6 +38,16 @@ export async function cadastrarPsicologo(psicologoDto: PsicologoDTO): Promise<Ps
 
 export async function editarPsicologo(psicologoId: string, psicologoDto: PsicologoDTO): Promise<PsicologoDTO> {
     const response = await api.put<PsicologoDTO>(`${controller}/${psicologoId}`, psicologoDto);
+    return response.data;
+}
+
+export async function adicionarDisponibilidade(psicologo: PsicologoDTO, disponibilidade: DisponibilidadeDTO): Promise<void> {
+    // O back-end adiciona novas disponibilidades através do PUT do psicólogo,
+    // recebendo-as no campo disponibilidadesDTO.
+    const response = await api.put<void>(`${controller}/${psicologo.id}`, {
+        ...psicologo,
+        disponibilidadesDTO: [disponibilidade],
+    });
     return response.data;
 }
 

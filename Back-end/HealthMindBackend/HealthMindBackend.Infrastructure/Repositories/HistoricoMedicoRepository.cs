@@ -92,7 +92,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
             var update = Builders<HistoricoMedico>.Update
                 .Set("MetasTerapeuticas.$.Titulo", metaTerapeutica.Titulo)
-                .Set("MetasTerapeuticas.$.Status", metaTerapeutica.StatusMetaTerapeutica)
+                .Set("MetasTerapeuticas.$.StatusMetaTerapeutica", metaTerapeutica.StatusMetaTerapeutica)
                 .Set("MetasTerapeuticas.$.Observacoes", metaTerapeutica.Observacoes);
 
             var result = await _collection.UpdateOneAsync(filter, update);

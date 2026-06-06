@@ -19,9 +19,9 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Commands
     {
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }
-        public String RazaoAtendimento { get; set; }
-        public String ImpactoRazao { get; set; }
-        public String ExpectativaAtendimento { get; set; }
+        public String? RazaoAtendimento { get; set; }
+        public String? ImpactoRazao { get; set; }
+        public String? ExpectativaAtendimento { get; set; }
         public DateTime DataRegistro { get; set; }
         public SaudeMentalCommand? SaudeMentalCommand { get; set; }
         public List<MetaTerapeutica>? MetasTerapeuticas { get; set; }

@@ -6,6 +6,7 @@ using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Medicamentos.Commands;
 using HealthMindBackend.Application.MetasTerapeuticas.Commands;
 using HealthMindBackend.Application.MetasTerapeuticas.Queries;
+using HealthMindBackend.Application.SaudesMentais.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
@@ -58,6 +59,12 @@ namespace HealthMindBackend.Application.Services
         {
             var historicoMedicoDeleteCommand = new HistoricoMedicoDeleteCommand(historicoId);
             await _mediator.Send(historicoMedicoDeleteCommand);
+        }
+
+        public async Task ExcluirSaudeMental(String historicoId)
+        {
+            var saudeMentalDeleteCommand = new SaudeMentalDeleteCommand(historicoId);
+            await _mediator.Send(saudeMentalDeleteCommand);
         }
 
         public async Task<IEnumerable<HistoricoMedicoDTO>> GetAllHistoricoMedicos()

@@ -10,6 +10,7 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IProntuarioService
     {
         Task<IEnumerable<ProntuarioDTO>> GetAllProntuarios();
+        Task<ProntuarioDTO> GetProntuarioById(String prontuarioId);
         Task<List<MedicamentoDTO>> GetMedicamentosByProntuarioId(String prontuarioId);
         Task<MedicamentoDTO> GetMedicamentoByProntuarioIdAndMedicamentoId(String prontuarioId, String medicamentoId);
         Task RegistrarProntuario(ProntuarioDTO prontuarioDto);

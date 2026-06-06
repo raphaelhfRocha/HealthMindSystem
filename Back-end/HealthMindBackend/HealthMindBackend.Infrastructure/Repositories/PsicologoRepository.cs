@@ -2,6 +2,7 @@
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -45,6 +46,24 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 .Push(p => p.Disponibilidades, disponibilidade);
 
             await _collection.UpdateOneAsync(p => p.Id == psicologoId, adicionarDisponibilidade);
+            return disponibilidade;
+        }
+
+        public async Task<Disponibilidade> AlterarStatusDisponibilidade(String psicologoId, String disponibilidadeId, Disponibilidade disponibilidade)
+        {
+            var filter = Builders<Psicologo>.Filter.And(
+                Builders<Psicologo>.Filter.Eq(p => p.Id, psicologoId),
+                Builders<Psicologo>.Filter.ElemMatch(
+                p => p.Disponibilidades,
+                m => m.Id == disponibilidadeId));
+
+            var update = Builders<Psicologo>.Update
+                .Set("Disponibilidades.$.StatusDisponibilidade", disponibilidade.StatusDisponibilidade);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException("Disponibilidade não encontrada para atualização");
+
             return disponibilidade;
         }
 
@@ -92,7 +111,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId)
         {
             var psicologo = await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
-           
+
             if (psicologo == null || psicologo.Disponibilidades == null)
                 return null;
 

@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
+﻿using HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,6 @@ namespace HealthMindBackend.Application.Medicamentos.Commands
         public String Nome { get; set; }
         public String Dosagem { get; set; }
         public String Frequencia { get; set; }
+        public StatusMedicamentoUsoEnum StatusMedicamentoUso { get; set; }
     }
 }

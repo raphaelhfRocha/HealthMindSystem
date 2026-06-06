@@ -15,8 +15,4 @@ export interface SessaoDTO {
     statusSessao: StatusSessaoEnum,
     registrosSessoesDTO?: RegistroSessaoDTO[],
     escalasSessoesDTO?: EscalaSessaoDTO[]
-
-    // Campos usados pela página Financeiro
-    pacienteNome?: string;
-    psicologoNome?: string;
 }

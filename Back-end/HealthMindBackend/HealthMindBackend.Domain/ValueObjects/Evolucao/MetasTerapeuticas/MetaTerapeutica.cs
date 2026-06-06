@@ -64,6 +64,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Evolucao.MetasTerapeuticas
             yield return new Object[]
             {
                 Id,
+                HistoricoMedicoId,
                 Titulo,
                 StatusMetaTerapeutica,
                 Observacoes

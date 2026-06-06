@@ -9,7 +9,6 @@ namespace HealthMindBackend.Domain.ValueObjects.Financeiro.CoberturaPlano
 {
     public class CoberturaPlano : ValueObject
     {
-
         public String Especialidade { get; private set; }
         public Decimal PercentualCobertura { get; private set; }
         public Decimal ValorMaximoCobertura { get; private set; }

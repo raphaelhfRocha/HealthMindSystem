@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.EscalasSessoes.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.EscalasSessoes.Commands;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao;
 using MediatR;
@@ -12,15 +13,19 @@ namespace HealthMindBackend.Application.EscalasSessoes.Handlers
 {
     public class EscalaSessaoUpdateCommandHandler : IRequestHandler<EscalaSessaoUpdateCommand, EscalaSessao>
     {
+        private readonly IValidator<EscalaSessaoUpdateCommand> _validatorEscalaSessaoUpdateCommand;
         private readonly ISessaoRepository _sessaoRepository;
 
-        public EscalaSessaoUpdateCommandHandler(ISessaoRepository sessaoRepository)
+        public EscalaSessaoUpdateCommandHandler(IValidator<EscalaSessaoUpdateCommand> validatorEscalaSessaoUpdateCommand, ISessaoRepository sessaoRepository)
         {
+            _validatorEscalaSessaoUpdateCommand = validatorEscalaSessaoUpdateCommand;
             _sessaoRepository = sessaoRepository;
         }
 
         public async Task<EscalaSessao> Handle(EscalaSessaoUpdateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorEscalaSessaoUpdateCommand.ValidateAndThrowAsync(request);
+
             var escalaSessaoFound = await _sessaoRepository.GetEscalaSessaoBySessaoIdAndEscalaSessaoId(request.SessaoId, request.Id);
 
             escalaSessaoFound = escalaSessaoFound ??

@@ -9,17 +9,17 @@ namespace HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental
 {
     public class SaudeMental : ValueObject
     {
-        public String HistoricoMedicoId { get; private set; }
-        public String DiagnosticoPrevio { get; private set; }
-        public String Acompanhamento { get; private set; }
-        public String StatusInternacao { get; private set; }
-        public String Antecedentes { get; private set; }
+        public String? HistoricoMedicoId { get; private set; }
+        public String? DiagnosticoPrevio { get; private set; }
+        public String? Acompanhamento { get; private set; }
+        public String? StatusInternacao { get; private set; }
+        public String? Antecedentes { get; private set; }
 
         public SaudeMental()
         {
         }
 
-        public SaudeMental(String historicoMedicoId, String diagnosticoPrevio, String acompanhamento, String statusInternacao, String antecedentes)
+        public SaudeMental(String? historicoMedicoId, String? diagnosticoPrevio, String? acompanhamento, String? statusInternacao, String? antecedentes)
         {
             HistoricoMedicoId = historicoMedicoId;
             DiagnosticoPrevio = diagnosticoPrevio;
@@ -27,7 +27,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental
             StatusInternacao = statusInternacao;
             Antecedentes = antecedentes;
         }
-        public SaudeMental(String diagnosticoPrevio, String acompanhamento, String statusInternacao, String antecedentes)
+        public SaudeMental(String? diagnosticoPrevio, String? acompanhamento, String? statusInternacao, String? antecedentes)
         {
             DiagnosticoPrevio = diagnosticoPrevio;
             Acompanhamento = acompanhamento;
@@ -37,7 +37,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental
 
         protected override IEnumerable<Object> GetEqualityComponents()
         {
-            yield return new object[]
+            yield return new Object[]
             {
                 DiagnosticoPrevio,
                 Acompanhamento,

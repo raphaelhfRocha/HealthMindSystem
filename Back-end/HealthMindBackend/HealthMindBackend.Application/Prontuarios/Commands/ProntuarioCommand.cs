@@ -15,7 +15,7 @@ namespace HealthMindBackend.Application.Prontuarios.Commands
     public abstract class ProntuarioCommand : IRequest<Prontuario>
     {
         public String PacienteId { get; set; }
-        public String Descricao { get; set; }
+        public String? Anotacoes { get; set; }
         public DateTime? DataAbertura { get; set; }
         public StatusProntuarioEnum StatusProntuario { get; set; }
         public ContatoEmergencia? ContatoEmergencia { get; set; }

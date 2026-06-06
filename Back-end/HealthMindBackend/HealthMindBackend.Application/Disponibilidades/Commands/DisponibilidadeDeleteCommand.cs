@@ -8,14 +8,14 @@ using System.Threading.Tasks;
 
 namespace HealthMindBackend.Application.Disponibilidades.Commands
 {
-    public class DisponibilidadeDeleteCommand : IRequest<Disponibilidade>
+    public class DisponibilidadeDeleteCommand : IRequest<Disponibilidade>   
     {
         public String DisponibilidadeId { get; set; }
         public String PsicologoId { get; set; }
 
         public DisponibilidadeDeleteCommand(String disponibilidadeId, String psicologoId)
         {
-            DisponibilidadeId = psicologoId;
+            DisponibilidadeId = disponibilidadeId;
             PsicologoId = psicologoId;
         }
     }

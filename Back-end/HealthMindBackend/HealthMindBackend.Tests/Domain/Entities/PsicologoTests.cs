@@ -26,7 +26,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
 
@@ -44,7 +45,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsNone,
                 new CpfCnpj(""),
                 new Crp(""),
-                ""
+                "",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -61,7 +63,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -78,7 +81,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -95,7 +99,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -112,7 +117,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -129,7 +135,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -146,7 +153,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsAdmin,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();
@@ -163,7 +171,8 @@ namespace HealthMindBackend.Tests.Domain.Entities
                 StatusRoleEnum.StsNone,
                 new CpfCnpj("23488497000134"),
                 new Crp("06123456"),
-                "Teste"
+                "Teste",
+                0
                 );
 
             action.Should().Throw<DomainExceptionValidation>();

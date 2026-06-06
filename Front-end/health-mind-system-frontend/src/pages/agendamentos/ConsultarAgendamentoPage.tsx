@@ -1,50 +1,19 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
+import { useEffect, useMemo } from "react";
+import { getAllSessoes } from "../../shared/services/sessao.service";
+import { groupSessoesByDate } from "../../shared/utils/sessao";
+import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
 
 const MESES = [
-  "Janeiro","Fevereiro","Março","Abril","Maio","Junho",
-  "Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"
+  "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
+  "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"
 ];
 
-const DIAS_SEMANA_FULL = ["Segunda-Feira","Terça-Feira","Quarta-Feira","Quinta-Feira","Sexta-Feira","Sábado","Domingo"];
+const DIAS_SEMANA_FULL = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado", "Domingo"];
 
-// Dados mockados de agendamentos
-// Chave: "YYYY-MM-DD" → lista de agendamentos
-const AGENDAMENTOS_MOCK = {
-  "2026-05-05": [
-    { paciente: "Ana Clara Souza",  horario: "09:00", psicologo: "Dr. Marcos" },
-    { paciente: "Bruno Mendes",     horario: "10:30", psicologo: "Dra. Carla" },
-  ],
-  "2026-05-11": [
-    { paciente: "Carla Ferreira",   horario: "08:00", psicologo: "Dr. Marcos" },
-    { paciente: "Diego Almeida",    horario: "14:00", psicologo: "Dra. Carla" },
-    { paciente: "Eduarda Lima",     horario: "15:30", psicologo: "Dr. Marcos" },
-  ],
-  "2026-05-14": [
-    { paciente: "Felipe Costa",     horario: "11:00", psicologo: "Dra. Carla" },
-  ],
-  "2026-05-19": [
-    { paciente: "Gabriela Nunes",   horario: "09:30", psicologo: "Dr. Marcos" },
-    { paciente: "Henrique Rocha",   horario: "13:00", psicologo: "Dra. Carla" },
-  ],
-  "2026-05-22": [
-    { paciente: "Isabela Martins",  horario: "10:00", psicologo: "Dr. Marcos" },
-  ],
-  "2026-05-26": [
-    { paciente: "João Pedro Silva", horario: "08:30", psicologo: "Dra. Carla" },
-    { paciente: "Ana Clara Souza",  horario: "16:00", psicologo: "Dr. Marcos" },
-  ],
-  "2026-05-28": [
-    { paciente: "Bruno Mendes",     horario: "07:30", psicologo: "Dra. Carla" },
-    { paciente: "Diego Almeida",    horario: "11:30", psicologo: "Dr. Marcos" },
-    { paciente: "Carla Ferreira",   horario: "14:30", psicologo: "Dra. Carla" },
-  ],
-};
-
-function toKey(year, month, day) {
-  return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-}
+// As sessões serão carregadas pela API e agrupadas por data
 
 export default function ConsultarAgendamentoPage() {
   const navigate = useNavigate();
@@ -53,7 +22,62 @@ export default function ConsultarAgendamentoPage() {
   const [viewYear, setViewYear] = useState(today.getFullYear());
   const [viewMonth, setViewMonth] = useState(today.getMonth());
 
+  const [sessoes, setSessoes] = useState<SessaoDTO[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const firstDayOfMonth = new Date(viewYear, viewMonth, 1).getDay();
+
+  const MESES = [
+    "Janeiro",
+    "Fevereiro",
+    "Março",
+    "Abril",
+    "Maio",
+    "Junho",
+    "Julho",
+    "Agosto",
+    "Setembro",
+    "Outubro",
+    "Novembro",
+    "Dezembro",
+  ];
+
+  const DIAS_SEMANA_FULL = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quinta-Feira", "Sexta-Feira", "Sábado", "Domingo"];
+
+  function toKey(year: number, month: number, day: number) {
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+  }
+  useEffect(() => {
+    let isActive = true;
+
+    async function carregarSessoes() {
+      try {
+        setLoading(true);
+        const dados = await getAllSessoes();
+
+        if (!isActive) {
+          return;
+        }
+
+        setSessoes(dados);
+      } catch {
+        if (isActive) {
+          setError("Não foi possível carregar a agenda.");
+        }
+      } finally {
+        if (isActive) {
+          setLoading(false);
+        }
+      }
+    }
+
+    carregarSessoes();
+
+    return () => {
+      isActive = false;
+    };
+  }, []);
+  const sessoesPorData = useMemo(() => groupSessoesByDate(sessoes), [sessoes]);
   // Start week on Monday: Sun=0 → offset 6, Mon=1 → offset 0, ...
   const startOffset = (firstDayOfMonth + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
@@ -72,12 +96,12 @@ export default function ConsultarAgendamentoPage() {
 
   const hasAppointments = (d) => {
     const key = toKey(viewYear, viewMonth, d);
-    return AGENDAMENTOS_MOCK[key] && AGENDAMENTOS_MOCK[key].length > 0;
+    return !!sessoesPorData[key] && sessoesPorData[key].length > 0;
   };
 
   const appointmentCount = (d) => {
     const key = toKey(viewYear, viewMonth, d);
-    return AGENDAMENTOS_MOCK[key]?.length || 0;
+    return sessoesPorData[key]?.length || 0;
   };
 
   const handleDayClick = (d) => {
@@ -100,7 +124,7 @@ export default function ConsultarAgendamentoPage() {
         borderRadius: "16px",
         padding: "1.5rem 2rem 2rem",
         width: "100%",
-        maxWidth: "780px",
+        maxWidth: "1280px",
         boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
       }}>
         <h1 style={{
@@ -222,7 +246,7 @@ export default function ConsultarAgendamentoPage() {
                         <span style={{
                           width: "7px", height: "7px", borderRadius: "50%",
                           background: "#4FC3D8", display: "inline-block", flexShrink: 0,
-                        }}/>
+                        }} />
                         {count} {count === 1 ? "agend." : "agend."}
                       </div>
                     )}
@@ -236,11 +260,11 @@ export default function ConsultarAgendamentoPage() {
         {/* Legend */}
         <div style={{ display: "flex", alignItems: "center", gap: "16px", marginTop: "14px", fontSize: "12px", color: "#666" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#1A4FA3" }}/>
+            <div style={{ width: "12px", height: "12px", borderRadius: "3px", background: "#1A4FA3" }} />
             <span>Dia com agendamento (clique para ver)</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#4FC3D8" }}/>
+            <div style={{ width: "12px", height: "12px", borderRadius: "50%", background: "#4FC3D8" }} />
             <span>Hoje</span>
           </div>
         </div>

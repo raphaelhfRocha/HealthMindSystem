@@ -63,14 +63,14 @@ namespace HealthMindBackend.Application.Validators.Pacientes
                 })
                 .WithMessage("Telefone já cadastrado no sistema");
 
-            RuleFor(p => p.PlanoSaudePaciente.PacienteId)
-                .NotEmpty().WithMessage("Paciente obrigatório")
-                .MustAsync(async (pacienteId, cancellationToken) =>
-                {
-                    var pacienteExistente = await _pacienteRepository.GetPacienteById(pacienteId);
-                    return pacienteExistente != null;
-                })
-                .WithMessage("Paciente inválido");
+            //RuleFor(p => p.PlanoSaudePaciente.PacienteId)
+            //    .NotEmpty().WithMessage("Paciente obrigatório")
+            //    .MustAsync(async (pacienteId, cancellationToken) =>
+            //    {
+            //        var pacienteExistente = await _pacienteRepository.GetPacienteById(pacienteId);
+            //        return pacienteExistente != null;
+            //    })
+            //    .WithMessage("Paciente inválido");
 
             //RuleFor(p => p.PlanoSaudePaciente.PlanoSaudeId)
             //     .MustAsync(async (planoSaudeId, cancellationToken) =>

@@ -12,6 +12,9 @@ namespace HealthMindBackend.Application.Interfaces
         Task<IEnumerable<PlanoSaudeDTO>> GetAllPlanosSaude();
         Task RegistrarPlanoSaude(PlanoSaudeDTO planoSaudeDto);
         Task AtualizarPlanoSaude(PlanoSaudeDTO planoSaudeDto);
+        Task RegistrarCoberturaPlano(String planoSaudeId, CoberturaPlanoDTO coberturaPlanoDto);
+        Task AtualizarCoberturaPlano(String planoSaudeId, CoberturaPlanoDTO coberturaPlanoDto);
+        Task RemoverCoberturaPlano(String planoSaudeId, String especialidade);
 
     }
 }

@@ -34,17 +34,23 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
 
             var result = await _pacienteRepository.EditarPaciente(request.Id, pacienteFound);
 
-            var planoSaudePaciente = new PlanoSaudePaciente(
-                    result.Id, request.PlanoSaudePaciente.PlanoSaudeId,
-                    request.PlanoSaudePaciente.NumeroCarteirinha,
-                    request.PlanoSaudePaciente.DataValidade
+            if (request.PlanoSaudePaciente != null)
+            {
+                var planoSaudePaciente = new PlanoSaudePaciente(
+                        result.Id,
+                        request.PlanoSaudePaciente.PlanoSaudeId,
+                        request.PlanoSaudePaciente.NumeroCarteirinha,
+                        request.PlanoSaudePaciente.DataValidade
                 );
 
-            var planoSaudePacienteDefinido = planoSaudePaciente != null
-                ? await _pacienteRepository.DefinirPlanoSaudePaciente(result.Id, planoSaudePaciente)
-                : null;
+                var planoSaudePacienteDefinido = planoSaudePaciente != null
+                    ? await _pacienteRepository.DefinirPlanoSaudePaciente(result.Id, planoSaudePaciente)
+                    : null;
 
-            result.PlanoSaudePaciente = planoSaudePacienteDefinido;
+                result.PlanoSaudePaciente = planoSaudePacienteDefinido;
+
+                return result;
+            }
 
             return result;
         }

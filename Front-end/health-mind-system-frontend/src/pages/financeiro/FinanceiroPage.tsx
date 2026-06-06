@@ -1,17 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../../components/AppLayout";
 import { StatusPagamentoEnum } from "../../shared/domain/enums/status-pagamento.enum";
-import { excluirPagamentoSessao, getAllSessoes } from "../../shared/services/sessao.service";
-import { getPacienteById } from "../../shared/services/paciente.service";
-import { getPsicologoById } from "../../shared/services/psicologo.service";
+import { StatusFormaPagamentoEnum } from "../../shared/domain/enums/status-forma-pagamento.enum";
+import { StatusParceladoEnum } from "../../shared/domain/enums/status-parcelado.enum";
+import { definirPagamento, getAllSessoes } from "../../shared/services/sessao.service";
+import { getAllPacientes } from "../../shared/services/paciente.service";
+import { getAllPsicologos } from "../../shared/services/psicologo.service";
 import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
 import { PagamentoDTO } from "../../shared/types/dtos/Pagamento.dto";
 import { formatDate } from "../../shared/utils/formatDate";
-import { Psicologo } from "../../shared/types/common/Psicologo";
-import { Paciente } from "../../shared/types/common/Paciente";
-import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
-import { PacienteDTO } from "../../shared/types/dtos/Paciente.dto";
-import { safeName } from "./financeiro.debug";
+import { Pagination, usePagination } from "../../shared/components/Pagination";
+import { toDateInput } from "../../shared/utils/dateUtils";
+import { formatHora } from "../../shared/utils/formatHora";
+import { formatBRL } from "../../shared/utils/formatBRL";
+import ModalEditarPagamento from "../../shared/components/ModalEditarPagamento/ModalEditarPagamento";
+import CardResumo from "../../shared/components/CardResumo/CardResumo";
 
 const STATUS_FILTROS = ["todos", "pendente", "pago", "isento"] as const;
 type StatusFiltro = (typeof STATUS_FILTROS)[number];
@@ -46,73 +49,61 @@ type dadosFinanceiro = {
   pacienteNome: string;
   psicologo: string;
   sessaoNum: number;
+  dataSessao: string;
+  horaSessao: string;
   data: string;
   valor: number | null;
   statusPagamento: StatusFinanceiro;
 };
 
-function formatBRL(valor: number) {
-  return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function CardResumo({
-  label,
-  valor,
-  cor,
-  sub,
-}: {
-  label: string;
-  valor: string | number;
-  cor: string;
-  sub?: string;
-}) {
-  return (
-    <div
-      style={{
-        background: "white",
-        borderRadius: "14px",
-        padding: "20px 22px",
-        boxShadow: "0 2px 12px rgba(0,0,0,0.07)",
-        flex: 1,
-        minWidth: "140px",
-      }}
-    >
-      <div
-        style={{
-          fontSize: "11px",
-          fontWeight: "700",
-          color: "#aaa",
-          textTransform: "uppercase",
-          letterSpacing: "0.05em",
-          marginBottom: "8px",
-        }}
-      >
-        {label}
-      </div>
-      <div style={{ fontSize: "22px", fontWeight: "800", color: cor }}>{valor}</div>
-      {sub && <div style={{ fontSize: "11px", color: "#bbb", marginTop: "4px" }}>{sub}</div>}
-    </div>
-  );
-}
-
 export default function FinanceiroPage() {
   const [sessoes, setSessoes] = useState<SessaoFinanceira[]>([]);
-  const [psicologo, setPsicologo] = useState<PsicologoDTO>();
-  const [paciente, setPaciente] = useState<PacienteDTO>();
   const [loading, setLoading] = useState(true);
-  const [salvandoId, setSalvandoId] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const [filtroStatus, setFiltroStatus] = useState<StatusFiltro>("todos");
   const [busca, setBusca] = useState("");
+
+  const [pagamentoEmEdicao, setPagamentoEmEdicao] = useState<SessaoFinanceira | null>(null);
+  const [salvandoPagamento, setSalvandoPagamento] = useState(false);
+  const [erroPagamento, setErroPagamento] = useState<string | null>(null);
+  const [marcandoId, setMarcandoId] = useState<string | null>(null);
 
   const carregarSessoes = useCallback(async () => {
     try {
       setLoading(true);
       setErro(null);
-      const result = await getAllSessoes();
-      setSessoes(result as SessaoFinanceira[]);
-    } catch (error: unknown) {
-      const mensagem = error instanceof Error ? error.message : "Falha ao carregar financeiro";
+
+      const [sessoes, pacientes, psicologos] =
+        await Promise.all([
+          getAllSessoes(),
+          getAllPacientes(),
+          getAllPsicologos(),
+        ]);
+
+      const pacientesMap = new Map(
+        pacientes.map((p) => [p.id, p.nome])
+      );
+
+      const psicologosMap = new Map(
+        psicologos.map((p) => [p.id, p.nome])
+      );
+
+      const sessoesComNomes = sessoes.map((sessao) => ({
+        ...sessao,
+        pacienteNome:
+          pacientesMap.get(sessao.pacienteId) ?? "Não encontrado",
+
+        psicologoNome:
+          psicologosMap.get(sessao.psicologoId) ?? "Não encontrado",
+      }));
+
+      setSessoes(sessoesComNomes);
+    } catch (error) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : "Falha ao carregar financeiro";
+
       setErro(mensagem);
     } finally {
       setLoading(false);
@@ -123,9 +114,11 @@ export default function FinanceiroPage() {
     void carregarSessoes();
   }, [carregarSessoes]);
 
+
+
   const mapStatusPagamento = (pagamento?: PagamentoDTO): StatusFinanceiro => {
     if (pagamento?.statusPagamento === StatusPagamentoEnum.stsPago) return "pago";
-    if (pagamento?.statusPagamento === StatusPagamentoEnum.stsNone) return "isento";
+    if (pagamento?.statusPagamento === StatusPagamentoEnum.stsIsento) return "isento";
     return "pendente";
   };
 
@@ -133,28 +126,73 @@ export default function FinanceiroPage() {
     return sessoes
       .map((sessao) => {
         const pagamento = sessao.pagamentoDTO;
-        const statusPagamento = mapStatusPagamento(pagamento);
-        const valor = pagamento?.valorConsultaFinal ?? pagamento?.valorConsulta ?? null;
+
+        const statusPagamento =
+          mapStatusPagamento(pagamento);
+
+        const valor =
+          pagamento?.valorConsultaFinal ??
+          pagamento?.valorConsulta ??
+          null;
+
         const pacienteNome =
-          safeName((sessao as any).paciente?.nome) ?? safeName(sessao.pacienteNome) ?? "—";
+          sessao.pacienteNome ??
+          "Paciente não encontrado";
+
         const psicologo =
-          safeName((sessao as any).psicologo?.nome) ?? safeName(sessao.psicologoNome) ?? "—";
-        const sessaoNum = Number(sessao.sessaoNum ?? sessao.num ?? sessao.id ?? 0);
-        const dataBase = pagamento?.dataPagamento ?? sessao.dataSessao ?? "";
-        const data = formatDate(dataBase as Date | string);
+          sessao.psicologoNome ??
+          "Psicólogo não encontrado";
+
+        const sessaoNum = Number(
+          sessao.sessaoNum ??
+          sessao.num ??
+          sessao.id ??
+          0
+        );
+
+        const dataBase =
+          pagamento?.dataPagamento ?? "";
+
+        const dataValida =
+          dataBase && new Date(dataBase).getFullYear() > 1
+            ? (dataBase as Date | string)
+            : "";
+
+        const data =
+          formatDate(dataValida);
+
+        const dataSessao =
+          sessao.dataSessao &&
+          new Date(sessao.dataSessao).getFullYear() > 1
+            ? formatDate(sessao.dataSessao)
+            : "—";
+
+        const horaSessao =
+          formatHora(sessao.horaInicio);
 
         return {
-          id: String(pagamento?.sessaoId ?? sessao.id ?? sessaoNum),
+          id: String(
+            pagamento?.sessaoId ??
+            sessao.id ??
+            sessaoNum
+          ),
           pacienteNome,
           psicologo,
-          sessaoNum: Number.isFinite(sessaoNum) ? sessaoNum : 0,
+          sessaoNum:
+            Number.isFinite(sessaoNum)
+              ? sessaoNum
+              : 0,
+          dataSessao,
+          horaSessao,
           data,
           valor,
           statusPagamento,
         };
       })
-      .filter((linha) => Boolean(linha.id) && linha.data !== "");
+      .filter((linha) => Boolean(linha.id));
   }, [sessoes]);
+
+
 
   const totalRecebido = linhas
     .filter((linha) => linha.statusPagamento === "pago")
@@ -165,7 +203,8 @@ export default function FinanceiroPage() {
     .reduce((acc, linha) => acc + (linha.valor ?? 0), 0);
 
   const totalSessoes = linhas.length;
-  const totalIsentos = linhas.filter((linha) => linha.statusPagamento === "isento").length;
+  const totalIsentos = linhas
+    .filter((linha) => linha.statusPagamento === "isento").length
 
   const filtrados = useMemo(() => {
     const q = busca.trim().toLowerCase();
@@ -181,30 +220,51 @@ export default function FinanceiroPage() {
     });
   }, [linhas, filtroStatus, busca]);
 
-  const handleExcluirPagamento = useCallback(
-    async (sessaoId: string) => {
-      const confirmado = window.confirm("Excluir o pagamento desta sessão?");
-      if (!confirmado) return;
+  const { pageItems, page, setPage, totalPages } = usePagination(filtrados, 5, `${filtroStatus}|${busca}`);
 
-      try {
-        setSalvandoId(sessaoId);
-        await excluirPagamentoSessao(sessaoId);
-        await carregarSessoes();
-      } catch (error: unknown) {
-        const mensagem = error instanceof Error ? error.message : "Falha ao excluir pagamento";
-        setErro(mensagem);
-      } finally {
-        setSalvandoId(null);
-      }
-    },
-    [carregarSessoes]
-  );
+  function abrirEdicaoPagamento(linha: dadosFinanceiro) {
+    const sessao = sessoes.find(item => String(item.id) === String(linha.id));
+    if (!sessao) {
+      return;
+    }
+    setErroPagamento(null);
+    setPagamentoEmEdicao(sessao);
+  }
 
-  const COL = "1fr 130px 90px 110px 120px 170px";
+  async function handleSalvarPagamento(pagamento: PagamentoDTO) {
+    const sessaoId = pagamentoEmEdicao?.id;
+    if (!sessaoId) {
+      return;
+    }
+
+    try {
+      setSalvandoPagamento(true);
+      setErroPagamento(null);
+      await definirPagamento(sessaoId, pagamento);
+      setPagamentoEmEdicao(null);
+      await carregarSessoes();
+    } catch {
+      setErroPagamento("Não foi possível salvar o pagamento. Tente novamente.");
+    } finally {
+      setSalvandoPagamento(false);
+    }
+  }
+
+  const COL = "1.3fr 1fr 105px 95px 120px 95px 95px 90px";
 
   return (
     <AppLayout breadcrumb="Financeiro >">
-      <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      {pagamentoEmEdicao && (
+        <ModalEditarPagamento
+          pacienteNome={pagamentoEmEdicao.pacienteNome ?? "—"}
+          pagamento={pagamentoEmEdicao.pagamentoDTO}
+          saving={salvandoPagamento}
+          error={erroPagamento}
+          onSave={handleSalvarPagamento}
+          onClose={() => { if (!salvandoPagamento) setPagamentoEmEdicao(null); }}
+        />
+      )}
+      <div style={{ width: "100%", maxWidth: "1080px", display: "flex", flexDirection: "column", gap: "20px" }}>
         <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Financeiro</h1>
 
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
@@ -212,20 +272,40 @@ export default function FinanceiroPage() {
             label="Total Recebido"
             valor={`R$ ${formatBRL(totalRecebido)}`}
             cor="#2A8A55"
-            sub={`${linhas.filter((linha) => linha.statusPagamento === "pago").length} sessões pagas`}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "pago").length === 1 ?
+                'sessão paga' : linhas.filter((linha) => linha.statusPagamento === "pago")
+                  .length > 1 ? 'sessões pagas' : ''
+            }
           />
           <CardResumo
             label="A Receber"
             valor={`R$ ${formatBRL(totalPendente)}`}
             cor="#856404"
-            sub={`${linhas.filter((linha) => linha.statusPagamento === "pendente").length} sessões pendentes`}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "pendente").length === 1 ?
+                'sessão pendente' : linhas.filter((linha) => linha.statusPagamento === "pendente")
+                  .length > 1 ? 'sessões pendentes' : ''
+            }
           />
-          <CardResumo label="Total de Sessões" valor={totalSessoes} cor="#1A4FA3" sub="registradas no sistema" />
+          <CardResumo
+            label="Total de Sessões"
+            valor={totalSessoes}
+            cor="#1A4FA3"
+            sub={
+              linhas.length === 1 ? 'registrada no sistema' :
+              linhas.length > 1 ? 'registradas no sistema' : 
+              ''}
+          />
           <CardResumo
             label="Isenções"
             valor={totalIsentos}
             cor="#888"
-            sub={totalIsentos === 1 ? "sessão isenta" : "sessões isentas"}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "isento").length === 1 ?
+              'sessão isenta' : linhas.filter((linha) => linha.statusPagamento === "isento")
+                  .length > 1 ? 'sessões isentas' : ''
+            }
           />
         </div>
 
@@ -298,7 +378,7 @@ export default function FinanceiroPage() {
 
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "Psicólogo", "Sessão", "Data", "Valor", "Status / Ação"].map((header) => (
+            {["Paciente", "Psicólogo", "Data Sessão", "Hora Sessão", "Data Pagamento", "Valor", "Status", "Ações"].map((header) => (
               <div
                 key={header}
                 style={{
@@ -307,6 +387,9 @@ export default function FinanceiroPage() {
                   color: "white",
                   textTransform: "uppercase",
                   letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {header}
@@ -321,7 +404,7 @@ export default function FinanceiroPage() {
           ) : filtrados.length === 0 ? (
             <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "14px" }}>Nenhum registro encontrado.</div>
           ) : (
-            filtrados.map((linha, index) => {
+            pageItems.map((linha, index) => {
               const rowBg = index % 2 === 0 ? "white" : "#f9fafc";
               const cfg = STATUS_CONFIG[linha.statusPagamento];
 
@@ -353,61 +436,41 @@ export default function FinanceiroPage() {
                     {linha.psicologo}
                   </div>
 
-                  <div>
-                    <span
-                      style={{
-                        fontSize: "12px",
-                        fontWeight: "700",
-                        background: "#EBF3FF",
-                        color: "#1A4FA3",
-                        borderRadius: "10px",
-                        padding: "2px 10px",
-                      }}
-                    >
-                      #{linha.sessaoNum}
-                    </span>
-                  </div>
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap" }}>{linha.dataSessao}</div>
 
-                  <div style={{ fontSize: "13px", color: "#555" }}>{linha.data}</div>
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap", textAlign: "left" }}>{linha.horaSessao}</div>
+
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap" }}>{linha.data}</div>
 
                   <div style={{ fontSize: "13px", fontWeight: "700", color: "#222" }}>
                     {linha.valor != null ? `R$ ${formatBRL(linha.valor)}` : "—"}
                   </div>
 
                   <div>
-                    {linha.statusPagamento === "pago" ? (
-                      <button
-                        type="button"
-                        disabled={salvandoId === linha.id}
-                        onClick={() => void handleExcluirPagamento(linha.id)}
-                        style={{
-                          padding: "5px 14px",
-                          background: salvandoId === linha.id ? "#9DB4E8" : "#1A4FA3",
-                          border: "none",
-                          borderRadius: "14px",
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          color: "white",
-                          cursor: salvandoId === linha.id ? "not-allowed" : "pointer",
-                          whiteSpace: "nowrap",
-                        }}
-                      >
-                        {salvandoId === linha.id ? "Excluindo..." : "Excluir pagamento"}
-                      </button>
-                    ) : (
-                      <span
-                        style={{
-                          fontSize: "12px",
-                          fontWeight: "600",
-                          borderRadius: "14px",
-                          padding: "4px 12px",
-                          background: cfg.bg,
-                          color: cfg.color,
-                        }}
-                      >
-                        {cfg.label}
-                      </span>
-                    )}
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        borderRadius: "14px",
+                        padding: "4px 12px",
+                        background: cfg.bg,
+                        color: cfg.color,
+                      }}
+                    >
+                      {cfg.label}
+                    </span>
+                  </div>
+
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button
+                      onClick={() => abrirEdicaoPagamento(linha)}
+                      title="Editar pagamento"
+                      style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 10px", background: "#EBF3FF", border: "none", borderRadius: "14px", fontSize: "11px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                      onMouseEnter={event => event.currentTarget.style.background = "#d0e4ff"}
+                      onMouseLeave={event => event.currentTarget.style.background = "#EBF3FF"}
+                    >
+                      Editar
+                    </button>
                   </div>
                 </div>
               );
@@ -419,6 +482,8 @@ export default function FinanceiroPage() {
           <span style={{ fontSize: "12px", color: "#888" }}>
             {filtrados.length} {filtrados.length === 1 ? "registro encontrado" : "registros encontrados"}
           </span>
+
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
           {filtroStatus === "todos" && (
             <span style={{ fontSize: "12px", color: "#888" }}>

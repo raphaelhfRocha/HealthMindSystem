@@ -72,12 +72,35 @@ const PsicologoIcon = () => (
   </svg>
 );
 
+const RecepcionistaIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="7" r="3.5" stroke="currentColor" strokeWidth="2" fill="none"/>
+    <path d="M5 21 C5 17 8 14.5 12 14.5 C16 14.5 19 17 19 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none"/>
+    <path d="M9 18 L15 18" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+  </svg>
+);
+
 const FinanceiroIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="11" r="7" stroke="currentColor" strokeWidth="2" fill="none"/>
     <line x1="12" y1="7" x2="12" y2="8" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <line x1="12" y1="14" x2="12" y2="15" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
     <path d="M10 13 C10 13 10.5 14 12 14 C13.5 14 14 13 14 12 C14 11 13 10.5 12 10 C11 9.5 10 9 10 8 C10 7 10.5 6 12 6 C13.5 6 14 7 14 7" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none"/>
+  </svg>
+);
+
+const DisponibilidadeIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none"/>
+    <polyline points="12,7 12,12 15,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+);
+
+const PlanoSaudeIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <path d="M12 21 C12 21 4 15 4 9 C4 6 6 4 9 4 C10.5 4 11.5 5 12 6 C12.5 5 13.5 4 15 4 C18 4 20 6 20 9 C20 15 12 21 12 21Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" fill="none"/>
+    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
+    <line x1="10" y1="11" x2="14" y2="11" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/>
   </svg>
 );
 
@@ -88,6 +111,9 @@ const navItems = [
   { label: "Prontuário",   Icon: ProntuarioIcon, path: "/prontuario" },
   { label: "Paciente",     Icon: PacienteIcon,   path: "/paciente" },
   { label: "Psicólogos",   Icon: PsicologoIcon,  path: "/psicologos" },
+  { label: "Recepcionistas", Icon: RecepcionistaIcon, path: "/recepcionistas" },
+  { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades" },
+  { label: "Planos de Saúde",  Icon: PlanoSaudeIcon,      path: "/planos-saude" },
   { label: "Financeiro",   Icon: FinanceiroIcon, path: "/financeiro" },
 ];
 

@@ -19,7 +19,7 @@ export async function getPacientesByNome(nome: string): Promise<PacienteDTO[]> {
 }
 
 export async function getPacientesByPsicologoId(psicologoId?: string): Promise<PacienteDTO[]> {
-    const response = await api.get<PacienteDTO[]>(`${controller}/psicologo/${psicologoId}`);
+    const response = await api.get<PacienteDTO[]>(`${controller}/psicologos/${psicologoId}`);
     return response.data;
 }
 
@@ -29,6 +29,7 @@ export async function registrarPaciente(pacienteDto: PacienteDTO): Promise<Pacie
 }
 
 export async function editarPaciente(pacienteId: string, pacienteDto: PacienteDTO): Promise<PacienteDTO> {
+    console.log("Dados editados:", pacienteDto);
     const response = await api.put(`${controller}/${pacienteId}`, pacienteDto);
     return response.data;
 }

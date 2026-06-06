@@ -26,9 +26,17 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
         {
             await _validatorPsicologoCreateCommand.ValidateAndThrowAsync(request);
 
-            var psicologo = new Psicologo(request.Nome, request.Email, request.Senha,
-                request.StatusCargo, request.StatusRole, request.CpfCnpj,
-                request.Crp, request.Especialidade);
+            var psicologo = new Psicologo(
+                request.Nome,
+                request.Email,
+                request.Senha,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj,
+                request.Crp,
+                request.Especialidade,
+                request.ValorConsulta
+            );
 
             return await _psicologoRepository.CadastrarPsicologo(psicologo);
         }

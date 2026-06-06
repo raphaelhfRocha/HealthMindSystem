@@ -12,8 +12,9 @@ namespace HealthMindBackend.Application.DTOs
         public String? Id { get; set; }
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }
-        public String RazaoAtendimento { get; set; }
-        public String ImpactoRazao { get; set; }
+        public String? RazaoAtendimento { get; set; }
+        public String? ImpactoRazao { get; set; }
+        public String? ExpectativaAtendimento { get; set; }
         public DateTime DataRegistro { get; set; }
         public SaudeMentalDTO? SaudeMentalDTO { get; set; }
         public List<MetaTerapeuticaDTO>? MetasTerapeuticasDTO { get; set; }

@@ -19,8 +19,10 @@ namespace HealthMindBackend.Application.Interfaces
         Task AdicionarRegistroSessao(RegistroSessaoDTO registroSessaoDto);
         Task AlterarSessao(SessaoDTO sessaoDto);
         Task AlterarEscalaSessao(EscalaSessaoDTO escalaSessaoDto);
+        Task ExcluirEscalaSessao(String sessaoId, String escalaSessaoId);
         Task AlterarRegistroSessao(RegistroSessaoDTO registroSessaoDto);
+        Task ExcluirRegistroSessao(String sessaoId, String registroSessaoId);
         Task DefinirPagamento(PagamentoDTO pagamentoDto);
-        Task ExcluirPagamento(String sessaoId);
+        Task ExcluirSessao(String sessaoId);
     }
 }

@@ -31,7 +31,7 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
             if (medicamentoFound == null)
                 throw new KeyNotFoundException("Medicamento não encontrado");
 
-            medicamentoFound.Update(request.Nome, request.Dosagem, request.Frequencia);
+            medicamentoFound.Update(request.Nome, request.Dosagem, request.Frequencia, request.StatusMedicamentoUso);
 
             return await _prontuarioRepository.EditarMedicamento(request.ProntuarioId, request.Id, medicamentoFound);
         }

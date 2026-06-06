@@ -26,7 +26,7 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
         {
             await _validatorMedicamentoCreateCommand.ValidateAndThrowAsync(request);
 
-            var medicamento = new Medicamento(request.Nome, request.Dosagem, request.Frequencia)
+            var medicamento = new Medicamento(request.Nome, request.Dosagem, request.Frequencia, request.StatusMedicamentoUso)
             {
                 ProntuarioId = request.ProntuarioId
             };

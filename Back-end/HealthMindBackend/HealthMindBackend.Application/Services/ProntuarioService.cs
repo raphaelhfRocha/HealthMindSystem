@@ -57,6 +57,18 @@ namespace HealthMindBackend.Application.Services
             return _mapper.Map<IEnumerable<ProntuarioDTO>>(result);
         }
 
+        public async Task<ProntuarioDTO> GetProntuarioById(String prontuarioId)
+        {
+            var getAllProntuariosQuery = new GetAllProntuariosQuery();
+            var result = await _mediator.Send(getAllProntuariosQuery);
+            var prontuario = result.FirstOrDefault(p => p.Id == prontuarioId);
+
+            if (prontuario == null)
+                throw new KeyNotFoundException("Prontuário não encontrado");
+
+            return _mapper.Map<ProntuarioDTO>(prontuario);
+        }
+
         public async Task<MedicamentoDTO> GetMedicamentoByProntuarioIdAndMedicamentoId(String prontuarioId, String medicamentoId)
         {
             var getMedicamentoByProntuarioIdAndMedicamentoIdQuery = new GetMedicamentoByProntuarioIdAndMedicamentoIdQuery(prontuarioId, medicamentoId);

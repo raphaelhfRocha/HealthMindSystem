@@ -14,6 +14,7 @@ namespace HealthMindBackend.Application.Disponibilidades.Commands
         public String PsicologoId { get; set; }
         public DateTime DataDisponibilidade { get; set; }
         public TimeSpan HoraInicio { get; set; }
+        public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public StatusDisponibilidadeEnum StatusDisponibilidade { get; set; }
     }
 }

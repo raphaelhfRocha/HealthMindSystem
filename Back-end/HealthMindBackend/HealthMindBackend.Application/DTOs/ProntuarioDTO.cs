@@ -15,7 +15,7 @@ namespace HealthMindBackend.Application.DTOs
         [Required(ErrorMessage = "Id do paciente obrigatório")]
         public String PacienteId { get; set; }
         [Required(ErrorMessage = "Descrição prontuário obrigatório")]
-        public String Descricao { get; set; }
+        public String? Anotacoes { get; set; }
         public DateTime? DataAbertura { get; set; }
         public StatusProntuarioEnum StatusProntuario { get; set; }
         public ContatoEmergenciaDTO? ContatoEmergenciaDTO { get; set; }

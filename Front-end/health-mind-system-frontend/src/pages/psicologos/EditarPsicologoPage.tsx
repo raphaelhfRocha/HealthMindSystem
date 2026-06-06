@@ -35,6 +35,7 @@ export default function EditarPsicologoPage() {
       cpfCnpj: "",
       crp: "",
       especialidade: "",
+      valorConsulta: 0,
       statusCargo: statusCargoPsicologo,
       statusRole: statusRoleAdmin,
     },
@@ -62,6 +63,7 @@ export default function EditarPsicologoPage() {
             cpfCnpj: encontrado.cpfCnpj ?? "",
             crp: encontrado.crp ?? "",
             especialidade: encontrado.especialidade ?? "",
+            valorConsulta: encontrado.valorConsulta ?? 0,
             statusCargo: encontrado.statusCargo ?? statusCargoPsicologo,
             statusRole: encontrado.statusRole ?? statusRoleAdmin,
           });
@@ -117,6 +119,7 @@ export default function EditarPsicologoPage() {
         cpfCnpj: normalizeCpfCnpj(values.cpfCnpj),
         crp: values.crp.trim(),
         especialidade: values.especialidade.trim(),
+        valorConsulta: values.valorConsulta,
         statusCargo: values.statusCargo,
         statusRole: values.statusRole,
       });
@@ -175,6 +178,7 @@ export default function EditarPsicologoPage() {
                 <RHFTextField control={control} errors={errors} name="crp" label="CRP *" placeholder="Ex: 06/12345" mask={formatCrp} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
               </div>
               <RHFTextField control={control} errors={errors} name="email" label="E-mail *" placeholder="email@exemplo.com" type="email" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
+              <RHFTextField control={control} errors={errors} name="valorConsulta" label="Valor da Consulta (R$) *" placeholder="Ex: 150" type="number" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
               {/* Actions */}
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}>
                 <button

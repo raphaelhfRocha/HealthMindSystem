@@ -1,5 +1,9 @@
+import { PlanoSaudeDTO } from "./PlanoSaude.dto";
+
 export interface PlanoSaudePacienteDTO {
-    planoSaudePacienteId: string,
+    pacienteId?: string,
+    planoSaudeId: string,
     numeroCarteirinha: string,
-    dataValidade: Date
+    dataValidade: string | Date,
+    planoSaudeDTO?: PlanoSaudeDTO
 };

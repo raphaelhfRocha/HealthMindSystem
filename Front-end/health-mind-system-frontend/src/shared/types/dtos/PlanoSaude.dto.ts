@@ -1,4 +1,5 @@
 import { StatusPlanoSaudeEnum } from "../../domain/enums/status-plano-saude.enum";
+import { CoberturaPlanoDTO } from "./CoberturaPlano.dto";
 
 export interface PlanoSaudeDTO {
     id?: string,
@@ -7,5 +8,5 @@ export interface PlanoSaudeDTO {
     statusPlanoSaude: StatusPlanoSaudeEnum,
     telefone: string,
     email: string,
-    coberturaPlanoDto: CoberturaPlanoDTO
+    coberturasPlanoDTO?: CoberturaPlanoDTO[]
 }

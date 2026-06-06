@@ -1,4 +1,5 @@
 export * from './formatCpfCnpj';
+export * from './formatCep';
 export * from './formatDate';
 export * from './formatCurrency';
 export * from './masks';

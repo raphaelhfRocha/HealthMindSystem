@@ -28,7 +28,7 @@ namespace HealthMindBackend.Application.MetasTerapeuticas.Handlers
 
             metaTerapeuticaFound.Update(request.Titulo, request.StatusMetaTerapeutica, request.Observacoes);
 
-            return metaTerapeuticaFound;
+            return await _historicoMedicoRepository.EditarMetaTerapeutica(request.HistoricoMedicoId, request.Id, metaTerapeuticaFound);
         }
     }
 }

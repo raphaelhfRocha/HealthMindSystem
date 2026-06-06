@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
@@ -16,31 +17,55 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
     {
         private readonly IValidator<SessaoCreateCommand> _validatorSessaoCreateCommand;
         private readonly ISessaoRepository _sessaoRepository;
+        private readonly IPsicologoRepository _psicologoRepository;
 
-        public SessaoCreateCommandHandler(IValidator<SessaoCreateCommand> validatorSessaoCreateCommand, ISessaoRepository sessaoRepository)
+        public SessaoCreateCommandHandler(IValidator<SessaoCreateCommand> validatorSessaoCreateCommand,
+            ISessaoRepository sessaoRepository,
+            IPsicologoRepository psicologoRepository)
         {
             _validatorSessaoCreateCommand = validatorSessaoCreateCommand;
             _sessaoRepository = sessaoRepository;
+            _psicologoRepository = psicologoRepository;
+
         }
 
         public async Task<Sessao> Handle(SessaoCreateCommand request, CancellationToken cancellationToken)
         {
             await _validatorSessaoCreateCommand.ValidateAndThrowAsync(request);
 
-            var sessao = new Sessao(request.PacienteId, request.PsicologoId, request.DataSessao,
-                request.HoraInicio, request.Observacoes, request.StatusTipoAtendimento, request.StatusSessao);
-            
+            var sessao = new Sessao(
+                request.PacienteId,
+                request.PsicologoId,
+                request.DataSessao,
+                request.HoraInicio,
+                request.StatusTipoAtendimento
+            );
+
+            var disponibilidades = await _psicologoRepository.GetDisponibilidadesByPsicologoId(request.PsicologoId);
+
+            if (disponibilidades != null)
+            {
+                foreach (var disponibilidade in disponibilidades)
+                {
+                    if (request.DataSessao == disponibilidade.DataDisponibilidade &&
+                        request.HoraInicio == disponibilidade.HoraInicio)
+                    {
+                        disponibilidade.UpdateStatusDisponibilidadeToReservada();
+                        var statusDiponibilidadeAlterada =
+                            await _psicologoRepository.AlterarStatusDisponibilidade(request.PsicologoId, disponibilidade.Id, disponibilidade);
+                    }
+                }
+            }
+
             var result = await _sessaoRepository.AgendarSessao(sessao);
 
-            var pagamento = new Pagamento(result.Id, request.Pagamento.Valor,
-                request.Pagamento.DataPagamento, request.Pagamento.FormaPagamento,
-                request.Pagamento.StatusPagamento, request.Pagamento.StatusParcelado,
-                request.Pagamento.TotalParcelas);
+            var pagamento = new Pagamento(
+                result.Id,
+                request.PagamentoCommand.ValorCoberturaPlano,
+                request.PagamentoCommand.ValorConsultaFinal
+            );
 
-            var pagamentoDefinido = pagamento != null 
-                ? await _sessaoRepository.DefinirPagamento(result.Id, pagamento)
-                : null;
-
+            var pagamentoDefinido = await _sessaoRepository.DefinirPagamento(result.Id, pagamento);
             result.Pagamento = pagamentoDefinido;
 
             return result;

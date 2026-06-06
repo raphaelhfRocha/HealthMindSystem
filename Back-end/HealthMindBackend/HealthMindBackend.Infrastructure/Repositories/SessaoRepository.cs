@@ -2,6 +2,7 @@
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao;
 using HealthMindBackend.Domain.ValueObjects.Sessao.RegistroSessao;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
@@ -28,10 +29,10 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return sessao;
         }
 
-        public async Task<Sessao> AlterarSessao(String id, Sessao sessao)
+        public async Task<Sessao> AlterarSessao(String sessaoId, Sessao sessao)
         {
-            await DefinirPagamento(id, sessao.Pagamento);
-            await _collection.ReplaceOneAsync(s => s.Id == id, sessao);
+            await DefinirPagamento(sessaoId, sessao.Pagamento);
+            await _collection.ReplaceOneAsync(s => s.Id == sessaoId, sessao);
             return sessao;
         }
 
@@ -104,7 +105,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 m => m.Id == registroSessaoId));
 
             var update = Builders<Sessao>.Update
-                .Set("RegistrosSessoes.$.Titulo", registroSessao.Registro);
+                .Set("RegistrosSessoes.$.Registro", registroSessao.Registro);
 
             var result = await _collection.UpdateOneAsync(filter, update);
             if (result.MatchedCount == 0)
@@ -156,14 +157,14 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return sessao.RegistrosSessoes.ToList();
         }
 
-        public async Task<List<EscalaSessao>> GetEscalasSessoesBySessaoId(String sessaoId)
+        public async Task<EscalaSessao> GetEscalaSessaoBySessaoId(String sessaoId)
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
             if (sessao == null || sessao.EscalasSessoes == null)
                 return null;
 
-            return sessao.EscalasSessoes.ToList();
+            return sessao.EscalasSessoes.FirstOrDefault();
         }
 
         public async Task<RegistroSessao> GetRegistrosSessoesBySessaoIdAndRegistroSessaoId(String sessaoId, String registroSessaoId)
@@ -184,6 +185,37 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 return null;
 
             return sessao.EscalasSessoes.FirstOrDefault(r => r.Id == escalaSessaoId);
+        }
+
+        public async Task ExcluirSessao(String sessaoId)
+        {
+            await _collection.DeleteOneAsync(s => s.Id == sessaoId);
+        }
+
+        public async Task ExcluirRegistroSessao(String sessaoId, String registroSessaoId)
+        {
+            var delete = Builders<Sessao>.Update.PullFilter(s => s.RegistrosSessoes,
+                r => r.Id == registroSessaoId);
+
+            await _collection.UpdateOneAsync(s => s.Id == sessaoId, delete);
+        }
+
+        public async Task ExcluirEscalaSessao(String sessaoId, String escalaSessaoId)
+        {
+            var delete = Builders<Sessao>.Update.PullFilter(s => s.EscalasSessoes,
+                r => r.Id == escalaSessaoId);
+
+            await _collection.UpdateOneAsync(s => s.Id == sessaoId, delete);
+        }
+
+        public async Task<List<EscalaSessao>> GetEscalasSessoesBySessaoId(String sessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.EscalasSessoes == null)
+                return null;
+
+            return sessao.EscalasSessoes.ToList();
         }
     }
 }

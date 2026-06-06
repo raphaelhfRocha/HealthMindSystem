@@ -138,11 +138,6 @@ export default function LoginPage() {
             </div>
 
             <div style={{ textAlign: "right", marginTop: "-8px" }}>
-              <a href="#" onClick={e => e.preventDefault()} style={{
-                fontSize: "14px", color: "#333", textDecoration: "underline", fontWeight: "600", cursor: "pointer",
-              }}>
-                Realizar Cadastros
-              </a>
             </div>
 
             <button

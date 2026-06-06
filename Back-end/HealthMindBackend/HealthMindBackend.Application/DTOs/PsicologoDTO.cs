@@ -19,6 +19,7 @@ namespace HealthMindBackend.Application.DTOs
         public StatusRoleEnum StatusRole { get; set; }
         public String Crp { get; set; }
         public String Especialidade { get; set; }
+        public Decimal ValorConsulta { get; set; }
         public List<DisponibilidadeDTO>? DisponibilidadesDTO { get; set; }
     }
 }

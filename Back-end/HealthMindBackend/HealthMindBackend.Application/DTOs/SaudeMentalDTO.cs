@@ -8,10 +8,10 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class SaudeMentalDTO
     {
-        public String HistoricoMedicoId { get; set; }
-        public String DiagnosticoPrevio { get; set; }
-        public String Acompanhamento { get; set; }
-        public String StatusInternacao { get; set; }
-        public String Antecentes { get; set; }
+        public String? HistoricoMedicoId { get; set; }
+        public String? DiagnosticoPrevio { get; set; }
+        public String? Acompanhamento { get; set; }
+        public String? StatusInternacao { get; set; }
+        public String? Antecedentes { get; set; }
     }
 }

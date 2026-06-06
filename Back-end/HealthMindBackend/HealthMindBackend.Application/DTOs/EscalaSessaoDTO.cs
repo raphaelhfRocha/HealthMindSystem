@@ -8,7 +8,7 @@ namespace HealthMindBackend.Application.DTOs
 {
     public class EscalaSessaoDTO
     {
-        public String Id { get; set; }
+        public String? Id { get; set; }
         public String SessaoId { get; set; }
         public Int32 Humor { get; set; }
         public Int32 Ansiedade { get; set; }

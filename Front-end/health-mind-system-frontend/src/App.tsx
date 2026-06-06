@@ -14,10 +14,15 @@ import EditarAnotacoesPage from "./pages/prontuario/EditarAnotacoesPage";
 import HistoricoPage from "./pages/historico/HistoricoPage";
 import VisualizarHistoricoPage from "./pages/historico/VisualizarHistoricoPage";
 import PacientesPage from "./pages/pacientes/PacientesPage";
-import EditarPacientePage from "./pages/pacientes/EditarPacientePage";
+import { EditarPacientePage } from "./pages/pacientes/EditarPacientePage";
 import PsicologosPage from "./pages/psicologos/PsicologosPage";
 import EditarPsicologoPage from "./pages/psicologos/EditarPsicologoPage";
+import RecepcionistasPage from "./pages/recepcionistas/RecepcionistasPage";
+import EditarRecepcionistaPage from "./pages/recepcionistas/EditarRecepcionistaPage";
 import FinanceiroPage from "./pages/financeiro/FinanceiroPage";
+import PlanosSaudePage from "./pages/planos-saude/PlanosSaudePage";
+import VisualizarPlanoSaudePage from "./pages/planos-saude/VisualizarPlanoSaudePage";
+import DisponibilidadesPage from "./pages/disponibilidades/DisponibilidadesPage";
 
 export default function App() {
   return (
@@ -41,7 +46,12 @@ export default function App() {
         <Route path="/paciente/:id/editar" element={<EditarPacientePage />} />
         <Route path="/psicologos" element={<PsicologosPage />} />
         <Route path="/psicologos/:id/editar" element={<EditarPsicologoPage />} />
+        <Route path="/recepcionistas" element={<RecepcionistasPage />} />
+        <Route path="/recepcionistas/:id/editar" element={<EditarRecepcionistaPage />} />
         <Route path="/financeiro" element={<FinanceiroPage />} />
+        <Route path="/disponibilidades" element={<DisponibilidadesPage />} />
+        <Route path="/planos-saude" element={<PlanosSaudePage />} />
+        <Route path="/planos-saude/:id" element={<VisualizarPlanoSaudePage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

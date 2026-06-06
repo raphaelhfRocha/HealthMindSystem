@@ -37,7 +37,7 @@ namespace HealthMindBackend.Application.Services
         public async Task AdicionarRegistroSessao(RegistroSessaoDTO registroSessaoDto)
         {
             var registroSessaoCreateCommand = _mapper.Map<RegistroSessaoCreateCommand>(registroSessaoDto);
-            var result = await _mediator.Send(registroSessaoCreateCommand);
+            await _mediator.Send(registroSessaoCreateCommand);
         }
 
         public async Task<SessaoDTO> AgendarSessao(SessaoDTO sessaoDto)
@@ -71,10 +71,22 @@ namespace HealthMindBackend.Application.Services
             await _mediator.Send(pagamentoUpdateCommand);
         }
 
-        public async Task ExcluirPagamento(String sessaoId)
+        public async Task ExcluirEscalaSessao(String sessaoId, String escalaSessaoId)
         {
-            var pagamentoDeleteCommand = new PagamentoDeleteCommand(sessaoId);
-            await _mediator.Send(pagamentoDeleteCommand);
+            var escalaSessaoDeleteCommand = new EscalaSessaoDeleteCommand(escalaSessaoId, sessaoId);
+            await _mediator.Send(escalaSessaoDeleteCommand);
+        }
+
+        public async Task ExcluirRegistroSessao(String sessaoId, String registroSessaoId)
+        {
+            var registroSessaoDeleteCommand = new RegistroSessaoDeleteCommand(registroSessaoId, sessaoId);
+            await _mediator.Send(registroSessaoDeleteCommand);
+        }
+
+        public async Task ExcluirSessao(String sessaoId)
+        {
+            var sessaoDeleteCommand = new SessaoDeleteCommand(sessaoId);
+            await _mediator.Send(sessaoDeleteCommand);
         }
 
         public async Task<IEnumerable<SessaoDTO>> GetAllSessoes()

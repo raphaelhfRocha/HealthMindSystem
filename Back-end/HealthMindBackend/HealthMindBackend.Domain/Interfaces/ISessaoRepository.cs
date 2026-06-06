@@ -18,15 +18,19 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<RegistroSessao> GetRegistrosSessoesBySessaoIdAndRegistroSessaoId(String sessaoId, String registroSessaoId);
         Task<List<RegistroSessao>> GetRegistrosSessoesBySessaoId(String sessaoId);
         Task<EscalaSessao> GetEscalaSessaoBySessaoIdAndEscalaSessaoId(String sessaoId, String escalaSessaoId);
+        Task<EscalaSessao> GetEscalaSessaoBySessaoId(String sessaoId);
         Task<List<EscalaSessao>> GetEscalasSessoesBySessaoId(String sessaoId);
         Task<Sessao> GetPagamentoBySessaoId(String sessaoId);
         Task<Sessao> AgendarSessao(Sessao sessao);
-        Task<Sessao> AlterarSessao(String id, Sessao sessao);
+        Task<Sessao> AlterarSessao(String sessaoId, Sessao sessao);
+        Task ExcluirSessao(String sessaoId);
         Task<Pagamento> DefinirPagamento(String sessaoId, Pagamento pagamento);
         Task RemoverPagamento(String sessaoId);
         Task<RegistroSessao> AdicionarRegistroSessao(String sessaoId, RegistroSessao registroSessao);
         Task<RegistroSessao> AlterarRegistroSessao(String sessaoId, String registroSessaoId, RegistroSessao registroSessao);
+        Task ExcluirRegistroSessao(String sessaoId, String registroSessaoId);
         Task<EscalaSessao> AdicionarEscalaSessao(String sessaoId, EscalaSessao escalaSessao);
         Task<EscalaSessao> AlterarEscalaSessao(String sessaoId, String escalaSessaoId, EscalaSessao escalaSessao);
+        Task ExcluirEscalaSessao(String sessaoId, String escalaSessaoId);
     }
 }
