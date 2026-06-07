@@ -23,26 +23,26 @@ namespace HealthMindBackend.Application.Validators.HistoricosMedicos
                 .NotEmpty().WithMessage("Id Histórico Médico obrigatório");
 
             RuleFor(h => h.PacienteId)
-                .NotEmpty().WithMessage("Id Paciente obrigatório")
-                .MustAsync(async (historicoMedicoCreateCommand, none, cancellationToken) =>
-                {
-                    var pacienteExist = await _pacienteRepository.GetPacienteById(historicoMedicoCreateCommand.PacienteId);
-                    return pacienteExist != null;
-                })
-                .WithMessage("O Paciente não existe para registro do histórico médico");
+                .NotEmpty().WithMessage("Id Paciente obrigatório");
+                //.MustAsync(async (historicoMedicoCreateCommand, none, cancellationToken) =>
+                //{
+                //    var pacienteExist = await _pacienteRepository.GetPacienteById(historicoMedicoCreateCommand.PacienteId);
+                //    return pacienteExist != null;
+                //})
+                //.WithMessage("O Paciente não existe para registro do histórico médico");
 
             RuleFor(h => h.ProntuarioId)
-                .NotEmpty().WithMessage("Id Prontuário obrigatório")
-                .MustAsync(async (historicoMedicoCreateCommand, none, cancellationToken) =>
-                {
-                    var prontuarioExist = await _prontuarioRepository.GetProntuarioById(historicoMedicoCreateCommand.ProntuarioId);
-                    var pacienteExist = await _pacienteRepository.GetPacienteById(historicoMedicoCreateCommand.PacienteId);
-                    return prontuarioExist != null && pacienteExist != null;
-                })
-                .WithMessage("O Prontuario/Paciente não existe para registro do histórico médico");
+                .NotEmpty().WithMessage("Id Prontuário obrigatório");
+                //.MustAsync(async (historicoMedicoCreateCommand, none, cancellationToken) =>
+                //{
+                //    var prontuarioExist = await _prontuarioRepository.GetProntuarioById(historicoMedicoCreateCommand.ProntuarioId);
+                //    var pacienteExist = await _pacienteRepository.GetPacienteById(historicoMedicoCreateCommand.PacienteId);
+                //    return prontuarioExist != null && pacienteExist != null;
+                //})
+                //.WithMessage("O Prontuario/Paciente não existe para registro do histórico médico");
 
-            RuleFor(h => h.Descricao)
-                .NotEmpty().WithMessage("Descrição obrigatória");
+            //RuleFor(h => h.Descricao)
+            //    .NotEmpty().WithMessage("Descrição obrigatória");
 
             RuleFor(h => h.DataRegistro)
                 .NotEmpty().WithMessage("Data Registro obrigatória");

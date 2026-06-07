@@ -11,12 +11,12 @@ namespace HealthMindBackend.Application.DTOs
     public class PagamentoDTO
     {
         public String? SessaoId { get; set; }
-        public Decimal Valor { get; set; }
-        [Required(ErrorMessage = "Data Pagamento Obrigatória")]
+        public Decimal ValorCoberturaPlano { get; set; }
+        public Decimal ValorConsultaFinal { get; set; }
         public DateTime DataPagamento { get; set; }
-        public StatusFormaPagamentoEnum FormaPagamento { get; set; }
+        public StatusFormaPagamentoEnum StatusFormaPagamento { get; set; }
         public StatusPagamentoEnum StatusPagamento { get; set; }
         public StatusParceladoEnum StatusParcelado { get; set; }
-        public Int32 TotalParcelas { get; set; }
+        public Int32? TotalParcelas { get; set; }
     }
 }

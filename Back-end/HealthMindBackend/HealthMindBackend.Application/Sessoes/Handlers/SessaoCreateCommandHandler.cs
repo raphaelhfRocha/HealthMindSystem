@@ -1,6 +1,9 @@
-﻿using HealthMindBackend.Application.Sessoes.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,35 +15,57 @@ namespace HealthMindBackend.Application.Sessoes.Handlers
 {
     public class SessaoCreateCommandHandler : IRequestHandler<SessaoCreateCommand, Sessao>
     {
+        private readonly IValidator<SessaoCreateCommand> _validatorSessaoCreateCommand;
         private readonly ISessaoRepository _sessaoRepository;
+        private readonly IPsicologoRepository _psicologoRepository;
 
-        public SessaoCreateCommandHandler(ISessaoRepository sessaoRepository)
+        public SessaoCreateCommandHandler(IValidator<SessaoCreateCommand> validatorSessaoCreateCommand,
+            ISessaoRepository sessaoRepository,
+            IPsicologoRepository psicologoRepository)
         {
+            _validatorSessaoCreateCommand = validatorSessaoCreateCommand;
             _sessaoRepository = sessaoRepository;
+            _psicologoRepository = psicologoRepository;
+
         }
 
         public async Task<Sessao> Handle(SessaoCreateCommand request, CancellationToken cancellationToken)
         {
-            var sessao = new Sessao(request.PacienteId, request.PsicologoId, request.DataSessao,
-                request.HoraInicio, request.Observacoes, request.StatusTipoAtendimento, request.StatusSessao);
+            await _validatorSessaoCreateCommand.ValidateAndThrowAsync(request);
 
-            if (sessao == null)
-                throw new ArgumentNullException(nameof(sessao));
+            var sessao = new Sessao(
+                request.PacienteId,
+                request.PsicologoId,
+                request.DataSessao,
+                request.HoraInicio,
+                request.StatusTipoAtendimento
+            );
 
-            
+            var disponibilidades = await _psicologoRepository.GetDisponibilidadesByPsicologoId(request.PsicologoId);
+
+            if (disponibilidades != null)
+            {
+                foreach (var disponibilidade in disponibilidades)
+                {
+                    if (request.DataSessao == disponibilidade.DataDisponibilidade &&
+                        request.HoraInicio == disponibilidade.HoraInicio)
+                    {
+                        disponibilidade.UpdateStatusDisponibilidadeToReservada();
+                        var statusDiponibilidadeAlterada =
+                            await _psicologoRepository.AlterarStatusDisponibilidade(request.PsicologoId, disponibilidade.Id, disponibilidade);
+                    }
+                }
+            }
+
             var result = await _sessaoRepository.AgendarSessao(sessao);
 
-            request.PagamentoDTO.SessaoId = result.Id;
+            var pagamento = new Pagamento(
+                result.Id,
+                request.PagamentoCommand.ValorCoberturaPlano,
+                request.PagamentoCommand.ValorConsultaFinal
+            );
 
-            var pagamento = new Pagamento(request.PagamentoDTO.SessaoId, request.PagamentoDTO.Valor,
-                request.PagamentoDTO.DataPagamento, request.PagamentoDTO.FormaPagamento,
-                request.PagamentoDTO.StatusPagamento, request.PagamentoDTO.StatusParcelado,
-                request.PagamentoDTO.TotalParcelas);
-
-            var pagamentoDefinido = pagamento != null 
-                ? await _sessaoRepository.DefinirPagamento(result.Id, pagamento)
-                : null;
-
+            var pagamentoDefinido = await _sessaoRepository.DefinirPagamento(result.Id, pagamento);
             result.Pagamento = pagamentoDefinido;
 
             return result;

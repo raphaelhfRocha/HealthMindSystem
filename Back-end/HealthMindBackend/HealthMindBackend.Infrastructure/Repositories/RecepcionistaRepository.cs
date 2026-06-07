@@ -1,6 +1,7 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -27,17 +28,18 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             recepcionista.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Recepcionista));
             await _collection.InsertOneAsync(recepcionista);
+            return recepcionista;
         }
 
         public async Task<Recepcionista> EditarRecepcionista(String id, Recepcionista usuario)
         {
-            await _collection.ReplaceOneAsync(u => u.Id == id, usuario);
+            await _collection.ReplaceOneAsync(r => r.Id == id, usuario);
             return usuario;
         }
 
         public async Task ExcluirRecepcionista(String id)
         {
-            await _collection.DeleteOneAsync(u => u.Id == id);
+            await _collection.DeleteOneAsync(r => r.Id == id);
         }
 
         public async Task<IEnumerable<Recepcionista>> GetAllRecepcionistas()
@@ -45,19 +47,19 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
+        public async Task<Recepcionista> GetRecepcionistaByCpf(String cpf)
+        {
+            return await _collection.Find(r => r.CpfCnpj.Numero == cpf).FirstOrDefaultAsync();
+        }
+
         public async Task<Recepcionista> GetRecepcionistaByEmail(String email)
         {
-            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
+            return await _collection.Find(r => r.Email.Endereco == email).FirstOrDefaultAsync();
         }
 
         public async Task<Recepcionista> GetRecepcionistaById(String id)
         {
-            return await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
+            return await _collection.Find(r => r.Id == id).FirstOrDefaultAsync();
         }
-
-        //public async Task<IEnumerable<Usuario>> GetUsuarioByStatusCargo(StatusCargoEnum statusCargo)
-        //{
-        //    return await _collection.Find(u => u.StatusCargo == statusCargo).ToListAsync();
-        //}
     }
 }

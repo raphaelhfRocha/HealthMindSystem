@@ -1,4 +1,4 @@
-﻿using HealthMindBackend.Domain.Entities;
+﻿using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;

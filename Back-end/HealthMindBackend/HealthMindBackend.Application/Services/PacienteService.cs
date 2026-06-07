@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Pacientes.Commands;
@@ -25,8 +26,8 @@ namespace HealthMindBackend.Application.Services
 
         public async Task AtualizarPaciente(PacienteDTO pacienteDto)
         {
-            var pacienteUpdareCommand = _mapper.Map<PacienteUpdateCommand>(pacienteDto);
-            await _mediator.Send(pacienteUpdareCommand);
+            var pacienteUpdateCommand = _mapper.Map<PacienteUpdateCommand>(pacienteDto);
+            await _mediator.Send(pacienteUpdateCommand);
         }
 
         public async Task CadastrarPaciente(PacienteDTO pacienteDto)
@@ -40,6 +41,20 @@ namespace HealthMindBackend.Application.Services
             var getAllPacienteQuery = new GetAllPacientesQuery();
             var result = await _mediator.Send(getAllPacienteQuery);
             return _mapper.Map<IEnumerable<PacienteDTO>>(result);
+        }
+
+        public async Task<PacienteDTO> GetPacienteById(String id)
+        {
+            var getPacienteByIdQuery = new GetPacienteByIdQuery(id);
+            var result = await _mediator.Send(getPacienteByIdQuery);
+            return _mapper.Map<PacienteDTO>(result);
+        }
+
+        public async Task<List<PacienteDTO>> GetPacientesByNome(String nome)
+        {
+            var getPacientesByNomeQuery = new GetPacientesByNomeQuery(nome);
+            var result = await _mediator.Send(getPacientesByNomeQuery);
+            return _mapper.Map<List<PacienteDTO>>(result);
         }
 
         public async Task<List<PacienteDTO>> GetPacientesByPsicologoId(String? psicologoId)

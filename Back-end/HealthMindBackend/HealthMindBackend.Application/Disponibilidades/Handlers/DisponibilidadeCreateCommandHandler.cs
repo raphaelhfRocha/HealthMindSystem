@@ -1,6 +1,7 @@
-﻿using HealthMindBackend.Application.Disponibilidades.Commands;
-using HealthMindBackend.Domain.Entities;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,25 +13,47 @@ namespace HealthMindBackend.Application.Disponibilidades.Handlers
 {
     public class DisponibilidadeCreateCommandHandler :IRequestHandler<DisponibilidadeCreateCommand, Disponibilidade>
     {
+        private readonly IValidator<DisponibilidadeCreateCommand> _validatorDisponibilidadeCreateCommand;
         private readonly IPsicologoRepository _psicologoRepository;
 
-        public DisponibilidadeCreateCommandHandler(IPsicologoRepository psicologoRepository)
+        public DisponibilidadeCreateCommandHandler(IValidator<DisponibilidadeCreateCommand> validatorDisponibilidadeCreateCommand, IPsicologoRepository psicologoRepository)
         {
+            _validatorDisponibilidadeCreateCommand = validatorDisponibilidadeCreateCommand;
             _psicologoRepository = psicologoRepository;
         }
 
         public async Task<Disponibilidade> Handle(DisponibilidadeCreateCommand request, CancellationToken cancellationToken)
         {
-            var disponibilidade = new Disponibilidade(request.DataDisponibilidade, request.HoraInicio, request.StatusDisponibilidade)
-            {
-                PsicologoId = request.PsicologoId
-            };
+            await _validatorDisponibilidadeCreateCommand.ValidateAndThrowAsync(request);
 
-            disponibilidade = disponibilidade
-                ?? throw new ArgumentNullException(nameof(disponibilidade));
+            var disponibilidadesFound = 
+                await _psicologoRepository.GetDisponibilidadesByPsicologoId(request.PsicologoId);
+
+            if(disponibilidadesFound != null)
+            {
+                foreach(var disponibilidadeFound in disponibilidadesFound)
+                {
+                    if(request.PsicologoId == disponibilidadeFound.PsicologoId && 
+                        request.DataDisponibilidade == disponibilidadeFound.DataDisponibilidade &&
+                        request.HoraInicio == disponibilidadeFound.HoraInicio)
+                    {
+                        throw new Exception("Disponibilidade j� registrada.");
+                    }
+                }
+            }
+
+            var disponibilidade = new Disponibilidade(
+                request.PsicologoId,
+                request.DataDisponibilidade,
+                request.HoraInicio,
+                request.StatusTipoAtendimento
+            );
 
             var disponibilidadeAdicionada = await _psicologoRepository.AdicionarDisponibilidade(request.PsicologoId, disponibilidade);
             return disponibilidadeAdicionada;
+        }
+    }
+}
         }
     }
 }

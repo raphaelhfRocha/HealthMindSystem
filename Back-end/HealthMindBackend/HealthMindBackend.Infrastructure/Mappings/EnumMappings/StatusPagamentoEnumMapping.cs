@@ -13,7 +13,8 @@ namespace HealthMindBackend.Infrastructure.Mappings.EnumMappings
         new()
         {
             { StatusPagamentoEnum.StsPago, "Pago" },
-            { StatusPagamentoEnum.StsPendente, "Pendente" }
+            { StatusPagamentoEnum.StsPendente, "Pendente" },
+            { StatusPagamentoEnum.StsIsento, "Isento" }
         };
 
         public static String ToString(StatusPagamentoEnum status)

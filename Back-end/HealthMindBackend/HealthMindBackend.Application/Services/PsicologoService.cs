@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using FluentValidation;
 using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Application.Disponibilidades.Queries;
 using HealthMindBackend.Application.DTOs;
@@ -61,6 +62,27 @@ namespace HealthMindBackend.Application.Services
             var getDisponibilidadesByPsicologoIdQuery = new GetDisponibilidadesByPsicologoIdQuery(psicologoId);
             var result = await _mediator.Send(getDisponibilidadesByPsicologoIdQuery);
             return _mapper.Map<List<DisponibilidadeDTO>>(result);
+        }
+ 
+        public async Task<List<PsicologoDTO>> GetPsicologosByNome(String nome)
+        {
+            var getPsicologoByNomeQuery = new GetPsicologosByNomeQuery(nome);
+            var result = await _mediator.Send(getPsicologoByNomeQuery);
+            return _mapper.Map<List<PsicologoDTO>>(result);
+        }
+
+        public async Task<List<PsicologoDTO>> GetPsicologosByEspecialidade(String especialidade)
+        {
+            var getPsicologosByEspecialidadeQuery = new GetPsicologosByEspecialidadeQuery(especialidade);
+            var result = await _mediator.Send(getPsicologosByEspecialidadeQuery);
+            return _mapper.Map<List<PsicologoDTO>>(result);
+        }
+
+        public async Task<PsicologoDTO> GetPsicologoById(String psicologoId)
+        {
+            var getPsicologoByIdQuery = new GetPsicologoByIdQuery(psicologoId);
+            var result = await _mediator.Send(getPsicologoByIdQuery);
+            return _mapper.Map<PsicologoDTO>(result);
         }
     }
 }

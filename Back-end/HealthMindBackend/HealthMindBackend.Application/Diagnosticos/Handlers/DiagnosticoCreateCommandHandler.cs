@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Diagnosticos.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,15 +13,19 @@ namespace HealthMindBackend.Application.Diagnosticos.Handlers
 {
     public class DiagnosticoCreateCommandHandler : IRequestHandler<DiagnosticoCreateCommand, Diagnostico>
     {
+        private readonly IValidator<DiagnosticoCreateCommand> _validatorDiagnosticoCreateCommand;
         private readonly IDiagnosticoRepository _diagnosticoRepository;
 
-        public DiagnosticoCreateCommandHandler(IDiagnosticoRepository diagnosticoRepository)
+        public DiagnosticoCreateCommandHandler(IValidator<DiagnosticoCreateCommand> validatorDiagnosticoCreateCommand, IDiagnosticoRepository diagnosticoRepository)
         {
+            _validatorDiagnosticoCreateCommand = validatorDiagnosticoCreateCommand;
             _diagnosticoRepository = diagnosticoRepository;            
         }
 
         public async Task<Diagnostico> Handle(DiagnosticoCreateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorDiagnosticoCreateCommand.ValidateAndThrowAsync(request);
+
             var diagnostico = new Diagnostico(request.PacienteId, request.ProntuarioId, request.Descricao,
                 request.Cid, request.DataDiagnostico, request.StatusDiagnostico, request.Observacoes);
 

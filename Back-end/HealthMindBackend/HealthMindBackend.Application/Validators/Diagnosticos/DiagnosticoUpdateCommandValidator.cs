@@ -46,7 +46,7 @@ namespace HealthMindBackend.Application.Validators.Diagnosticos
                 })
                 .WithMessage("Prontuario selecionado não está ativo");
 
-            RuleFor(d => d.Cid)
+            RuleFor(d => d.Cid.Codigo)
                 .NotEmpty().WithMessage("CID Obrigatório")
                 .MinimumLength(4).WithMessage("CID deve ter pelo menos 4 caracteres")
                 .MaximumLength(5).WithMessage("CID deve ter pelo menos 5 caracteres");

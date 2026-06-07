@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthMindBackend.Domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -20,5 +21,6 @@ namespace HealthMindBackend.Application.DTOs
 
         [Required(ErrorMessage = "Frequência do medicamento é obrigatória")]
         public String Frequencia { get; set; }
+        public StatusMedicamentoUsoEnum StatusMedicamentoUso { get; set; }
     }
 }

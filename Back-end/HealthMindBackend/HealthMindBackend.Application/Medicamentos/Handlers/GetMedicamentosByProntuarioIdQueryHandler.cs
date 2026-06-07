@@ -1,6 +1,6 @@
 ﻿using HealthMindBackend.Application.Medicamentos.Queries;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;

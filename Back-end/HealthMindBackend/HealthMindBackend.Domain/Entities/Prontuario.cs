@@ -1,5 +1,7 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
@@ -13,56 +15,49 @@ namespace HealthMindBackend.Domain.Entities
     public class Prontuario : Identity
     {
         public String PacienteId { get; private set; }
-        public String Descricao { get; private set; }
+        public String? Anotacoes { get; private set; }
         public DateTime DataAbertura { get; private set; }
         public StatusProntuarioEnum StatusProntuario { get; private set; }
-
-        /// <summary>
-        /// Lista de medicamentos associados ao prontuÃ¡rio.
-        /// Inicializada como vazia para permitir adicionar medicamentos depois.
-        /// </summary>
-        public List<Medicamento> Medicamentos { get; private set; } = new List<Medicamento>();
+        public ContatoEmergencia? ContatoEmergencia { get; set; }
+        public List<Medicamento>? Medicamentos { get; private set; }
 
         public Prontuario()
         {
-            Medicamentos = new List<Medicamento>();
         }
-        public Prontuario(String pacienteId, String descricao, StatusProntuarioEnum statusProntuario)
+        public Prontuario(String pacienteId, String? anotacoes, StatusProntuarioEnum statusProntuario)
         {
-            ValidateProntuarioDomain(pacienteId, descricao, DateTime.UtcNow, statusProntuario);
+            ValidateProntuarioDomain(pacienteId, anotacoes, statusProntuario);
+            DataAbertura = DateTime.UtcNow;
         }
-        public Prontuario(String pacienteId, String descricao, DateTime dataAbertura, StatusProntuarioEnum statusProntuario)
+
+        public Prontuario(String pacienteId, String? anotacoes, StatusProntuarioEnum statusProntuario, List<Medicamento>? medicamentos)
         {
-            ValidateProntuarioDomain(pacienteId, descricao, dataAbertura, statusProntuario);
-        }
-        public Prontuario(String pacienteId, String descricao, StatusProntuarioEnum statusProntuario, List<Medicamento>? medicamentos)
-        {
-            ValidateProntuarioDomain(pacienteId, descricao, DateTime.UtcNow, statusProntuario);
+            ValidateProntuarioDomain(pacienteId, anotacoes, statusProntuario);
+            DataAbertura = DateTime.UtcNow;
             Medicamentos = medicamentos;
         }
-        public Prontuario(String pacienteId, String descricao, DateTime dataAbertura, StatusProntuarioEnum statusProntuario, List<Medicamento>? medicamentos)
+        public Prontuario(String pacienteId, String? anotacoes, DateTime dataAbertura, StatusProntuarioEnum statusProntuario, List<Medicamento>? medicamentos)
         {
-            ValidateProntuarioDomain(pacienteId, descricao, dataAbertura, statusProntuario);
+            ValidateProntuarioDomain(pacienteId, anotacoes, statusProntuario);
+            DomainExceptionValidation.Validate(dataAbertura == DateTime.MinValue, "Data de abertura inválida");
+            DataAbertura = dataAbertura;
             Medicamentos = medicamentos;
         }
 
-        private void ValidateProntuarioDomain(String pacienteId, String descricao, DateTime dataAbertura, StatusProntuarioEnum statusProntuario)
+        private void ValidateProntuarioDomain(String pacienteId, String? anotacoes, StatusProntuarioEnum statusProntuario)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(pacienteId), "Referência ao paciente invalida.");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(descricao), "Descrição do prontuário inválida");
-            DomainExceptionValidation.Validate(dataAbertura == DateTime.MinValue, "Data de abertura inválida");
+            //DomainExceptionValidation.Validate(String.IsNullOrEmpty(anotacoes), "Descrição do prontuário inválida");
             DomainExceptionValidation.Validate(statusProntuario == StatusProntuarioEnum.StsNone, "Status do prontuário inválido");
 
             PacienteId = pacienteId;
-            Descricao = descricao;
-            DataAbertura = dataAbertura;
+            Anotacoes = anotacoes;
             StatusProntuario = statusProntuario;
         }
 
-        public void Update(String pacienteId, String descricao, StatusProntuarioEnum statusProntuario)
+        public void Update(String pacienteId, String? anotacoes, StatusProntuarioEnum statusProntuario)
         {
-            ValidateProntuarioDomain(pacienteId, descricao, DataAbertura, statusProntuario);
+            ValidateProntuarioDomain(pacienteId, anotacoes, statusProntuario);
         }
     }
 }
-

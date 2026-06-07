@@ -11,8 +11,12 @@ namespace HealthMindBackend.Application.Interfaces
     {
         Task<IEnumerable<HistoricoMedicoDTO>> GetAllHistoricoMedicos();
         Task<List<HistoricoMedicoDTO>> GetHistoricosByProntuarioId(String prontuarioId);
+        Task<List<MetaTerapeuticaDTO>> GetMetaTerapeuticasByHistoricoMedicoId(String historicoId);
         Task AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
         Task AtualizarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto);
         Task ExcluirHistoricoMedico(String historicoId);
+        Task ExcluirSaudeMental(String historicoId);
+        Task AdicionarMetaTerapeutica(MetaTerapeuticaDTO metaTerapeuticaDto);
+        Task AlterarMetaTerapeutica(String historicoId, String metaTerapeuticaId, MetaTerapeuticaDTO metaTerapeuticaDto);
     }
 }

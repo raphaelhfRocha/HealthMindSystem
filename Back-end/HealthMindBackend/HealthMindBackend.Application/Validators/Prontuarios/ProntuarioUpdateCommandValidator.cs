@@ -18,8 +18,6 @@ namespace HealthMindBackend.Application.Validators.Prontuarios
             RuleFor(p => p.PacienteId)
     .           NotEmpty().WithMessage("Paciente Obrigatório");
 
-            RuleFor(p => p.Descricao)
-                .NotEmpty().WithMessage("Descrição Obrigatória");
         }
     }
 }

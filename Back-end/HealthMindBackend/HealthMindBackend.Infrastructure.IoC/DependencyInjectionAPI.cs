@@ -1,10 +1,36 @@
 using FluentValidation;
 using HealthMindBackend.Application.Behaviors;
+using HealthMindBackend.Application.CoberturasPlanos.Commands;
+using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Application.Diagnosticos.Handlers;
+using HealthMindBackend.Application.Disponibilidades.Commands;
+using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Application.EscalasSessoes.Commands;
+using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Mappings;
+using HealthMindBackend.Application.Medicamentos.Commands;
+using HealthMindBackend.Application.Pacientes.Commands;
+using HealthMindBackend.Application.Pagamentos.Commands;
+using HealthMindBackend.Application.Progressoes.Commands;
+using HealthMindBackend.Application.Prontuarios.Commands;
+using HealthMindBackend.Application.Psicologos.Commands;
+using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Services;
+using HealthMindBackend.Application.Sessoes.Commands;
+using HealthMindBackend.Application.Validators.CoberturasPlanos;
 using HealthMindBackend.Application.Validators.Diagnosticos;
+using HealthMindBackend.Application.Validators.Disponibilidades;
+using HealthMindBackend.Application.Validators.EscalasSessoes;
+using HealthMindBackend.Application.Validators.HistoricosMedicos;
+using HealthMindBackend.Application.Validators.Medicamentos;
+using HealthMindBackend.Application.Validators.Pacientes;
+using HealthMindBackend.Application.Validators.Pagamentos;
+using HealthMindBackend.Application.Validators.Progressoes;
+using HealthMindBackend.Application.Validators.Prontuarios;
+using HealthMindBackend.Application.Validators.Psicologos;
+using HealthMindBackend.Application.Validators.Recepcionistas;
+using HealthMindBackend.Application.Validators.Sessoes;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
@@ -53,6 +79,12 @@ namespace HealthMindBackend.Infrastructure.IoC
                 new StatusSessaoEnumSerializer());
             BsonSerializer.TryRegisterSerializer(typeof(StatusTipoAtendimentoEnum),
                 new StatusTipoAtendimentoEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusPlanoSaudeEnum),
+                new StatusPlanoSaudeEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusMetaTerapeuticaEnum),
+                new StatusMetaTerapeuticaEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusMedicamentoUsoEnum),
+                new StatusMedicamentoUsoEnumSerializer());
 
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IAuthService, AuthService>();
@@ -74,9 +106,32 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<IRecepcionistaService, RecepcionistaService>();
             services.AddScoped<ISessaoRepository, SessaoRepository>();
             services.AddScoped<ISessaoService, SessaoService>();
+            services.AddScoped<IPlanoSaudeService, PlanoSaudeService>();
+            services.AddScoped<IPlanoSaudeRepository, PlanoSaudeRepository>();
 
-            // Registers all validators from the Application assembly.
-            services.AddValidatorsFromAssemblyContaining<DiagnosticoCreateCommandValidator>();
+            services.AddScoped<IValidator<DiagnosticoCreateCommand>, DiagnosticoCreateCommandValidator>();
+            services.AddScoped<IValidator<DiagnosticoUpdateCommand>, DiagnosticoUpdateCommandValidator>();
+            services.AddScoped<IValidator<DisponibilidadeCreateCommand>, DisponibilidadeCreateCommandValidator>();
+            services.AddScoped<IValidator<HistoricoMedicoCreateCommand>, HistoricoMedicoCreateCommandValidator>();
+            services.AddScoped<IValidator<HistoricoMedicoUpdateCommand>, HistoricoMedicoUpdateCommandValidator>();
+            services.AddScoped<IValidator<MedicamentoCreateCommand>, MedicamentoCreateCommandValidator>();
+            services.AddScoped<IValidator<MedicamentoUpdateCommand>, MedicamentoUpdateCommandValidator>();
+            services.AddScoped<IValidator<PacienteCreateCommand>, PacienteCreateCommandValidator>();
+            services.AddScoped<IValidator<PacienteUpdateCommand>, PacienteUpdateCommandValidator>();
+            services.AddScoped<IValidator<PagamentoUpdateCommand>, PagamentoUpdateCommandValidator>();
+            services.AddScoped<IValidator<ProgressaoCreateCommand>, ProgressaoCreateCommandValidator>();
+            services.AddScoped<IValidator<ProntuarioCreateCommand>, ProntuarioCreateCommandValidator>();
+            services.AddScoped<IValidator<ProntuarioUpdateCommand>, ProntuarioUpdateCommandValidator>();
+            services.AddScoped<IValidator<CoberturaPlanoCreateCommand>, CoberturaPlanoCreateCommandValidator>();
+            services.AddScoped<IValidator<CoberturaPlanoUpdateCommand>, CoberturaPlanoUpdateCommandValidator>();
+            services.AddScoped<IValidator<PsicologoCreateCommand>, PsicologoCreateCommandValidator>();
+            services.AddScoped<IValidator<PsicologoUpdateCommand>, PsicologoUpdateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaCreateCommand>, RecepcionistaCreateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaUpdateCommand>, RecepcionistaUpdateCommandValidator>();
+            services.AddScoped<IValidator<SessaoCreateCommand>, SessaoCreateCommandValidator>();
+            services.AddScoped<IValidator<SessaoUpdateCommand>, SessaoUpdateCommandValidator>();
+            services.AddScoped<IValidator<EscalaSessaoCreateCommand>, EscalaSessaoCreateCommandValidator>();
+            services.AddScoped<IValidator<EscalaSessaoUpdateCommand>, EscalaSessaoUpdateCommandValidator>();
 
             services.AddAutoMapper(_ => { }, typeof(DomainToDTOMappingsProfile).Assembly);
 

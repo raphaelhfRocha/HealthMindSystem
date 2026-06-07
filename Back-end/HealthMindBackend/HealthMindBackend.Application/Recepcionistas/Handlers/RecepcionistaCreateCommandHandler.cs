@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Recepcionistas.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Usuarios.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
@@ -13,23 +14,29 @@ namespace HealthMindBackend.Application.Recepcionistas.Handlers
 {
     public class RecepcionistaCreateCommandHandler : IRequestHandler<RecepcionistaCreateCommand, Recepcionista>
     {
+        private readonly IValidator<RecepcionistaCreateCommand> _validatorRecepcionistaCreateCommand;
         private readonly IRecepcionistaRepository _recepcionistaRepository;
 
-        public RecepcionistaCreateCommandHandler(IRecepcionistaRepository recepcionistaRepository)
+        public RecepcionistaCreateCommandHandler(IValidator<RecepcionistaCreateCommand> validatorRecepcionistaCreateCommand, IRecepcionistaRepository recepcionistaRepository)
         {
+            _validatorRecepcionistaCreateCommand = validatorRecepcionistaCreateCommand;
             _recepcionistaRepository = recepcionistaRepository;
         }
 
         public async Task<Recepcionista> Handle(RecepcionistaCreateCommand request, CancellationToken cancellationToken)
         {
-            var recepcionista = new Recepcionista(request.Nome, request.Email, request.Senha, request.StatusCargo, request.StatusRole, request.CpfCnpj);
+            await _validatorRecepcionistaCreateCommand.ValidateAndThrowAsync(request);
 
-            if (recepcionista == null)
-                throw new ArgumentNullException(nameof(recepcionista));
+            var recepcionista = new Recepcionista(
+                request.Nome,
+                request.Email,
+                request.Senha,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj
+            );
 
-            await _recepcionistaRepository.CadastrarRecepcionista(recepcionista);
-            
-            return recepcionista;
+            return await _recepcionistaRepository.CadastrarRecepcionista(recepcionista);
         }
     }
 }

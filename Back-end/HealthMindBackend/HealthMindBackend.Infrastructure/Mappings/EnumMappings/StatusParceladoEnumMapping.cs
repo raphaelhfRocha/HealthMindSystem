@@ -12,6 +12,7 @@ namespace HealthMindBackend.Infrastructure.Mappings.EnumMappings
         public static readonly Dictionary<StatusParceladoEnum, String> Description =
         new()
         {
+            { StatusParceladoEnum.StsNone, "Nenhum" },
             { StatusParceladoEnum.StsSim, "Sim" },
             { StatusParceladoEnum.StsNao, "Não" }
         };

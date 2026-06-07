@@ -1,6 +1,10 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
-using HealthMindBackend.Infrastructure.Mappings.EnumMappings;
+using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
+using HealthMindBackend.Domain.ValueObjects.Sessao.EscalasSessao;
+using HealthMindBackend.Domain.ValueObjects.Sessao.RegistroSessao;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 
@@ -21,15 +25,14 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<Sessao> AgendarSessao(Sessao sessao)
         {
             sessao.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Sessao));
-            //await DefinirPagamento(sessao.Id, sessao.Pagamento);
             await _collection.InsertOneAsync(sessao);
             return sessao;
         }
 
-        public async Task<Sessao> AlterarSessao(String id, Sessao sessao)
+        public async Task<Sessao> AlterarSessao(String sessaoId, Sessao sessao)
         {
-            await DefinirPagamento(id, sessao.Pagamento);
-            await _collection.ReplaceOneAsync(s => s.Id == id, sessao);
+            await DefinirPagamento(sessaoId, sessao.Pagamento);
+            await _collection.ReplaceOneAsync(s => s.Id == sessaoId, sessao);
             return sessao;
         }
 
@@ -79,6 +82,140 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<Sessao> GetPagamentoBySessaoId(String sessaoId)
         {
             return await _collection.Find(s => s.Pagamento.SessaoId == sessaoId).FirstOrDefaultAsync();
+        }
+
+        public async Task<RegistroSessao> AdicionarRegistroSessao(String sessaoId, RegistroSessao registroSessao)
+        {
+            registroSessao.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.RegistroSessao));
+            registroSessao.SessaoId = sessaoId;
+
+            var adicionar = Builders<Sessao>.Update
+                .Push(p => p.RegistrosSessoes, registroSessao);
+
+            await _collection.UpdateOneAsync(p => p.Id == sessaoId, adicionar);
+            return registroSessao;
+        }
+
+        public async Task<RegistroSessao> AlterarRegistroSessao(String sessaoId, String registroSessaoId, RegistroSessao registroSessao)
+        {
+            var filter = Builders<Sessao>.Filter.And(
+                Builders<Sessao>.Filter.Eq(p => p.Id, sessaoId),
+                Builders<Sessao>.Filter.ElemMatch(
+                p => p.RegistrosSessoes,
+                m => m.Id == registroSessaoId));
+
+            var update = Builders<Sessao>.Update
+                .Set("RegistrosSessoes.$.Registro", registroSessao.Registro);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException("Registro Sessão não encontrado para atualização");
+
+            return registroSessao;
+        }
+
+        public async Task<EscalaSessao> AdicionarEscalaSessao(String sessaoId, EscalaSessao escalaSessao)
+        {
+            escalaSessao.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.EscalaSessao));
+            escalaSessao.SessaoId = sessaoId;
+
+            var adicionar = Builders<Sessao>.Update
+                .Push(p => p.EscalasSessoes, escalaSessao);
+
+            await _collection.UpdateOneAsync(p => p.Id == sessaoId, adicionar);
+            return escalaSessao;
+        }
+
+        public async Task<EscalaSessao> AlterarEscalaSessao(String sessaoId, String escalaSessaoId, EscalaSessao escalaSessao)
+        {
+            var filter = Builders<Sessao>.Filter.And(
+                Builders<Sessao>.Filter.Eq(p => p.Id, sessaoId),
+                Builders<Sessao>.Filter.ElemMatch(
+                p => p.EscalasSessoes,
+                m => m.Id == escalaSessaoId));
+
+            var update = Builders<Sessao>.Update
+                .Set("EscalasSessoes.$.Humor", escalaSessao.Humor)
+                .Set("EscalasSessoes.$.Ansiedade", escalaSessao.Ansiedade)
+                .Set("EscalasSessoes.$.Sono", escalaSessao.Sono)
+                .Set("EscalasSessoes.$.FuncSocial", escalaSessao.FuncSocial);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException("Escala Sessão não encontrada para atualização");
+
+            return escalaSessao;
+        }
+
+        public async Task<List<RegistroSessao>> GetRegistrosSessoesBySessaoId(String sessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.RegistrosSessoes == null)
+                return null;
+
+            return sessao.RegistrosSessoes.ToList();
+        }
+
+        public async Task<EscalaSessao> GetEscalaSessaoBySessaoId(String sessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.EscalasSessoes == null)
+                return null;
+
+            return sessao.EscalasSessoes.FirstOrDefault();
+        }
+
+        public async Task<RegistroSessao> GetRegistrosSessoesBySessaoIdAndRegistroSessaoId(String sessaoId, String registroSessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.RegistrosSessoes == null)
+                return null;
+
+            return sessao.RegistrosSessoes.FirstOrDefault(r => r.Id == registroSessaoId);
+        }
+
+        public async Task<EscalaSessao> GetEscalaSessaoBySessaoIdAndEscalaSessaoId(String sessaoId, String escalaSessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.RegistrosSessoes == null)
+                return null;
+
+            return sessao.EscalasSessoes.FirstOrDefault(r => r.Id == escalaSessaoId);
+        }
+
+        public async Task ExcluirSessao(String sessaoId)
+        {
+            await _collection.DeleteOneAsync(s => s.Id == sessaoId);
+        }
+
+        public async Task ExcluirRegistroSessao(String sessaoId, String registroSessaoId)
+        {
+            var delete = Builders<Sessao>.Update.PullFilter(s => s.RegistrosSessoes,
+                r => r.Id == registroSessaoId);
+
+            await _collection.UpdateOneAsync(s => s.Id == sessaoId, delete);
+        }
+
+        public async Task ExcluirEscalaSessao(String sessaoId, String escalaSessaoId)
+        {
+            var delete = Builders<Sessao>.Update.PullFilter(s => s.EscalasSessoes,
+                r => r.Id == escalaSessaoId);
+
+            await _collection.UpdateOneAsync(s => s.Id == sessaoId, delete);
+        }
+
+        public async Task<List<EscalaSessao>> GetEscalasSessoesBySessaoId(String sessaoId)
+        {
+            var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
+
+            if (sessao == null || sessao.EscalasSessoes == null)
+                return null;
+
+            return sessao.EscalasSessoes.ToList();
         }
     }
 }

@@ -10,7 +10,10 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IPsicologoService
     {
         Task<IEnumerable<PsicologoDTO>> GetAllPsicologos();
+        Task<PsicologoDTO> GetPsicologoById(String psicologoId);
         Task<List<DisponibilidadeDTO>> GetDisponibilidadesByPsicologoId(String psicologoId);
+        Task<List<PsicologoDTO>> GetPsicologosByNome(String nome);
+        Task<List<PsicologoDTO>> GetPsicologosByEspecialidade(String especialidade);
         Task CadastrarPsicologo(PsicologoDTO psicologoDto);
         Task AtualizarPsicologo(PsicologoDTO psicologoDto);
         Task AdicionarDisponibilidade(DisponibilidadeDTO disponibilidadeDto);

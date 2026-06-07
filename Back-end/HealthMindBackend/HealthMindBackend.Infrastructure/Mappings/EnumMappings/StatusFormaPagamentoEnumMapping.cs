@@ -12,6 +12,7 @@ namespace HealthMindBackend.Infrastructure.Mappings.EnumMappings
         public static readonly Dictionary<StatusFormaPagamentoEnum, String> Description =
         new()
         {
+            { StatusFormaPagamentoEnum.StsNone, "Nenhum" },
             { StatusFormaPagamentoEnum.StsDinheiro, "Dinheiro" },
             { StatusFormaPagamentoEnum.StsCartaoDebito, "Cartão de Débito" },
             { StatusFormaPagamentoEnum.StsCartaoCedito, "Cartão de Crédito" },

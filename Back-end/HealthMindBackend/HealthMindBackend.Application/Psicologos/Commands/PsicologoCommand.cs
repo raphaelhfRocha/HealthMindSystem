@@ -1,7 +1,10 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
-using HealthMindBackend.Domain.ValueObjects;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -14,13 +17,14 @@ namespace HealthMindBackend.Application.Psicologos.Commands
     public abstract class PsicologoCommand : IRequest<Psicologo>
     {
         public String Nome { get; set; }
-        public String Email { get; set; }
-        public String Senha { get; set; }
+        public Email Email { get; set; }
+        public String? Senha { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }
         public StatusRoleEnum StatusRole { get; set; }
-        public String CpfCnpj { get; set; }
-        public String Crp { get; set; }
+        public CpfCnpj CpfCnpj { get; set; }
+        public Crp Crp { get; set; }
         public String Especialidade { get; set; }
+        public Decimal ValorConsulta { get; set; }
         public List<Disponibilidade>? Disponibilidades { get; set; }
     }
 }

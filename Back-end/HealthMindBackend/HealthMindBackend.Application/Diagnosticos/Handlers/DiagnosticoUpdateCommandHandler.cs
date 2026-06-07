@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Diagnosticos.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,12 +13,17 @@ namespace HealthMindBackend.Application.Diagnosticos.Handlers
 {
     public class DiagnosticoUpdateCommandHandler : IRequestHandler<DiagnosticoUpdateCommand, Diagnostico>
     {
+        private readonly IValidator<DiagnosticoUpdateCommand> _validatorDiagnosticoUpdateCommand;
         private readonly IPacienteRepository _pacienteRepository;
         private readonly IProntuarioRepository _prontuarioRepository;
         private readonly IDiagnosticoRepository _diagnosticoRepository;
 
-        public DiagnosticoUpdateCommandHandler(IPacienteRepository pacienteRepository, IProntuarioRepository prontuarioRepository, IDiagnosticoRepository diagnosticoRepository)
+        public DiagnosticoUpdateCommandHandler(IValidator<DiagnosticoUpdateCommand> validatorDiagnosticoUpdateCommand,
+            IPacienteRepository pacienteRepository,
+            IProntuarioRepository prontuarioRepository,
+            IDiagnosticoRepository diagnosticoRepository)
         {
+            _validatorDiagnosticoUpdateCommand = validatorDiagnosticoUpdateCommand;
             _pacienteRepository = pacienteRepository;
             _prontuarioRepository = prontuarioRepository;
             _diagnosticoRepository = diagnosticoRepository;
@@ -25,6 +31,8 @@ namespace HealthMindBackend.Application.Diagnosticos.Handlers
 
         public async Task<Diagnostico> Handle(DiagnosticoUpdateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorDiagnosticoUpdateCommand.ValidateAndThrowAsync(request);
+
             var pacienteFound = await _pacienteRepository.GetPacienteById(request.PacienteId);
 
             if (pacienteFound == null)
