@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HealthMindBackend.Domain.ValueObjects.Documento;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -9,7 +10,8 @@ namespace HealthMindBackend.Application.Auths.Commands
 {
     public class AuthPsicologoCreateCommand : AuthUsuarioCommand
     {
-        public String Crp { get; set; }
+        public Crp Crp { get; set; }
         public String Especialidade { get; set; }
+        public Decimal ValorConsulta { get; set; }
     }
 }

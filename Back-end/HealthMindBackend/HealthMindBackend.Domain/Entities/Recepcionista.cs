@@ -16,18 +16,27 @@ namespace HealthMindBackend.Domain.Entities
         public Recepcionista()
         {
         }
-        public Recepcionista(String id, String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(id, nome, email, senha, statusCargo, statusRole, cpfCnpj)
+        public Recepcionista(String id, String nome, Email email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(id, nome, email, statusCargo, statusRole, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "Id inválido.");
-            ValidateUserDomain(nome, senha, statusCargo, statusRole);
+            ValidateUserDomain(nome, statusCargo, statusRole);
             Email = email;
             CpfCnpj = cpfCnpj;
             ValidateRecepcionistaDomain(statusCargo, statusRole);
         }
 
-        public Recepcionista(String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(nome, email, senha, statusCargo, statusRole, cpfCnpj)
+        public Recepcionista(String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(nome, email, statusCargo, statusRole, cpfCnpj)
         {
-            ValidateUserDomain(nome, senha, statusCargo, statusRole);
+            ValidateUserDomain(nome, statusCargo, statusRole);
+            Senha = senha;
+            Email = email;
+            CpfCnpj = cpfCnpj;
+            ValidateRecepcionistaDomain(statusCargo, statusRole);
+        }
+        
+        public Recepcionista(String nome, Email email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj) : base(nome, email, statusCargo, statusRole, cpfCnpj)
+        {
+            ValidateUserDomain(nome, statusCargo, statusRole);
             Email = email;
             CpfCnpj = cpfCnpj;
             ValidateRecepcionistaDomain(statusCargo, statusRole);
@@ -41,9 +50,9 @@ namespace HealthMindBackend.Domain.Entities
             StatusRole = statusRole;
         }
 
-        public void Update(String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        public void Update(String nome, Email email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
         {
-            ValidateUserDomain(nome, senha, statusCargo, statusRole);
+            ValidateUserDomain(nome, statusCargo, statusRole);
             ValidateRecepcionistaDomain(statusCargo, statusRole);
             Email = email;
             CpfCnpj = cpfCnpj;

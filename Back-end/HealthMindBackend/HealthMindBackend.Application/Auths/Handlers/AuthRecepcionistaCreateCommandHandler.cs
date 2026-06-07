@@ -23,13 +23,26 @@ namespace HealthMindBackend.Application.Auths.Handlers
 
         public async Task<Usuario> Handle(AuthRecepcionistaCreateCommand request, CancellationToken cancellationToken)
         {
-            var usuario = new Recepcionista(request.Nome, request.Email, request.Senha, request.StatusCargo, request.StatusRole, request.CpfCnpj);
+            var usuario = new Recepcionista(
+                request.Nome,
+                request.Email,
+                request.Senha,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj
+            );
 
             usuario = usuario ?? throw new ArgumentNullException(nameof(usuario));
 
             var usuarioCadastrado = await _authRepository.CadastrarUsuario(usuario);
 
-            var recepcionista = new Recepcionista(request.Nome, request.Email, request.StatusCargo, request.StatusRole, request.CpfCnpj);
+            var recepcionista = new Recepcionista(
+                request.Nome,
+                request.Email,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj
+            );
 
             await _recepcionistaRepository.CadastrarRecepcionista(recepcionista);
 

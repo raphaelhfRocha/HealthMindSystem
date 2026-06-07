@@ -50,8 +50,8 @@ namespace HealthMindBackend.API.Controllers
         /// Obter paciente por Id
         /// </summary>
         /// <response code="200">Paciente encontrado</response>
-        /// <response code="400">Dados inválido</response>
-        /// <response code="404">Paciente não encontrado</response>
+        /// <response code="400">Dados invï¿½lido</response>
+        /// <response code="404">Paciente nï¿½o encontrado</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
         /// **Esse endpoint Ã© dedicado a obter paciente por Id**
@@ -89,13 +89,13 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="404">Pacientes nÃ£o encontrados</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a lista de pacientes por Nome**
+        /// **Esse endpoint ï¿½ dedicado a lista de pacientes por Nome**
         /// 
         /// Como usar:
         /// 
         /// **1. Digite o nome dos pacientes registrados no campo do parÃ¢metro nome**
         /// 
-        /// **2. Em seguida clique no botão Execute**
+        /// **2. Em seguida clique no botï¿½o Execute**
         /// 
         /// **[GET] - /api/Paciente/nome/{nome}**
         /// </remarks>
@@ -123,18 +123,18 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="404">Pacientes nÃ£o encontrados</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a lista de pacientes por Id Psicologo**
+        /// **Esse endpoint ï¿½ dedicado a lista de pacientes por Id Psicologo**
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
+        /// **1. Digite o Id do psicologo registrado no campo do parï¿½metro psicologoId**
         /// 
-        /// **2. Em seguida clique no botão Execute**
+        /// **2. Em seguida clique no botï¿½o Execute**
         /// 
         /// **[GET] - /api/Paciente/psicologo/{psicologoId}**
         /// </remarks>
         /// <param name="psicologoId">
-        /// ID Psicólogo
+        /// ID Psicï¿½logo
         /// </param>
         [Authorize(Roles = "StsPsicologo")]
         [HttpGet("psicologo/{psicologoId}")]
@@ -154,13 +154,13 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="400">Dados invÃ¡lidos</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de pacientes**
+        /// **Esse endpoint ï¿½ dedicado a cadastro de pacientes**
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// **1. Clique no botï¿½o Try it out na sessï¿½o de Parameters(Parï¿½metros)**
         /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
+        /// **2. Digite os dados na sessï¿½o Request Body(Corpo da requisiï¿½ï¿½o) que deseja cadastrar seguindo o modelo abaixo:**
         /// **[POST] - /api/Paciente**
         /// ```
         /// {
@@ -189,14 +189,14 @@ namespace HealthMindBackend.API.Controllers
 
 
         /// <summary>
-        /// Edição de paciente
+        /// Ediï¿½ï¿½o de paciente
         /// </summary>
         /// <response code="200">Paciente editado</response>
         /// <response code="400">Dados invÃ¡lidos</response>
         /// <response code="404">Paciente nÃ£o encontrado</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// Esse endpoint é dedicado a edição de paciente**
+        /// Esse endpoint ï¿½ dedicado a ediï¿½ï¿½o de paciente**
         /// 
         /// 
         /// Como usar:

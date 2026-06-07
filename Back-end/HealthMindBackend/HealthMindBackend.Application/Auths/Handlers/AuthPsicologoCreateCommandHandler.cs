@@ -23,17 +23,33 @@ namespace HealthMindBackend.Application.Auths.Handlers
 
         public async Task<Usuario> Handle(AuthPsicologoCreateCommand request, CancellationToken cancellationToken)
         {
-            var usuario = new Psicologo(request.Nome, request.Email, request.Senha,
-                request.StatusCargo, request.StatusRole, request.CpfCnpj, request.Crp,
-                request.Especialidade);
+            var usuario = new Psicologo(
+                request.Nome,
+                request.Email,
+                request.Senha,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj,
+                request.Crp,
+                request.Especialidade,
+                request.ValorConsulta
+            );
 
             usuario = usuario ?? 
                 throw new ArgumentNullException(nameof(usuario));
 
             var usuarioCadastrado = await _authRepository.CadastrarUsuario(usuario);
 
-            var psicologo = new Psicologo(request.Nome, request.Email, request.StatusCargo,
-                request.StatusRole, request.CpfCnpj, request.Crp, request.Especialidade);
+            var psicologo = new Psicologo(
+                request.Nome,
+                request.Email,
+                request.StatusCargo,
+                request.StatusRole,
+                request.CpfCnpj,
+                request.Crp,
+                request.Especialidade,
+                request.ValorConsulta
+            );
 
             await _psicologoRepository.CadastrarPsicologo(psicologo);
 

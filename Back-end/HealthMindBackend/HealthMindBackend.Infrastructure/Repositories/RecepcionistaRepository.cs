@@ -24,7 +24,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
             _sequentialIdGenerator = sequentialIdGenerator;
         }
 
-        public async Task CadastrarRecepcionista(Recepcionista recepcionista)
+        public async Task<Recepcionista> CadastrarRecepcionista(Recepcionista recepcionista)
         {
             recepcionista.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Recepcionista));
             await _collection.InsertOneAsync(recepcionista);

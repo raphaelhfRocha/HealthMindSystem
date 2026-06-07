@@ -1,5 +1,7 @@
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -45,12 +47,32 @@ namespace HealthMindBackend.Infrastructure.Repositories
             await _collection.UpdateOneAsync(p => p.Id == psicologoId, adicionarDisponibilidade);
             return disponibilidade;
         }
+
+        public async Task<Disponibilidade> AlterarStatusDisponibilidade(String psicologoId, String disponibilidadeId, Disponibilidade disponibilidade)
+        {
+            var filter = Builders<Psicologo>.Filter.And(
+                Builders<Psicologo>.Filter.Eq(p => p.Id, psicologoId),
+                Builders<Psicologo>.Filter.ElemMatch(
+                p => p.Disponibilidades,
+                m => m.Id == disponibilidadeId));
+
+            var update = Builders<Psicologo>.Update
+                .Set("Disponibilidades.$.StatusDisponibilidade", disponibilidade.StatusDisponibilidade);
+
+            var result = await _collection.UpdateOneAsync(filter, update);
+            if (result.MatchedCount == 0)
+                throw new KeyNotFoundException("Disponibilidade não encontrada para atualização");
+
+            return disponibilidade;
+        }
+
         public async Task<Psicologo> CadastrarPsicologo(Psicologo psicologo)
         {
             psicologo.DefinirId(await _sequentialIdGenerator.GenerateNextIdAsync(SequenceName, Prefix.Psicologo));
             await _collection.InsertOneAsync(psicologo);
             return psicologo;
         }
+
         public async Task<Psicologo> EditarPsicologo(String psicologoId, Psicologo psicologo)
         {
             await _collection.ReplaceOneAsync(p => p.Id == psicologoId, psicologo);
@@ -88,21 +110,41 @@ namespace HealthMindBackend.Infrastructure.Repositories
         public async Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId)
         {
             var psicologo = await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
-           
+
             if (psicologo == null || psicologo.Disponibilidades == null)
                 return null;
 
             return psicologo.Disponibilidades.ToList();
         }
 
+        public async Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj)
+        {
+            return await _collection.Find(p => p.CpfCnpj.Numero == cpfCnpj).FirstOrDefaultAsync();
+        }
+
+        public async Task<Psicologo> GetPsicologoByCrp(String crp)
+        {
+            return await _collection.Find(p => p.Crp.Numero == crp).FirstOrDefaultAsync();
+        }
+
         public async Task<Psicologo> GetPsicologoByEmail(String email)
         {
-            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.Email.Endereco == email).FirstOrDefaultAsync();
         }
 
         public async Task<Psicologo> GetPsicologoById(String psicologoId)
         {
             return await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByEspecialidade(String especialidade)
+        {
+            return await _collection.Find(p => p.Especialidade == especialidade).ToListAsync();
+        }
+
+        public async Task<List<Psicologo>> GetPsicologosByNome(String nome)
+        {
+            return await _collection.Find(p => p.Nome == nome).ToListAsync();
         }
     }
 }
