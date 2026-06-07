@@ -26,16 +26,28 @@ namespace HealthMindBackend.Application.Disponibilidades.Handlers
         {
             await _validatorDisponibilidadeCreateCommand.ValidateAndThrowAsync(request);
 
-            var disponibilidade = new Disponibilidade(request.DataDisponibilidade, request.HoraInicio, request.StatusDisponibilidade)
+            var disponibilidadesFound = 
+                await _psicologoRepository.GetDisponibilidadesByPsicologoId(request.PsicologoId);
+
+            if(disponibilidadesFound != null)
             {
-                PsicologoId = request.PsicologoId
-            };
+                foreach(var disponibilidadeFound in disponibilidadesFound)
+                {
+                    if(request.PsicologoId == disponibilidadeFound.PsicologoId && 
+                        request.DataDisponibilidade == disponibilidadeFound.DataDisponibilidade &&
+                        request.HoraInicio == disponibilidadeFound.HoraInicio)
+                    {
+                        throw new Exception("Disponibilidade já registrada.");
+                    }
+                }
+            }
 
-            //var psicologoFound = await _psicologoRepository.GetPsicologoById(request.PsicologoId)
-            //    ?? throw new KeyNotFoundException("Psicólogo não encontrado");
-
-            disponibilidade = disponibilidade
-                ?? throw new ArgumentNullException(nameof(disponibilidade));
+            var disponibilidade = new Disponibilidade(
+                request.PsicologoId,
+                request.DataDisponibilidade,
+                request.HoraInicio,
+                request.StatusTipoAtendimento
+            );
 
             var disponibilidadeAdicionada = await _psicologoRepository.AdicionarDisponibilidade(request.PsicologoId, disponibilidade);
             return disponibilidadeAdicionada;

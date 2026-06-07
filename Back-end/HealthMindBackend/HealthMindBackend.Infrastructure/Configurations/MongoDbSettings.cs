@@ -8,7 +8,7 @@ namespace HealthMindBackend.Infrastructure.Configurations
 {
     public class MongoDbSettings
     {
-        public string ConnectionString { get; set; }
-        public string Database { get; set; }
+        public String ConnectionString { get; set; }
+        public String Database { get; set; }
     }
 }

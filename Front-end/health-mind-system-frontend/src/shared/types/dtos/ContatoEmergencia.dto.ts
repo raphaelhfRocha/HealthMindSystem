@@ -5,5 +5,5 @@ export interface ContatoEmergenciaDTO {
     nome: string,
     telefone: string,
     relacaoParentesco: string,
-    enderecoDto: EnderecoDTO
+    enderecoDTO?: EnderecoDTO
 }

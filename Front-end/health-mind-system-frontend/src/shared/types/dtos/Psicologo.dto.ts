@@ -11,5 +11,6 @@ export interface PsicologoDTO {
     statusRole: StatusRoleEnum;
     crp: string;
     especialidade: string;
+    valorConsulta: number;
     disponibilidadesDTO?: DisponibilidadeDTO[];
 }

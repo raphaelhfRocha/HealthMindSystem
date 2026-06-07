@@ -10,7 +10,7 @@ namespace HealthMindBackend.Application.DTOs
     {
         public String Cep { get; set; }
         public String Logradouro { get; set; }
-        public String Complemento { get; set; }
+        public String? Complemento { get; set; }
         public String Bairro { get; set; }
         public String UF { get; set; }
         public String Localidade { get; set; }

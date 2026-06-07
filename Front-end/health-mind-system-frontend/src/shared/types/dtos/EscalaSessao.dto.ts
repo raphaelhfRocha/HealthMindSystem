@@ -1,5 +1,5 @@
 export interface EscalaSessaoDTO {
-    id: string,
+    id?: string,
     sessaoId: string,
     humor: number,
     ansiedade: number,

@@ -26,7 +26,7 @@ namespace HealthMindBackend.Application.PlanosSaude.Handlers
             planoSaudeFound = planoSaudeFound ??
                 throw new KeyNotFoundException("Plano Saúde não encontrado");
 
-            planoSaudeFound.Update(request.Nome, request.Codigo, request.StatusPlanoSaude, request.Telefone, request.Email);
+            planoSaudeFound.Update(request.Nome, request.Codigo, request.StatusPlanoSaude, request.Telefone, request.Email, request.CoberturasPlano);
 
             return await _planoSaudeRepository.AtualizarPlanoSaude(request.Id, planoSaudeFound);
         }

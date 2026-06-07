@@ -3,6 +3,12 @@ using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.HistoricosMedicos.Queries;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Application.Medicamentos.Commands;
+using HealthMindBackend.Application.MetasTerapeuticas.Commands;
+using HealthMindBackend.Application.MetasTerapeuticas.Queries;
+using HealthMindBackend.Application.SaudesMentais.Commands;
+using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -29,6 +35,20 @@ namespace HealthMindBackend.Application.Services
             await _mediator.Send(historicoMedicoCreateCommand);
         }
 
+        public async Task AdicionarMetaTerapeutica(MetaTerapeuticaDTO metaTerapeuticaDto)
+        {
+            var metaTerapeuticaCreateCommand = _mapper.Map<MetaTerapeuticaCreateCommand>(metaTerapeuticaDto);
+            await _mediator.Send(metaTerapeuticaCreateCommand);
+        }
+
+        public async Task AlterarMetaTerapeutica(String historicoId, String metaTerapeuticaId, MetaTerapeuticaDTO metaTerapeuticaDto)
+        {
+            var metaTerapeuticaUpdateCommand = _mapper.Map<MetaTerapeuticaUpdateCommand>(metaTerapeuticaDto);
+            metaTerapeuticaUpdateCommand.HistoricoMedicoId = historicoId;
+            metaTerapeuticaUpdateCommand.Id = metaTerapeuticaId;
+            await _mediator.Send(metaTerapeuticaUpdateCommand);
+        }
+
         public async Task AtualizarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto)
         {
             var historicoMedicoUpdateCommand = _mapper.Map<HistoricoMedicoUpdateCommand>(historicoMedicoDto);
@@ -39,6 +59,12 @@ namespace HealthMindBackend.Application.Services
         {
             var historicoMedicoDeleteCommand = new HistoricoMedicoDeleteCommand(historicoId);
             await _mediator.Send(historicoMedicoDeleteCommand);
+        }
+
+        public async Task ExcluirSaudeMental(String historicoId)
+        {
+            var saudeMentalDeleteCommand = new SaudeMentalDeleteCommand(historicoId);
+            await _mediator.Send(saudeMentalDeleteCommand);
         }
 
         public async Task<IEnumerable<HistoricoMedicoDTO>> GetAllHistoricoMedicos()
@@ -53,6 +79,13 @@ namespace HealthMindBackend.Application.Services
             var getHistoricosByProntuarioId = new GetHistoricosByProntuarioIdQuery(prontuarioId);
             var result = await _mediator.Send(getHistoricosByProntuarioId);
             return _mapper.Map<List<HistoricoMedicoDTO>>(result);
+        }
+
+        public async Task<List<MetaTerapeuticaDTO>> GetMetaTerapeuticasByHistoricoMedicoId(String historicoId)
+        {
+            var getMetasTerapeuticasByHistoricoMedicoIdQuery = new GetMetasTerapeuticasByHistoricoMedicoIdQuery(historicoId);
+            var result = await _mediator.Send(getMetasTerapeuticasByHistoricoMedicoIdQuery);
+            return _mapper.Map<List<MetaTerapeuticaDTO>>(result);
         }
     }
 }

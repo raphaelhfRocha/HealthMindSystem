@@ -1,12 +1,11 @@
-import { StatusCargoEnum } from "shared/enums/statusCargo.enum"
-import { StatusRoleEnum } from "shared/enums/statusRole.enum"
+import { StatusCargoEnum } from "../../domain/enums/status-cargo.enum";
+import { StatusRoleEnum } from "../../domain/enums/status-role.enum";
 
 export interface RecepcionistaDTO {
-    id?: string,
-    nome: string,
-    email: string,
-    cpfCnpj: string,
-    // senha: string,
-    statusCargo: StatusCargoEnum,
-    statusRole: StatusRoleEnum
+    id?: string;
+    nome: string;
+    email: string;
+    cpfCnpj: string;
+    statusCargo: StatusCargoEnum;
+    statusRole: StatusRoleEnum;
 }

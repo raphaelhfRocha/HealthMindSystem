@@ -17,6 +17,6 @@ namespace HealthMindBackend.Application.DTOs
         public StatusPlanoSaudeEnum StatusPlanoSaude { get; set; }
         public String Telefone { get; set; }
         public String Email { get; set; }
-        public CoberturaPlanoDTO CoberturaPlanoDTO { get; set; }
+        public ICollection<CoberturaPlanoDTO>? CoberturasPlanoDTO { get; set; }
     }
 }

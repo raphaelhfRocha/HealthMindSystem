@@ -31,15 +31,15 @@ export const prontuarioValidation = z.object({
         .string()
         .min(1, 'Paciente obrigatório'),
 
-    descricao: z
+    anotacoes: z
         .string()
         .min(
             10,
-            'Descrição deve possuir no mínimo 10 caracteres'
+            'Anotações devem possuir no mínimo 10 caracteres'
         )
         .max(
-            2000,
-            'Descrição muito longa'
+            4000,
+            'Anotações muito longas'
         ),
 
     dataAbertura: z

@@ -1,4 +1,6 @@
 ﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +14,7 @@ namespace HealthMindBackend.Domain.Interfaces
         Task<IEnumerable<Prontuario>> GetAllProntuarios();
         Task<List<Medicamento>> GetMedicamentosByProntuarioId(String prontuarioId);
         Task<Prontuario> GetProntuarioById(String prontuarioId);
+        Task<ContatoEmergencia> DefinirContatoEmergencia(String prontuarioId, ContatoEmergencia contatoEmergencia);
         Task<Prontuario> AdicionarProntuario(Prontuario prontuario);
         Task<Prontuario> EditarProntuario(Prontuario prontuario);
         Task<Medicamento> GetMedicamentoByProntuarioIdAndMedicamentoId(String prontuarioId, String medicamentoId);

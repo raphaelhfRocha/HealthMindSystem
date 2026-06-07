@@ -36,6 +36,11 @@ export const psicologoValidation = z.object({
         .trim()
         .min(3, 'Especialidade obrigatória'),
 
+    valorConsulta: z
+        .coerce
+        .number({ invalid_type_error: 'Valor inválido' })
+        .min(0, 'Valor da consulta inválido'),
+
     statusCargo: z.nativeEnum(StatusCargoEnum),
 
     statusRole: z.nativeEnum(StatusRoleEnum)

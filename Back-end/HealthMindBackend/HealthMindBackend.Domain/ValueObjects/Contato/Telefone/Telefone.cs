@@ -32,7 +32,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Contato
             return Regex.Replace(numero, @"\D", "");
         }
 
-        private bool IsValid(String numero)
+        private Boolean IsValid(String numero)
         {
             /*
              Formatos aceitos após normalização:
@@ -41,7 +41,7 @@ namespace HealthMindBackend.Domain.ValueObjects.Contato
              1133334444
              */
 
-            return numero.Length == 10 || numero.Length == 11;
+            return numero.Length == 10 || (numero.Length >= 11 && numero.Length <= 14);
         }
 
         public String ObterDDD()

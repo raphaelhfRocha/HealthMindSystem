@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using HealthMindBackend.Application.Medicamentos.Commands;
-using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -26,7 +26,7 @@ namespace HealthMindBackend.Application.Medicamentos.Handlers
         {
             await _validatorMedicamentoCreateCommand.ValidateAndThrowAsync(request);
 
-            var medicamento = new Medicamento(request.Nome, request.Dosagem, request.Frequencia)
+            var medicamento = new Medicamento(request.Nome, request.Dosagem, request.Frequencia, request.StatusMedicamentoUso)
             {
                 ProntuarioId = request.ProntuarioId
             };

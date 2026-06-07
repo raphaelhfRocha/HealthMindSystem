@@ -1,208 +1,476 @@
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import AppLayout from "../../components/AppLayout";
+import { StatusPagamentoEnum } from "../../shared/domain/enums/status-pagamento.enum";
+import { StatusFormaPagamentoEnum } from "../../shared/domain/enums/status-forma-pagamento.enum";
+import { StatusParceladoEnum } from "../../shared/domain/enums/status-parcelado.enum";
+import { definirPagamento, getAllSessoes } from "../../shared/services/sessao.service";
+import { getAllPacientes } from "../../shared/services/paciente.service";
+import { getAllPsicologos } from "../../shared/services/psicologo.service";
+import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
+import { PagamentoDTO } from "../../shared/types/dtos/Pagamento.dto";
+import { formatDate } from "../../shared/utils/formatDate";
+import { Pagination, usePagination } from "../../shared/components/Pagination";
+import { toDateInput } from "../../shared/utils/dateUtils";
+import { formatHora } from "../../shared/utils/formatHora";
+import { formatBRL } from "../../shared/utils/formatBRL";
+import ModalEditarPagamento from "../../shared/components/ModalEditarPagamento/ModalEditarPagamento";
+import CardResumo from "../../shared/components/CardResumo/CardResumo";
 
-const PAGAMENTOS_INICIAL = [
-  { id:  1, pacienteNome: "Ana Clara Souza",  psicologo: "Dr. Marcos",  sessaoNum: 1, data: "10/01/2026", valor: 150, statusPagamento: "pago"     },
-  { id:  2, pacienteNome: "Ana Clara Souza",  psicologo: "Dr. Marcos",  sessaoNum: 2, data: "17/01/2026", valor: 150, statusPagamento: "pago"     },
-  { id:  3, pacienteNome: "Ana Clara Souza",  psicologo: "Dr. Marcos",  sessaoNum: 3, data: "24/01/2026", valor: 150, statusPagamento: "pendente" },
-  { id:  4, pacienteNome: "Bruno Mendes",     psicologo: "Dra. Carla",  sessaoNum: 1, data: "05/02/2026", valor: 180, statusPagamento: "pago"     },
-  { id:  5, pacienteNome: "Bruno Mendes",     psicologo: "Dra. Carla",  sessaoNum: 2, data: "12/02/2026", valor: 180, statusPagamento: "pendente" },
-  { id:  6, pacienteNome: "Diego Almeida",    psicologo: "Dra. Carla",  sessaoNum: 1, data: "02/03/2026", valor: 200, statusPagamento: "pago"     },
-  { id:  7, pacienteNome: "Felipe Costa",     psicologo: "Dra. Carla",  sessaoNum: 1, data: "15/02/2026", valor: 150, statusPagamento: "pago"     },
-  { id:  8, pacienteNome: "Felipe Costa",     psicologo: "Dra. Carla",  sessaoNum: 2, data: "22/02/2026", valor: 150, statusPagamento: "pendente" },
-  { id:  9, pacienteNome: "Henrique Rocha",   psicologo: "Dra. Carla",  sessaoNum: 1, data: "10/04/2026", valor: 150, statusPagamento: "isento"   },
-  { id: 10, pacienteNome: "Isabela Martins",  psicologo: "Dr. Marcos",  sessaoNum: 1, data: "01/02/2026", valor: 200, statusPagamento: "pendente" },
-  { id: 11, pacienteNome: "João Pedro Silva", psicologo: "Dra. Carla",  sessaoNum: 1, data: "05/01/2026", valor: 150, statusPagamento: "pago"     },
-  { id: 12, pacienteNome: "João Pedro Silva", psicologo: "Dra. Carla",  sessaoNum: 2, data: "12/01/2026", valor: 150, statusPagamento: "pago"     },
-];
+const STATUS_FILTROS = ["todos", "pendente", "pago", "isento"] as const;
+type StatusFiltro = (typeof STATUS_FILTROS)[number];
+type StatusFinanceiro = Exclude<StatusFiltro, "todos">;
 
-const STATUS_CONFIG = {
+const STATUS_CONFIG: Record<StatusFinanceiro, { label: string; bg: string; color: string }> = {
   pendente: { label: "Pendente", bg: "#FFF8E6", color: "#856404" },
-  pago:     { label: "Pago",     bg: "#E8F5EE", color: "#2A8A55" },
-  isento:   { label: "Isento",   bg: "#f0f0f0", color: "#888"    },
+  pago: { label: "Pago", bg: "#E8F5EE", color: "#2A8A55" },
+  isento: { label: "Isento", bg: "#F0F0F0", color: "#888888" },
 };
 
-const STATUS_FILTROS = ["todos", "pendente", "pago", "isento"];
-const STATUS_FILTRO_LABEL = { todos: "Todos", pendente: "Pendente", pago: "Pago", isento: "Isento" };
+const STATUS_FILTRO_LABEL: Record<StatusFiltro, string> = {
+  todos: "Todos",
+  pendente: "Pendente",
+  pago: "Pago",
+  isento: "Isento",
+};
 
-function formatBRL(valor) {
-  return Number(valor).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
+type SessaoFinanceira = SessaoDTO & {
+  id?: string;
+  pacienteNome?: string;
+  psicologoNome?: string;
+  sessaoNum?: number;
+  num?: number;
+  paciente?: { nome?: string };
+  psicologo?: { nome?: string };
+  pagamentoDTO?: PagamentoDTO;
+};
 
-// ─── Summary card ─────────────────────────────────────────────────────────────
-function CardResumo({ label, valor, cor, bg, sub }) {
-  return (
-    <div style={{ background: "white", borderRadius: "14px", padding: "20px 22px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", flex: 1, minWidth: "140px" }}>
-      <div style={{ fontSize: "11px", fontWeight: "700", color: "#aaa", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: "8px" }}>{label}</div>
-      <div style={{ fontSize: "22px", fontWeight: "800", color: cor }}>{valor}</div>
-      {sub && <div style={{ fontSize: "11px", color: "#bbb", marginTop: "4px" }}>{sub}</div>}
-    </div>
-  );
-}
+type dadosFinanceiro = {
+  id: string;
+  pacienteNome: string;
+  psicologo: string;
+  sessaoNum: number;
+  dataSessao: string;
+  horaSessao: string;
+  data: string;
+  valor: number | null;
+  statusPagamento: StatusFinanceiro;
+};
 
-// ─── Page ─────────────────────────────────────────────────────────────────────
 export default function FinanceiroPage() {
-  const [pagamentos, setPagamentos] = useState([...PAGAMENTOS_INICIAL]);
-  const [filtroStatus, setFiltroStatus] = useState("todos");
+  const [sessoes, setSessoes] = useState<SessaoFinanceira[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [erro, setErro] = useState<string | null>(null);
+  const [filtroStatus, setFiltroStatus] = useState<StatusFiltro>("todos");
   const [busca, setBusca] = useState("");
 
-  const registrarPagamento = (id) => {
-    setPagamentos(prev => prev.map(p => p.id === id ? { ...p, statusPagamento: "pago" } : p));
+  const [pagamentoEmEdicao, setPagamentoEmEdicao] = useState<SessaoFinanceira | null>(null);
+  const [salvandoPagamento, setSalvandoPagamento] = useState(false);
+  const [erroPagamento, setErroPagamento] = useState<string | null>(null);
+  const [marcandoId, setMarcandoId] = useState<string | null>(null);
+
+  const carregarSessoes = useCallback(async () => {
+    try {
+      setLoading(true);
+      setErro(null);
+
+      const [sessoes, pacientes, psicologos] =
+        await Promise.all([
+          getAllSessoes(),
+          getAllPacientes(),
+          getAllPsicologos(),
+        ]);
+
+      const pacientesMap = new Map(
+        pacientes.map((p) => [p.id, p.nome])
+      );
+
+      const psicologosMap = new Map(
+        psicologos.map((p) => [p.id, p.nome])
+      );
+
+      const sessoesComNomes = sessoes.map((sessao) => ({
+        ...sessao,
+        pacienteNome:
+          pacientesMap.get(sessao.pacienteId) ?? "Não encontrado",
+
+        psicologoNome:
+          psicologosMap.get(sessao.psicologoId) ?? "Não encontrado",
+      }));
+
+      setSessoes(sessoesComNomes);
+    } catch (error) {
+      const mensagem =
+        error instanceof Error
+          ? error.message
+          : "Falha ao carregar financeiro";
+
+      setErro(mensagem);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void carregarSessoes();
+  }, [carregarSessoes]);
+
+
+
+  const mapStatusPagamento = (pagamento?: PagamentoDTO): StatusFinanceiro => {
+    if (pagamento?.statusPagamento === StatusPagamentoEnum.stsPago) return "pago";
+    if (pagamento?.statusPagamento === StatusPagamentoEnum.stsIsento) return "isento";
+    return "pendente";
   };
 
-  // ── aggregates ──
-  const totalRecebido  = pagamentos.filter(p => p.statusPagamento === "pago").reduce((s, p) => s + p.valor, 0);
-  const totalPendente  = pagamentos.filter(p => p.statusPagamento === "pendente").reduce((s, p) => s + p.valor, 0);
-  const totalSessoes   = pagamentos.length;
-  const totalIsentos   = pagamentos.filter(p => p.statusPagamento === "isento").length;
+  const linhas = useMemo<dadosFinanceiro[]>(() => {
+    return sessoes
+      .map((sessao) => {
+        const pagamento = sessao.pagamentoDTO;
 
-  // ── filters ──
-  const filtrados = pagamentos.filter(p => {
-    const matchStatus = filtroStatus === "todos" || p.statusPagamento === filtroStatus;
-    const matchBusca  = p.pacienteNome.toLowerCase().includes(busca.toLowerCase()) ||
-                        p.psicologo.toLowerCase().includes(busca.toLowerCase());
-    return matchStatus && matchBusca;
-  });
+        const statusPagamento =
+          mapStatusPagamento(pagamento);
 
-  const COL = "1fr 130px 90px 110px 120px 170px";
+        const valor =
+          pagamento?.valorConsultaFinal ??
+          pagamento?.valorConsulta ??
+          null;
+
+        const pacienteNome =
+          sessao.pacienteNome ??
+          "Paciente não encontrado";
+
+        const psicologo =
+          sessao.psicologoNome ??
+          "Psicólogo não encontrado";
+
+        const sessaoNum = Number(
+          sessao.sessaoNum ??
+          sessao.num ??
+          sessao.id ??
+          0
+        );
+
+        const dataBase =
+          pagamento?.dataPagamento ?? "";
+
+        const dataValida =
+          dataBase && new Date(dataBase).getFullYear() > 1
+            ? (dataBase as Date | string)
+            : "";
+
+        const data =
+          formatDate(dataValida);
+
+        const dataSessao =
+          sessao.dataSessao &&
+          new Date(sessao.dataSessao).getFullYear() > 1
+            ? formatDate(sessao.dataSessao)
+            : "—";
+
+        const horaSessao =
+          formatHora(sessao.horaInicio);
+
+        return {
+          id: String(
+            pagamento?.sessaoId ??
+            sessao.id ??
+            sessaoNum
+          ),
+          pacienteNome,
+          psicologo,
+          sessaoNum:
+            Number.isFinite(sessaoNum)
+              ? sessaoNum
+              : 0,
+          dataSessao,
+          horaSessao,
+          data,
+          valor,
+          statusPagamento,
+        };
+      })
+      .filter((linha) => Boolean(linha.id));
+  }, [sessoes]);
+
+
+
+  const totalRecebido = linhas
+    .filter((linha) => linha.statusPagamento === "pago")
+    .reduce((acc, linha) => acc + (linha.valor ?? 0), 0);
+
+  const totalPendente = linhas
+    .filter((linha) => linha.statusPagamento === "pendente")
+    .reduce((acc, linha) => acc + (linha.valor ?? 0), 0);
+
+  const totalSessoes = linhas.length;
+  const totalIsentos = linhas
+    .filter((linha) => linha.statusPagamento === "isento").length
+
+  const filtrados = useMemo(() => {
+    const q = busca.trim().toLowerCase();
+
+    return linhas.filter((linha) => {
+      const matchStatus = filtroStatus === "todos" || linha.statusPagamento === filtroStatus;
+      const matchBusca =
+        !q ||
+        linha.pacienteNome.toLowerCase().includes(q) ||
+        linha.psicologo.toLowerCase().includes(q);
+
+      return matchStatus && matchBusca;
+    });
+  }, [linhas, filtroStatus, busca]);
+
+  const { pageItems, page, setPage, totalPages } = usePagination(filtrados, 5, `${filtroStatus}|${busca}`);
+
+  function abrirEdicaoPagamento(linha: dadosFinanceiro) {
+    const sessao = sessoes.find(item => String(item.id) === String(linha.id));
+    if (!sessao) {
+      return;
+    }
+    setErroPagamento(null);
+    setPagamentoEmEdicao(sessao);
+  }
+
+  async function handleSalvarPagamento(pagamento: PagamentoDTO) {
+    const sessaoId = pagamentoEmEdicao?.id;
+    if (!sessaoId) {
+      return;
+    }
+
+    try {
+      setSalvandoPagamento(true);
+      setErroPagamento(null);
+      await definirPagamento(sessaoId, pagamento);
+      setPagamentoEmEdicao(null);
+      await carregarSessoes();
+    } catch {
+      setErroPagamento("Não foi possível salvar o pagamento. Tente novamente.");
+    } finally {
+      setSalvandoPagamento(false);
+    }
+  }
+
+  const COL = "1.3fr 1fr 105px 95px 120px 95px 95px 90px";
 
   return (
     <AppLayout breadcrumb="Financeiro >">
-      <div style={{ width: "100%", maxWidth: "960px", display: "flex", flexDirection: "column", gap: "20px" }}>
-
-        {/* Title */}
+      {pagamentoEmEdicao && (
+        <ModalEditarPagamento
+          pacienteNome={pagamentoEmEdicao.pacienteNome ?? "—"}
+          pagamento={pagamentoEmEdicao.pagamentoDTO}
+          saving={salvandoPagamento}
+          error={erroPagamento}
+          onSave={handleSalvarPagamento}
+          onClose={() => { if (!salvandoPagamento) setPagamentoEmEdicao(null); }}
+        />
+      )}
+      <div style={{ width: "100%", maxWidth: "1080px", display: "flex", flexDirection: "column", gap: "20px" }}>
         <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Financeiro</h1>
 
-        {/* Summary cards */}
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
           <CardResumo
             label="Total Recebido"
             valor={`R$ ${formatBRL(totalRecebido)}`}
             cor="#2A8A55"
-            sub={`${pagamentos.filter(p => p.statusPagamento === "pago").length} sessões pagas`}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "pago").length === 1 ?
+                'sessão paga' : linhas.filter((linha) => linha.statusPagamento === "pago")
+                  .length > 1 ? 'sessões pagas' : ''
+            }
           />
           <CardResumo
             label="A Receber"
             valor={`R$ ${formatBRL(totalPendente)}`}
             cor="#856404"
-            sub={`${pagamentos.filter(p => p.statusPagamento === "pendente").length} sessões pendentes`}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "pendente").length === 1 ?
+                'sessão pendente' : linhas.filter((linha) => linha.statusPagamento === "pendente")
+                  .length > 1 ? 'sessões pendentes' : ''
+            }
           />
           <CardResumo
             label="Total de Sessões"
             valor={totalSessoes}
             cor="#1A4FA3"
-            sub="registradas no sistema"
+            sub={
+              linhas.length === 1 ? 'registrada no sistema' :
+              linhas.length > 1 ? 'registradas no sistema' : 
+              ''}
           />
           <CardResumo
             label="Isenções"
             valor={totalIsentos}
             cor="#888"
-            sub={totalIsentos === 1 ? "sessão isenta" : "sessões isentas"}
+            sub={
+              linhas.filter((linha) => linha.statusPagamento === "isento").length === 1 ?
+              'sessão isenta' : linhas.filter((linha) => linha.statusPagamento === "isento")
+                  .length > 1 ? 'sessões isentas' : ''
+            }
           />
         </div>
 
-        {/* Filters */}
-        <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap", justifyContent: "space-between" }}>
-          {/* Status pills */}
-          <div style={{ display: "flex", gap: "6px" }}>
-            {STATUS_FILTROS.map(s => (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "12px",
+            flexWrap: "wrap",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
+            {STATUS_FILTROS.map((status) => (
               <button
-                key={s}
-                onClick={() => setFiltroStatus(s)}
+                key={status}
+                onClick={() => setFiltroStatus(status)}
                 style={{
-                  padding: "6px 16px", borderRadius: "20px", fontSize: "13px", fontWeight: "600",
-                  border: "none", cursor: "pointer", transition: "background 0.15s",
-                  background: filtroStatus === s ? "#1A4FA3" : "#EBF3FF",
-                  color: filtroStatus === s ? "white" : "#1A4FA3",
+                  padding: "6px 16px",
+                  borderRadius: "20px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  border: "none",
+                  cursor: "pointer",
+                  transition: "background 0.15s",
+                  background: filtroStatus === status ? "#1A4FA3" : "#EBF3FF",
+                  color: filtroStatus === status ? "white" : "#1A4FA3",
                 }}
               >
-                {STATUS_FILTRO_LABEL[s]}
+                {STATUS_FILTRO_LABEL[status]}
               </button>
             ))}
           </div>
 
-          {/* Search */}
           <div style={{ position: "relative" }}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
-              style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-              <circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="2" fill="none"/>
-              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#999" strokeWidth="2" strokeLinecap="round"/>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              style={{
+                position: "absolute",
+                left: "10px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                pointerEvents: "none",
+              }}
+            >
+              <circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="2" fill="none" />
+              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#999" strokeWidth="2" strokeLinecap="round" />
             </svg>
             <input
               type="text"
               placeholder="Buscar paciente ou psicólogo..."
               value={busca}
-              onChange={e => setBusca(e.target.value)}
-              style={{ height: "36px", border: "1px solid #dde3f0", borderRadius: "20px", padding: "0 14px 0 30px", fontSize: "13px", outline: "none", width: "240px", background: "white" }}
+              onChange={(event) => setBusca(event.target.value)}
+              style={{
+                height: "36px",
+                border: "1px solid #dde3f0",
+                borderRadius: "20px",
+                padding: "0 14px 0 30px",
+                fontSize: "13px",
+                outline: "none",
+                width: "240px",
+                background: "white",
+              }}
             />
           </div>
         </div>
 
-        {/* Table */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
-
-          {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "Psicólogo", "Sessão", "Data", "Valor", "Status / Ação"].map(h => (
-              <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
+            {["Paciente", "Psicólogo", "Data Sessão", "Hora Sessão", "Data Pagamento", "Valor", "Status", "Ações"].map((header) => (
+              <div
+                key={header}
+                style={{
+                  fontSize: "12px",
+                  fontWeight: "700",
+                  color: "white",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.04em",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                }}
+              >
+                {header}
+              </div>
             ))}
           </div>
 
-          {/* Rows */}
-          {filtrados.length === 0 ? (
-            <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "14px" }}>
-              Nenhum registro encontrado.
-            </div>
+          {loading ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#888", fontSize: "14px" }}>Carregando financeiro...</div>
+          ) : erro ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#b00020", fontSize: "14px" }}>{erro}</div>
+          ) : filtrados.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "14px" }}>Nenhum registro encontrado.</div>
           ) : (
-            filtrados.map((p, i) => {
-              const rowBg = i % 2 === 0 ? "white" : "#f9fafc";
-              const cfg   = STATUS_CONFIG[p.statusPagamento];
+            pageItems.map((linha, index) => {
+              const rowBg = index % 2 === 0 ? "white" : "#f9fafc";
+              const cfg = STATUS_CONFIG[linha.statusPagamento];
+
               return (
                 <div
-                  key={p.id}
-                  style={{ display: "grid", gridTemplateColumns: COL, padding: "12px 20px", gap: "12px", alignItems: "center", background: rowBg, borderBottom: "1px solid #eef0f6", transition: "background 0.12s" }}
-                  onMouseEnter={e => e.currentTarget.style.background = "#f0f4ff"}
-                  onMouseLeave={e => e.currentTarget.style.background = rowBg}
+                  key={linha.id}
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: COL,
+                    padding: "12px 20px",
+                    gap: "12px",
+                    alignItems: "center",
+                    background: rowBg,
+                    borderBottom: "1px solid #eef0f6",
+                    transition: "background 0.12s",
+                  }}
+                  onMouseEnter={(event) => {
+                    event.currentTarget.style.background = "#f0f4ff";
+                  }}
+                  onMouseLeave={(event) => {
+                    event.currentTarget.style.background = rowBg;
+                  }}
                 >
-                  {/* Paciente */}
                   <div style={{ fontSize: "14px", fontWeight: "600", color: "#222", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                    {p.pacienteNome}
+                    {linha.pacienteNome}
                   </div>
 
-                  {/* Psicólogo */}
-                  <div style={{ fontSize: "13px", color: "#555" }}>{p.psicologo}</div>
+                  <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {linha.psicologo}
+                  </div>
 
-                  {/* Sessão */}
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap" }}>{linha.dataSessao}</div>
+
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap", textAlign: "left" }}>{linha.horaSessao}</div>
+
+                  <div style={{ fontSize: "13px", color: "#555", whiteSpace: "nowrap" }}>{linha.data}</div>
+
+                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#222" }}>
+                    {linha.valor != null ? `R$ ${formatBRL(linha.valor)}` : "—"}
+                  </div>
+
                   <div>
-                    <span style={{ fontSize: "12px", fontWeight: "700", background: "#EBF3FF", color: "#1A4FA3", borderRadius: "10px", padding: "2px 10px" }}>
-                      #{p.sessaoNum}
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        borderRadius: "14px",
+                        padding: "4px 12px",
+                        background: cfg.bg,
+                        color: cfg.color,
+                      }}
+                    >
+                      {cfg.label}
                     </span>
                   </div>
 
-                  {/* Data */}
-                  <div style={{ fontSize: "13px", color: "#555" }}>{p.data}</div>
-
-                  {/* Valor */}
-                  <div style={{ fontSize: "13px", fontWeight: "700", color: "#222" }}>
-                    {p.valor != null ? `R$ ${formatBRL(p.valor)}` : "—"}
-                  </div>
-
-                  {/* Status / Ação */}
-                  <div>
-                    {p.statusPagamento === "pendente" ? (
-                      <button
-                        onClick={() => registrarPagamento(p.id)}
-                        style={{ padding: "5px 14px", background: "#1A4FA3", border: "none", borderRadius: "14px", fontSize: "12px", fontWeight: "600", color: "white", cursor: "pointer", whiteSpace: "nowrap" }}
-                        onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.12)"}
-                        onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
-                      >
-                        Registrar Pagamento
-                      </button>
-                    ) : (
-                      <span style={{ fontSize: "12px", fontWeight: "600", borderRadius: "14px", padding: "4px 12px", background: cfg.bg, color: cfg.color }}>
-                        {cfg.label}
-                      </span>
-                    )}
+                  <div style={{ display: "flex", gap: "6px" }}>
+                    <button
+                      onClick={() => abrirEdicaoPagamento(linha)}
+                      title="Editar pagamento"
+                      style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 10px", background: "#EBF3FF", border: "none", borderRadius: "14px", fontSize: "11px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                      onMouseEnter={event => event.currentTarget.style.background = "#d0e4ff"}
+                      onMouseLeave={event => event.currentTarget.style.background = "#EBF3FF"}
+                    >
+                      Editar
+                    </button>
                   </div>
                 </div>
               );
@@ -210,18 +478,19 @@ export default function FinanceiroPage() {
           )}
         </div>
 
-        {/* Footer */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
             {filtrados.length} {filtrados.length === 1 ? "registro encontrado" : "registros encontrados"}
           </span>
+
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+
           {filtroStatus === "todos" && (
             <span style={{ fontSize: "12px", color: "#888" }}>
               Total geral: <strong style={{ color: "#111" }}>R$ {formatBRL(totalRecebido + totalPendente)}</strong>
             </span>
           )}
         </div>
-
       </div>
     </AppLayout>
   );

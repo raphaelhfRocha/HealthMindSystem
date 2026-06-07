@@ -7,6 +7,7 @@ type RHFTextFieldProps<TFormValues extends FieldValues> = {
   label: string;
   placeholder?: string;
   type?: string;
+  disabled?: boolean;
   inputStyle: React.CSSProperties;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
@@ -20,6 +21,7 @@ export function RHFTextField<TFormValues extends FieldValues>({
   label,
   placeholder,
   type = "text",
+  disabled = false,
   inputStyle,
   onFocus,
   onBlur,
@@ -41,13 +43,19 @@ export function RHFTextField<TFormValues extends FieldValues>({
             type={type}
             placeholder={placeholder}
             value={field.value ?? ""}
+            disabled={disabled}
             onChange={e => field.onChange(mask ? mask(e.target.value) : e.target.value)}
             onBlur={e => {
               field.onBlur();
               onBlur?.(e);
             }}
             onFocus={onFocus}
-            style={inputStyle}
+            style={{
+              ...inputStyle,
+              background: disabled ? "#f5f7fb" : inputStyle.background ?? "white",
+              color: disabled ? "#9aa3b2" : inputStyle.color ?? "#1a1a1a",
+              cursor: disabled ? "not-allowed" : "text",
+            }}
           />
         )}
       />

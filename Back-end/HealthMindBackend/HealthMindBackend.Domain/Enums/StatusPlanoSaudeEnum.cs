@@ -12,6 +12,12 @@ namespace HealthMindBackend.Domain.Enums
         StsNone,
         [Description("Ativo")]
         StsAtivo,
+        [Description("Suspenso")]
+        StsSuspenso,
+        [Description("Em análise")]
+        StsEmAnalise,
+        [Description("Descredenciado")]
+        StsDescredenciado,
         [Description("Inativo")]
         StsInativo
     }

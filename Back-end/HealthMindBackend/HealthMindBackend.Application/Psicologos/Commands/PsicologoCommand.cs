@@ -18,12 +18,13 @@ namespace HealthMindBackend.Application.Psicologos.Commands
     {
         public String Nome { get; set; }
         public Email Email { get; set; }
-        public String Senha { get; set; }
+        public String? Senha { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }
         public StatusRoleEnum StatusRole { get; set; }
         public CpfCnpj CpfCnpj { get; set; }
         public Crp Crp { get; set; }
         public String Especialidade { get; set; }
+        public Decimal ValorConsulta { get; set; }
         public List<Disponibilidade>? Disponibilidades { get; set; }
     }
 }

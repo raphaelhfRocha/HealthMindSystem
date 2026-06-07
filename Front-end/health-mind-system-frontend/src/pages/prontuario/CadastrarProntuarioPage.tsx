@@ -1,21 +1,33 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
+import SearchEnderecoByCEP from "../../shared/components/SearchEnderecoByCEP/SearchEnderecoByCEP";
+import { registrarProntuario } from "../../shared/services/prontuario.service";
+import { getPacienteById } from "../../shared/services/paciente.service";
+import { getAllPlanosSaude } from "../../shared/services/plano-saude.service";
+import { StatusProntuarioEnum } from "../../shared/domain/enums/status-prontuario.enum";
+import { StatusMedicamentoUsoEnum } from "../../shared/domain/enums/status-medicamento-uso.enum";
+import { EnderecoDTO } from "../../shared/types/dtos/Endereco.dto";
+import { PacienteDTO } from "../../shared/types/dtos/Paciente.dto";
+import { ContatoEmergenciaDTO } from "../../shared/types/dtos/ContatoEmergencia.dto";
+import { ProntuarioDTO } from "../../shared/types/dtos/Prontuario.dto";
+import { formatPhone } from "../../shared/utils/formatPhone";
+import { formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 
-const PACIENTES_PREFILL = {
-  3:  { nomeCompleto: "Carla Ferreira",  nascimento: "22/06/2002", cpf: "345.678.901-22", telefone: "(21) 98877-6655", email: "carla.f@email.com"    },
-  5:  { nomeCompleto: "Eduarda Lima",    nascimento: "30/09/1994", cpf: "567.890.123-44", telefone: "(11) 95544-3322", email: "edu.lima@email.com"    },
-  7:  { nomeCompleto: "Gabriela Nunes",  nascimento: "03/12/1987", cpf: "789.012.345-66", telefone: "(51) 93322-1100", email: "gabi.nunes@email.com"  },
+type MedicamentoForm = {
+  id: number;
+  nome: string;
+  dosagem: string;
+  frequencia: string;
+  statusMedicamentoUso: StatusMedicamentoUsoEnum;
 };
 
-const PSICOLOGOS = [
-  "Dr. Marcos Oliveira",
-  "Dra. Carla Mendonça",
-  "Dr. Rafael Souza",
-  "Dra. Ana Beatriz Lima",
-];
-
-const PLANOS = ["Particular", "Unimed", "Bradesco Saúde", "Amil", "SulAmérica", "Porto Seguro", "Outro"];
+type ContatoForm = {
+  nome: string;
+  telefone: string;
+  relacaoParentesco: string;
+  enderecoDTO: EnderecoDTO;
+};
 
 const inputStyle = {
   width: "100%", height: "38px", border: "1px solid #dde3f0", borderRadius: "8px",
@@ -71,48 +83,208 @@ function SectionCard({ title, children }) {
   );
 }
 
+function formatDateBR(value?: string | Date | null) {
+  if (!value) {
+    return "—";
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "—";
+  }
+
+  return date.toLocaleDateString("pt-BR");
+}
+
+const EMPTY_ENDERECO: EnderecoDTO = {
+  cep: "",
+  logradouro: "",
+  complemento: "",
+  bairro: "",
+  uf: "",
+  localidade: "",
+  regiao: "",
+};
+
+function createEmptyContato(): ContatoForm {
+  return {
+    nome: "",
+    telefone: "",
+    relacaoParentesco: "",
+    enderecoDTO: { ...EMPTY_ENDERECO },
+  };
+}
+
+function createEmptyMedicamento(): Omit<MedicamentoForm, "id"> {
+  return {
+    nome: "",
+    dosagem: "",
+    frequencia: "",
+    statusMedicamentoUso: StatusMedicamentoUsoEnum.stsEmUso,
+  };
+}
+
 export default function CadastrarProntuarioPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const pacienteId = Number(searchParams.get("paciente"));
-  const prefill = PACIENTES_PREFILL[pacienteId] || {};
+  const pacienteId = searchParams.get("paciente") ?? "";
 
-  const [paciente, setPaciente] = useState({
-    nomeCompleto: prefill.nomeCompleto || "",
-    nascimento:   prefill.nascimento   || "",
-    cpf:          prefill.cpf          || "",
-    telefone:     prefill.telefone     || "",
-    email:        prefill.email        || "",
-    plano:        "",
-    psicologo:    "",
-  });
+  const [paciente, setPaciente] = useState<PacienteDTO | null>(null);
+  const [carregandoPaciente, setCarregandoPaciente] = useState(false);
+  const [erroPaciente, setErroPaciente] = useState<string | null>(null);
+  const [planosPorId, setPlanosPorId] = useState<Record<string, string>>({});
 
-  const [contato, setContato] = useState({
-    nome:     "",
-    telefone: "",
-    relacao:  "",
-    endereco: "",
-    cep:      "",
-  });
-
-  const [anotacao, setAnotacao] = useState("");
-
-  const [meds, setMeds]           = useState([]);
+  const [contato, setContato] = useState<ContatoForm>(createEmptyContato);
+  const [anotacoes, setAnotacoes] = useState("");
+  const [meds, setMeds] = useState<MedicamentoForm[]>([]);
   const [showMedForm, setShowMedForm] = useState(false);
-  const [editingMedId, setEditingMedId] = useState(null);
-  const [medForm, setMedForm]     = useState({ nome: "", dose: "", frequencia: "", emUso: true });
-
+  const [editingMedId, setEditingMedId] = useState<number | null>(null);
+  const [medForm, setMedForm] = useState<Omit<MedicamentoForm, "id">>(createEmptyMedicamento);
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  const setp = (field) => (val) => setPaciente(f => ({ ...f, [field]: val }));
-  const setc = (field) => (val) => setContato(f => ({ ...f, [field]: val }));
+  useEffect(() => {
+    let active = true;
 
-  const podeSalvar = paciente.nomeCompleto.trim() && paciente.psicologo;
+    async function loadPaciente() {
+      if (!pacienteId) {
+        setErroPaciente("Paciente não informado na abertura da tela.");
+        setPaciente(null);
+        return;
+      }
 
-  const handleSave = () => {
+      try {
+        setCarregandoPaciente(true);
+        setErroPaciente(null);
+
+        const response = await getPacienteById(pacienteId);
+
+        if (!active) {
+          return;
+        }
+
+        setPaciente(response);
+      } catch {
+        if (!active) {
+          return;
+        }
+
+        setPaciente(null);
+        setErroPaciente("Não foi possível carregar os dados do paciente.");
+      } finally {
+        if (active) {
+          setCarregandoPaciente(false);
+        }
+      }
+    }
+
+    loadPaciente();
+
+    return () => {
+      active = false;
+    };
+  }, [pacienteId]);
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPlanos() {
+      try {
+        const planos = await getAllPlanosSaude();
+        if (!active) return;
+
+        const map = planos.reduce<Record<string, string>>((acc, plano) => {
+          if (plano.id) {
+            acc[plano.id] = plano.nome;
+          }
+          return acc;
+        }, {});
+
+        setPlanosPorId(map);
+      } catch {
+        if (active) {
+          setPlanosPorId({});
+        }
+      }
+    }
+
+    loadPlanos();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  const podeSalvar = Boolean(pacienteId) && Boolean(anotacoes.trim()) && !saving && !carregandoPaciente && !erroPaciente;
+
+  const pacienteResumo = useMemo(() => {
+    if (!paciente) {
+      return null;
+    }
+
+    const nomePlano =
+      paciente.planoSaudePacienteDTO?.planoSaudeDTO?.nome ??
+      (paciente.planoSaudePacienteDTO?.planoSaudeId ? planosPorId[paciente.planoSaudePacienteDTO.planoSaudeId] : undefined) ??
+      "—";
+
+    return {
+      nome: paciente.nome,
+      nascimento: formatDateBR(paciente.dataNascimento),
+      cpfCnpj: formatCpfCnpj(paciente.cpfCnpj),
+      telefone: formatPhone(paciente.telefone),
+      email: paciente.email,
+      psicologoId: paciente.psicologoId,
+      plano: nomePlano,
+    };
+  }, [paciente, planosPorId]);
+
+  const handleSave = async () => {
     if (!podeSalvar) return;
-    setSaved(true);
-    setTimeout(() => navigate("/prontuario"), 1200);
+
+    try {
+      setSaving(true);
+
+      const prontoarioPayload: ProntuarioDTO = {
+        pacienteId,
+        anotacoes,
+        dataAbertura: new Date().toISOString(),
+        statusProntuario: StatusProntuarioEnum.stsAtivo,
+        medicamentosDTO: meds.map((medicamento) => ({
+          nome: medicamento.nome,
+          dosagem: medicamento.dosagem,
+          frequencia: medicamento.frequencia,
+          statusMedicamentoUso: medicamento.statusMedicamentoUso,
+        })),
+      };
+
+      const contatoTemDados = Boolean(
+        contato.nome.trim() ||
+        contato.telefone.trim() ||
+        contato.relacaoParentesco.trim() ||
+        contato.enderecoDTO.cep.trim() ||
+        contato.enderecoDTO.logradouro.trim() ||
+        contato.enderecoDTO.bairro.trim() ||
+        contato.enderecoDTO.localidade.trim()
+      );
+
+      if (contatoTemDados) {
+        prontoarioPayload.contatoEmergenciaDTO = {
+          prontuarioId: "",
+          nome: contato.nome,
+          telefone: contato.telefone,
+          relacaoParentesco: contato.relacaoParentesco,
+          enderecoDTO: contato.enderecoDTO,
+        };
+      }
+
+      const response = await registrarProntuario(prontoarioPayload);
+      setSaved(true);
+      setTimeout(() => navigate(response.id ? `/prontuario/${response.id}` : "/prontuario"), 1200);
+    } catch (e) {
+      alert("Não foi possível salvar o prontuário. Verifique os campos obrigatórios e tente novamente.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -150,70 +322,74 @@ export default function CadastrarProntuarioPage() {
             {saved ? (
               <>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12L10 17L19 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 12L10 17L19 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
                 Cadastrado!
               </>
             ) : (
               <>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
-                  <path d="M5 12L10 17L19 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  <path d="M5 12L10 17L19 8" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                Cadastrar Prontuário
+                {saving ? "Salvando..." : "Cadastrar Prontuário"}
               </>
             )}
           </button>
         </div>
 
-        {/* ── Seção 1: Dados do Paciente ── */}
         <SectionCard title="Informações do Paciente">
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-            <Field label="Nome Completo"      value={paciente.nomeCompleto} onChange={setp("nomeCompleto")} required />
-            <Field label="Data de Nascimento" value={paciente.nascimento}   onChange={setp("nascimento")} placeholder="DD/MM/AAAA" />
-          </div>
-
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
-            <Field label="CPF" value={paciente.cpf} onChange={setp("cpf")} placeholder="000.000.000-00" />
-            <Field label="Telefone" value={paciente.telefone} onChange={setp("telefone")} placeholder="(00) 00000-0000" type="tel" />
-          </div>
-
-          <div style={{ borderTop: "1px solid #eef0f6" }} />
-
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "16px" }}>
-            <Field label="E-mail" value={paciente.email} onChange={setp("email")} placeholder="email@exemplo.com" type="email" />
-            <SelectField label="Plano de Saúde"        value={paciente.plano}     onChange={setp("plano")}     options={PLANOS}      />
-            <SelectField label="Psicólogo Responsável" value={paciente.psicologo} onChange={setp("psicologo")} options={PSICOLOGOS} required />
-          </div>
-
-          <p style={{ margin: 0, fontSize: "11px", color: "#aaa" }}>
-            * Nome completo e psicólogo responsável são obrigatórios.
-          </p>
+          {carregandoPaciente ? (
+            <p style={{ margin: 0, color: "#666", fontSize: "13px" }}>Carregando dados do paciente...</p>
+          ) : erroPaciente ? (
+            <p style={{ margin: 0, color: "#b84545", fontSize: "13px" }}>{erroPaciente}</p>
+          ) : pacienteResumo ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "16px" }}>
+                <Field label="Nome Completo" value={pacienteResumo.nome} readOnly />
+                <Field label="Data de Nascimento" value={pacienteResumo.nascimento} readOnly />
+                <Field label="CPF/CNPJ" value={pacienteResumo.cpfCnpj} readOnly />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "0.85fr 1.45fr 1fr", gap: "16px" }}>
+                <Field label="Telefone" value={pacienteResumo.telefone} readOnly />
+                <Field label="E-mail" value={pacienteResumo.email} readOnly />
+                <Field label="Plano de Saúde" value={pacienteResumo.plano} readOnly />
+              </div>
+            </div>
+          ) : (
+            <p style={{ margin: 0, color: "#666", fontSize: "13px" }}>Nenhum paciente carregado.</p>
+          )}
         </SectionCard>
 
-        {/* ── Seção 2: Contato de Emergência ── */}
         <SectionCard title="Contato de Emergência">
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "16px" }}>
-            <Field label="Nome do Contato"    value={contato.nome}     onChange={setc("nome")}     placeholder="Nome completo" />
-            <Field label="Telefone"           value={contato.telefone} onChange={setc("telefone")} placeholder="(00) 00000-0000" type="tel" />
-            <Field label="Relação/Parentesco" value={contato.relacao}  onChange={setc("relacao")}  placeholder="Ex: Mãe, Pai, Cônjuge" />
+            <Field label="Nome do Contato" value={contato.nome} onChange={(val) => setContato(current => ({ ...current, nome: val }))} placeholder="Nome completo" />
+            <Field label="Telefone" value={formatPhone(contato.telefone)} onChange={(val) => setContato(current => ({ ...current, telefone: val }))} placeholder="(00) 00000-0000" type="tel" />
+            <Field label="Relação/Parentesco" value={contato.relacaoParentesco} onChange={(val) => setContato(current => ({ ...current, relacaoParentesco: val }))} placeholder="Ex: Mãe, Pai, Cônjuge" />
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-            <Field label="Endereço" value={contato.endereco} onChange={setc("endereco")} placeholder="Rua, número, bairro" />
-            <Field label="CEP"      value={contato.cep}      onChange={setc("cep")}      placeholder="00000-000" />
+          <div>
+            <SearchEnderecoByCEP
+              value={contato.enderecoDTO}
+              onChangeEndereco={(end) => {
+                setContato(c => ({
+                  ...c,
+                  enderecoDTO: end,
+                }));
+              }}
+              inputStyle={inputStyle}
+            />
           </div>
         </SectionCard>
 
-        {/* ── Seção 3: Anotações ── */}
         <SectionCard title="Anotações">
           <div style={{
             display: "flex", alignItems: "flex-start", gap: "10px",
             background: "#fffbec", border: "1px solid #f5dfa0", borderRadius: "8px", padding: "12px 14px",
           }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" style={{ flexShrink: 0, marginTop: "1px" }}>
-              <circle cx="12" cy="12" r="9" stroke="#c4900a" strokeWidth="2" fill="none"/>
-              <line x1="12" y1="8" x2="12" y2="12" stroke="#c4900a" strokeWidth="2" strokeLinecap="round"/>
-              <circle cx="12" cy="16" r="1" fill="#c4900a"/>
+              <circle cx="12" cy="12" r="9" stroke="#c4900a" strokeWidth="2" fill="none" />
+              <line x1="12" y1="8" x2="12" y2="12" stroke="#c4900a" strokeWidth="2" strokeLinecap="round" />
+              <circle cx="12" cy="16" r="1" fill="#c4900a" />
             </svg>
             <p style={{ margin: 0, fontSize: "12px", color: "#7a5c00", lineHeight: 1.5 }}>
               Este campo contém impressões subjetivas do psicólogo e não substitui o prontuário clínico formal.
@@ -226,8 +402,8 @@ export default function CadastrarProntuarioPage() {
               Anotações do Psicólogo
             </label>
             <textarea
-              value={anotacao}
-              onChange={e => setAnotacao(e.target.value)}
+              value={anotacoes}
+              onChange={e => setAnotacoes(e.target.value)}
               placeholder="Registre aqui observações clínicas, impressões da sessão inicial ou informações relevantes..."
               rows={5}
               style={{
@@ -242,16 +418,14 @@ export default function CadastrarProntuarioPage() {
           </div>
         </SectionCard>
 
-        {/* ── Seção 4: Medicamentos ── */}
         <SectionCard title="Medicamentos">
-          {/* Header row */}
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
             <p style={{ margin: 0, fontSize: "13px", color: "#888" }}>
               {meds.length === 0 ? "Nenhum medicamento cadastrado." : `${meds.length} medicamento(s) cadastrado(s).`}
             </p>
             {!showMedForm && editingMedId === null && (
               <button
-                onClick={() => { setMedForm({ nome: "", dose: "", frequencia: "", emUso: true }); setShowMedForm(true); }}
+                onClick={() => { setMedForm(createEmptyMedicamento()); setShowMedForm(true); }}
                 style={{
                   display: "flex", alignItems: "center", gap: "6px",
                   background: "#EBF3FF", border: "none", borderRadius: "16px",
@@ -262,15 +436,14 @@ export default function CadastrarProntuarioPage() {
                 onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
               >
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none">
-                  <line x1="12" y1="5" x2="12" y2="19" stroke="#1A4FA3" strokeWidth="2.5" strokeLinecap="round"/>
-                  <line x1="5" y1="12" x2="19" y2="12" stroke="#1A4FA3" strokeWidth="2.5" strokeLinecap="round"/>
+                  <line x1="12" y1="5" x2="12" y2="19" stroke="#1A4FA3" strokeWidth="2.5" strokeLinecap="round" />
+                  <line x1="5" y1="12" x2="19" y2="12" stroke="#1A4FA3" strokeWidth="2.5" strokeLinecap="round" />
                 </svg>
                 Adicionar
               </button>
             )}
           </div>
 
-          {/* Inline form (new or edit) */}
           {(showMedForm || editingMedId !== null) && (
             <div style={{
               background: "#f7f9ff", border: "1px solid #dde3f0", borderRadius: "10px", padding: "16px",
@@ -283,8 +456,8 @@ export default function CadastrarProntuarioPage() {
               <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "12px" }}>
                 {[
                   { label: "Nome do Medicamento", key: "nome", placeholder: "Ex: Fluoxetina" },
-                  { label: "Dose",                key: "dose", placeholder: "Ex: 20mg"       },
-                  { label: "Frequência",          key: "frequencia", placeholder: "Ex: 1x ao dia" },
+                  { label: "Dose", key: "dosagem", placeholder: "Ex: 20mg" },
+                  { label: "Frequência", key: "frequencia", placeholder: "Ex: 1x ao dia" },
                 ].map(({ label, key, placeholder }) => (
                   <div key={key} style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                     <label style={{ fontSize: "11px", fontWeight: "700", color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>
@@ -303,28 +476,41 @@ export default function CadastrarProntuarioPage() {
                 ))}
               </div>
 
-              <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer", width: "fit-content" }}>
-                <input
-                  type="checkbox"
-                  checked={medForm.emUso}
-                  onChange={e => setMedForm(f => ({ ...f, emUso: e.target.checked }))}
-                  style={{ width: "15px", height: "15px", accentColor: "#1A4FA3", cursor: "pointer" }}
-                />
-                <span style={{ fontSize: "13px", color: "#555", fontWeight: "500" }}>Em uso atualmente</span>
-              </label>
+              <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                  <input
+                    type="radio"
+                    name="statusUso"
+                    checked={medForm.statusMedicamentoUso === StatusMedicamentoUsoEnum.stsEmUso}
+                    onChange={() => setMedForm(f => ({ ...f, statusMedicamentoUso: StatusMedicamentoUsoEnum.stsEmUso }))}
+                    style={{ width: "15px", height: "15px", accentColor: "#1A4FA3", cursor: "pointer" }}
+                  />
+                  <span style={{ fontSize: "13px", color: "#555", fontWeight: "500" }}>Em uso</span>
+                </label>
+                <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+                  <input
+                    type="radio"
+                    name="statusUso"
+                    checked={medForm.statusMedicamentoUso === StatusMedicamentoUsoEnum.stsUsado}
+                    onChange={() => setMedForm(f => ({ ...f, statusMedicamentoUso: StatusMedicamentoUsoEnum.stsUsado }))}
+                    style={{ width: "15px", height: "15px", accentColor: "#1A4FA3", cursor: "pointer" }}
+                  />
+                  <span style={{ fontSize: "13px", color: "#555", fontWeight: "500" }}>Usado</span>
+                </label>
+              </div>
 
               <div style={{ display: "flex", gap: "8px" }}>
                 <button
                   onClick={() => {
                     if (!medForm.nome.trim()) return;
                     if (editingMedId !== null) {
-                      setMeds(ms => ms.map(m => m.id === editingMedId ? { ...m, ...medForm } : m));
+                      setMeds(ms => ms.map(m => m.id === editingMedId ? { ...m, ...medForm, id: editingMedId } : m));
                       setEditingMedId(null);
                     } else {
                       setMeds(ms => [...ms, { ...medForm, id: Date.now() }]);
                       setShowMedForm(false);
                     }
-                    setMedForm({ nome: "", dose: "", frequencia: "", emUso: true });
+                    setMedForm(createEmptyMedicamento());
                   }}
                   style={{
                     background: "#1A4FA3", border: "none", borderRadius: "16px",
@@ -337,7 +523,7 @@ export default function CadastrarProntuarioPage() {
                   {editingMedId !== null ? "Salvar" : "Adicionar"}
                 </button>
                 <button
-                  onClick={() => { setShowMedForm(false); setEditingMedId(null); setMedForm({ nome: "", dose: "", frequencia: "", emUso: true }); }}
+                  onClick={() => { setShowMedForm(false); setEditingMedId(null); setMedForm(createEmptyMedicamento()); }}
                   style={{
                     background: "none", border: "1px solid #dde3f0", borderRadius: "16px",
                     padding: "8px 20px", fontSize: "12px", fontWeight: "600",
@@ -363,31 +549,12 @@ export default function CadastrarProntuarioPage() {
                   <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                       <span style={{ fontSize: "14px", fontWeight: "600", color: "#111" }}>{m.nome}</span>
-                      <span style={{
-                        fontSize: "11px", fontWeight: "600", padding: "2px 8px", borderRadius: "10px",
-                        background: m.emUso ? "#E8F5EE" : "#f0f0f0",
-                        color: m.emUso ? "#2A8A55" : "#999",
-                      }}>
-                        {m.emUso ? "Em uso" : "Suspenso"}
-                      </span>
                     </div>
                     <span style={{ fontSize: "12px", color: "#777" }}>
-                      {[m.dose, m.frequencia].filter(Boolean).join(" · ")}
+                      {[m.dosagem, m.frequencia].filter(Boolean).join(" · ")}
                     </span>
                   </div>
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <button
-                      onClick={() => { setMedForm({ nome: m.nome, dose: m.dose, frequencia: m.frequencia, emUso: m.emUso }); setEditingMedId(m.id); setShowMedForm(false); }}
-                      style={{
-                        background: "#EBF3FF", border: "none", borderRadius: "12px",
-                        padding: "5px 12px", fontSize: "12px", fontWeight: "600",
-                        color: "#1A4FA3", cursor: "pointer",
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
-                    >
-                      Editar
-                    </button>
                     <button
                       onClick={() => setMeds(ms => ms.filter(x => x.id !== m.id))}
                       style={{

@@ -1,5 +1,8 @@
 import { StatusTipoAtendimentoEnum } from "shared/enums/statusTipoAtendimento.enum";
 import { StatusSessaoEnum } from "shared/enums/statusSessao.enum";
+import { PagamentoDTO } from "./Pagamento.dto";
+import { RegistroSessaoDTO } from "./RegistroSessao.dto";
+import { EscalaSessaoDTO } from "./EscalaSessao.dto";
 
 export interface SessaoDTO {
     id?: string,
@@ -7,7 +10,9 @@ export interface SessaoDTO {
     psicologoId: string,
     dataSessao: Date,
     horaInicio: string,
-    observacoes: string,
     statusTipoAtendimento: StatusTipoAtendimentoEnum,
-    statusSessao: StatusSessaoEnum
+    pagamentoDTO?: PagamentoDTO,
+    statusSessao: StatusSessaoEnum,
+    registrosSessoesDTO?: RegistroSessaoDTO[],
+    escalasSessoesDTO?: EscalaSessaoDTO[]
 }

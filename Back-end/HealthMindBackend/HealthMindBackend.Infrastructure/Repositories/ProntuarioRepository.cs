@@ -1,6 +1,9 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
+using HealthMindBackend.Domain.ValueObjects.Saude.Medicamento;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -80,7 +83,8 @@ namespace HealthMindBackend.Infrastructure.Repositories
             var update = Builders<Prontuario>.Update
                 .Set("Medicamentos.$.Nome", medicamento.Nome)
                 .Set("Medicamentos.$.Dosagem", medicamento.Dosagem)
-                .Set("Medicamentos.$.Frequencia", medicamento.Frequencia);
+                .Set("Medicamentos.$.Frequencia", medicamento.Frequencia)
+                .Set("Medicamentos.$.StatusMedicamentoUso", medicamento.StatusMedicamentoUso);
 
             var result = await _collection.UpdateOneAsync(filter, update);
             if (result.MatchedCount == 0)
@@ -113,6 +117,19 @@ namespace HealthMindBackend.Infrastructure.Repositories
                 return null;
 
             return prontuario.Medicamentos.ToList();
+        }
+
+        public async Task<ContatoEmergencia> DefinirContatoEmergencia(String prontuarioId, ContatoEmergencia contatoEmergencia)
+        {
+            var update = Builders<Prontuario>.Update
+                .Set(s => s.ContatoEmergencia, contatoEmergencia);
+
+            await _collection.UpdateOneAsync(
+                s => s.Id == prontuarioId,
+                update
+            );
+
+            return contatoEmergencia;
         }
     }
 }

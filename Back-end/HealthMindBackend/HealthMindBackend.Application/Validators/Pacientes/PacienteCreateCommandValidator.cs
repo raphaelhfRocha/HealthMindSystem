@@ -14,10 +14,12 @@ namespace HealthMindBackend.Application.Validators.Pacientes
     {
         private readonly IPacienteRepository _pacienteRepository;
         private readonly IPsicologoRepository _psicologoRepository;
-        public PacienteCreateCommandValidator(IPacienteRepository pacienteRepository, IPsicologoRepository psicologoRepository)
+        private readonly IPlanoSaudeRepository _planoSaudeRepository;
+        public PacienteCreateCommandValidator(IPacienteRepository pacienteRepository, IPsicologoRepository psicologoRepository, IPlanoSaudeRepository planoSaudeRepository)
         {
             _pacienteRepository = pacienteRepository;
             _psicologoRepository = psicologoRepository;
+            _planoSaudeRepository = planoSaudeRepository;
 
             RuleFor(p => p.Nome)
                 .NotEmpty().WithMessage("Nome Paciente Obrigatório")
@@ -56,6 +58,26 @@ namespace HealthMindBackend.Application.Validators.Pacientes
                     return pacienteExistente == null;
                 })
                 .WithMessage("Telefone já cadastrado no sistema");
+
+            //RuleFor(p => p.PlanoSaudePaciente.PlanoSaudeId)
+            //    .MustAsync(async (planoSaudeId, cancellationToken) =>
+            //    {
+            //        if (planoSaudeId == null)
+            //        {
+            //            return planoSaudeId == null;
+            //        }
+            //        var planoSaudeExiste = await _planoSaudeRepository.GetPlanoSaudeById(planoSaudeId);
+            //        return planoSaudeExiste != null;
+
+            //    }).WithMessage("Plano de Saúde inválido");
+
+            //RuleFor(p => p.PlanoSaudePaciente.NumeroCarteirinha)
+            //    .NotEmpty().WithMessage("Numero Carteirinha Obrigatório");
+
+            //RuleFor(p => p.PlanoSaudePaciente.DataValidade)
+            //    .NotEmpty().WithMessage("Data Validade Obrigatória")
+            //    .NotEqual(DateTime.MinValue)
+            //    .Must(d => d > DateTime.Now);
 
             RuleFor(p => p.PsicologoId)
                 .NotEmpty().WithMessage("Psicólogo responsável deve ser atribuído")

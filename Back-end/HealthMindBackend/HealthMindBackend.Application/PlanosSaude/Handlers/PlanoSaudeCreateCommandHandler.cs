@@ -21,7 +21,9 @@ namespace HealthMindBackend.Application.PlanosSaude.Handlers
 
         public async Task<PlanoSaude> Handle(PlanoSaudeCreateCommand request, CancellationToken cancellationToken)
         {
-            var planoSaude = new PlanoSaude(request.Nome, request.Codigo, request.StatusPlanoSaude, request.Telefone, request.Email);
+            var planoSaude = new PlanoSaude(request.Nome, request.Codigo,
+                request.StatusPlanoSaude, request.Telefone,
+                request.Email, request.CoberturasPlano);
 
             planoSaude = planoSaude ??
                 throw new ArgumentNullException("Não foi possível registrar plano de saúde");

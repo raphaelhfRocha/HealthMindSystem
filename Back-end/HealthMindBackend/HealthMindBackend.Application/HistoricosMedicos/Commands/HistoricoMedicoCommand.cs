@@ -1,4 +1,11 @@
-﻿using HealthMindBackend.Domain.Entities;
+﻿using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Application.EscalasSessoes.Commands;
+using HealthMindBackend.Application.MetasTerapeuticas.Commands;
+using HealthMindBackend.Application.RegistrosSessoes.Commands;
+using HealthMindBackend.Application.SaudesMentais.Commands;
+using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.ValueObjects.Evolucao.MetasTerapeuticas;
+using HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -12,7 +19,11 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Commands
     {
         public String PacienteId { get; set; }
         public String ProntuarioId { get; set; }
-        public String Descricao { get; set; }
+        public String? RazaoAtendimento { get; set; }
+        public String? ImpactoRazao { get; set; }
+        public String? ExpectativaAtendimento { get; set; }
         public DateTime DataRegistro { get; set; }
+        public SaudeMentalCommand? SaudeMentalCommand { get; set; }
+        public List<MetaTerapeutica>? MetasTerapeuticas { get; set; }
     }
 }

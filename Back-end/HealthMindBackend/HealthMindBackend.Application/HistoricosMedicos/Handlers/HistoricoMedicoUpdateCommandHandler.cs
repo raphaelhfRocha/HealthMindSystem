@@ -2,6 +2,7 @@
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Saude.SaudeMental;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -30,10 +31,40 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
 
             historicoMedicoFound = historicoMedicoFound ??
                 throw new KeyNotFoundException("Historico médico não encontrado.");
-            
-            historicoMedicoFound.Update(request.Id, request.PacienteId, request.ProntuarioId, request.Descricao, request.DataRegistro);
+
+            historicoMedicoFound.Update(
+                request.Id,
+                request.PacienteId,
+                request.ProntuarioId,
+                request.RazaoAtendimento,
+                request.ImpactoRazao,
+                request.ExpectativaAtendimento,
+                request.DataRegistro
+            );
 
             var historicoMedicoEditado = await _historicoMedicoRepository.EditarHistoricoMedico(request.Id, historicoMedicoFound);
+
+            if (request.SaudeMentalCommand != null)
+            {
+
+
+                var saudeMental = new SaudeMental(
+                    historicoMedicoEditado.Id,
+                    request.SaudeMentalCommand.DiagnosticoPrevio,
+                    request.SaudeMentalCommand.Acompanhamento,
+                    request.SaudeMentalCommand.StatusInternacao,
+                    request.SaudeMentalCommand.Antecedentes
+                );
+
+                var saudeMentalDefinida = saudeMental != null
+                    ? await _historicoMedicoRepository.DefinirSaudeMental(historicoMedicoEditado.Id, saudeMental)
+                    : null;
+
+                historicoMedicoEditado.SaudeMental = saudeMentalDefinida;
+
+                return historicoMedicoEditado;
+            }
+
             return historicoMedicoEditado;
         }
     }

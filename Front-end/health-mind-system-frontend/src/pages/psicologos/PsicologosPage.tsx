@@ -10,6 +10,7 @@ import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
 import { formatCpfCnpj, formatCrp, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { psicologoValidation, PsicologoFormData } from "../../shared/validations/psicologo/psicologo.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
+import { Pagination, usePagination } from "../../shared/components/Pagination";
 
 const AVATAR_COLORS = [
   "#1A4FA3", "#3BB077", "#E06B4A", "#7B5EA7",
@@ -52,6 +53,7 @@ function ModalNovoPsicologo({ onSave, onClose }) {
       cpfCnpj: "",
       crp: "",
       especialidade: "",
+      valorConsulta: 0,
       statusCargo: statusCargoEnum,
       statusRole: statusRoleEnum,
     },
@@ -79,6 +81,7 @@ function ModalNovoPsicologo({ onSave, onClose }) {
           <RHFTextField control={control} errors={errors} name="crp" label="CRP" placeholder="Ex: 06/12345" mask={formatCrp} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
         </div>
         <RHFTextField control={control} errors={errors} name="email" label="E-mail" placeholder="email@exemplo.com" type="email" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
+        <RHFTextField control={control} errors={errors} name="valorConsulta" label="Valor da Consulta (R$)" placeholder="Ex: 150" type="number" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
 
         {/* Actions */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "4px" }}>
@@ -147,6 +150,8 @@ export default function PsicologosPage() {
     p.nome.toLowerCase().includes(busca.toLowerCase()) ||
     p.especialidade.toLowerCase().includes(busca.toLowerCase())
   );
+
+  const { pageItems, page, setPage, totalPages } = usePagination(filtrados, 5, busca);
 
   const openModal = () => { setShowModal(true); };
   const closeModal = () => setShowModal(false);
@@ -237,7 +242,7 @@ export default function PsicologosPage() {
               Nenhum psicólogo encontrado.
             </div>
           ) : (
-            filtrados.map((p, i) => {
+            pageItems.map((p, i) => {
               const psicologoId = p.id ?? "";
               const rowBg = i % 2 === 0 ? "white" : "#f9fafc";
               return (
@@ -290,9 +295,12 @@ export default function PsicologosPage() {
           )}
         </div>
 
-        {/* Footer count */}
-        <div style={{ fontSize: "12px", color: "#888", textAlign: "right" }}>
-          {filtrados.length} {filtrados.length === 1 ? "psicólogo encontrado" : "psicólogos encontrados"}
+        {/* Footer count + pagination */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "12px", color: "#888" }}>
+            {filtrados.length} {filtrados.length === 1 ? "psicólogo encontrado" : "psicólogos encontrados"}
+          </span>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </div>
     </AppLayout>

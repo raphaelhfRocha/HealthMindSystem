@@ -1,9 +1,11 @@
 using FluentValidation;
 using HealthMindBackend.Application.Behaviors;
+using HealthMindBackend.Application.CoberturasPlanos.Commands;
 using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Application.Diagnosticos.Handlers;
 using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Application.DTOs;
+using HealthMindBackend.Application.EscalasSessoes.Commands;
 using HealthMindBackend.Application.HistoricosMedicos.Commands;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Mappings;
@@ -13,10 +15,13 @@ using HealthMindBackend.Application.Pagamentos.Commands;
 using HealthMindBackend.Application.Progressoes.Commands;
 using HealthMindBackend.Application.Prontuarios.Commands;
 using HealthMindBackend.Application.Psicologos.Commands;
+using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Application.Sessoes.Commands;
+using HealthMindBackend.Application.Validators.CoberturasPlanos;
 using HealthMindBackend.Application.Validators.Diagnosticos;
 using HealthMindBackend.Application.Validators.Disponibilidades;
+using HealthMindBackend.Application.Validators.EscalasSessoes;
 using HealthMindBackend.Application.Validators.HistoricosMedicos;
 using HealthMindBackend.Application.Validators.Medicamentos;
 using HealthMindBackend.Application.Validators.Pacientes;
@@ -75,6 +80,10 @@ namespace HealthMindBackend.Infrastructure.IoC
                 new StatusTipoAtendimentoEnumSerializer());
             BsonSerializer.TryRegisterSerializer(typeof(StatusPlanoSaudeEnum),
                 new StatusPlanoSaudeEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusMetaTerapeuticaEnum),
+                new StatusMetaTerapeuticaEnumSerializer());
+            BsonSerializer.TryRegisterSerializer(typeof(StatusMedicamentoUsoEnum),
+                new StatusMedicamentoUsoEnumSerializer());
 
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();
@@ -108,10 +117,16 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<IValidator<ProgressaoCreateCommand>, ProgressaoCreateCommandValidator>();
             services.AddScoped<IValidator<ProntuarioCreateCommand>, ProntuarioCreateCommandValidator>();
             services.AddScoped<IValidator<ProntuarioUpdateCommand>, ProntuarioUpdateCommandValidator>();
+            services.AddScoped<IValidator<CoberturaPlanoCreateCommand>, CoberturaPlanoCreateCommandValidator>();
+            services.AddScoped<IValidator<CoberturaPlanoUpdateCommand>, CoberturaPlanoUpdateCommandValidator>();
             services.AddScoped<IValidator<PsicologoCreateCommand>, PsicologoCreateCommandValidator>();
             services.AddScoped<IValidator<PsicologoUpdateCommand>, PsicologoUpdateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaCreateCommand>, RecepcionistaCreateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaUpdateCommand>, RecepcionistaUpdateCommandValidator>();
             services.AddScoped<IValidator<SessaoCreateCommand>, SessaoCreateCommandValidator>();
             services.AddScoped<IValidator<SessaoUpdateCommand>, SessaoUpdateCommandValidator>();
+            services.AddScoped<IValidator<EscalaSessaoCreateCommand>, EscalaSessaoCreateCommandValidator>();
+            services.AddScoped<IValidator<EscalaSessaoUpdateCommand>, EscalaSessaoUpdateCommandValidator>();
 
             services.AddAutoMapper(_ => { }, typeof(DomainToDTOMappingsProfile).Assembly);
 

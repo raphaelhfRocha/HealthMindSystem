@@ -2,6 +2,8 @@
 using HealthMindBackend.Application.Pacientes.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
+using HealthMindBackend.Domain.ValueObjects.Convenios.PlanoSaudePaciente;
+using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
 using System;
 using System.Collections.Generic;
@@ -26,15 +28,29 @@ namespace HealthMindBackend.Application.Pacientes.Handlers
         {
             await _validatorPacienteCreateCommand.ValidateAndThrowAsync(request);
 
-            var paciente = new Paciente(request.Nome, request.Email, request.CpfCnpj, 
-                request.Telefone, request.PsicologoId, request.DataNascimento);
+            var paciente = new Paciente(request.Nome, request.Email, request.CpfCnpj,
+                request.Telefone, request.PsicologoId, request.DataNascimento, request.PlanoSaudePaciente);
 
-            if (paciente == null)
-                throw new ArgumentNullException(nameof(paciente));
+            var result = await _pacienteRepository.CadastrarPaciente(paciente);
 
-            var createPaciente = await _pacienteRepository.CadastrarPaciente(paciente);
+            if (request.PlanoSaudePaciente != null)
+            {
+                var planoSaudePaciente = new PlanoSaudePaciente(
+                        result.Id, request.PlanoSaudePaciente.PlanoSaudeId,
+                        request.PlanoSaudePaciente.NumeroCarteirinha,
+                        request.PlanoSaudePaciente.DataValidade
+                    );
 
-            return createPaciente;
+                var planoSaudePacienteDefinido = planoSaudePaciente != null
+                    ? await _pacienteRepository.DefinirPlanoSaudePaciente(result.Id, planoSaudePaciente)
+                    : null;
+
+                result.PlanoSaudePaciente = planoSaudePacienteDefinido;
+
+                return result;
+            }
+            
+            return result;
         }
     }
 }

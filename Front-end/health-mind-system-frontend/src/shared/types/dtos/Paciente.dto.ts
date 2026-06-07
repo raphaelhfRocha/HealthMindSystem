@@ -1,3 +1,4 @@
+import { PlanoSaudePacienteDTO } from "./PlanoSaudePaciente.dto";
 
 export interface PacienteDTO {
     id?: string,
@@ -5,7 +6,7 @@ export interface PacienteDTO {
     email: string,
     cpfCnpj: string,
     telefone: string,
-    dataNascimento: Date,
-    planoSaudePacienteDto?: PlanoSaudePacienteDTO,
+    dataNascimento: string | Date,
+    planoSaudePacienteDTO?: PlanoSaudePacienteDTO,
     psicologoId: string
 }

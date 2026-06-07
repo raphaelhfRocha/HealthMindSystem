@@ -13,6 +13,13 @@ namespace HealthMindBackend.Domain.ValueObjects.Financeiro.CoberturaPlano
         public Decimal PercentualCobertura { get; private set; }
         public Decimal ValorMaximoCobertura { get; private set; }
 
+        public CoberturaPlano(String especialidade, Decimal percentualCobertura, Decimal valorMaximoCobertura)
+        {
+            Especialidade = especialidade;
+            PercentualCobertura = percentualCobertura;
+            ValorMaximoCobertura = valorMaximoCobertura;
+        }
+
         protected override IEnumerable<Object> GetEqualityComponents()
         {
             yield return new Object[]

@@ -1,19 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
+import { getAllPacientes } from "../../shared/services/paciente.service";
+import { getAllProntuarios } from "../../shared/services/prontuario.service";
+import { getAllPsicologos } from "../../shared/services/psicologo.service";
+import { Pagination, usePagination } from "../../shared/components/Pagination";
 
-const PACIENTES = [
-  { id: 1,  nome: "Ana Clara Souza",   idade: 28, psicologo: "Dr. Marcos", ultima: "05/05/2026", temProntuario: true  },
-  { id: 2,  nome: "Bruno Mendes",      idade: 34, psicologo: "Dra. Carla", ultima: "11/05/2026", temProntuario: true  },
-  { id: 3,  nome: "Carla Ferreira",    idade: 22, psicologo: "Dr. Marcos", ultima: "11/05/2026", temProntuario: false },
-  { id: 4,  nome: "Diego Almeida",     idade: 41, psicologo: "Dra. Carla", ultima: "14/05/2026", temProntuario: true  },
-  { id: 5,  nome: "Eduarda Lima",      idade: 30, psicologo: "Dr. Marcos", ultima: "19/05/2026", temProntuario: false },
-  { id: 6,  nome: "Felipe Costa",      idade: 25, psicologo: "Dra. Carla", ultima: "19/05/2026", temProntuario: true  },
-  { id: 7,  nome: "Gabriela Nunes",    idade: 37, psicologo: "Dr. Marcos", ultima: "22/05/2026", temProntuario: false },
-  { id: 8,  nome: "Henrique Rocha",    idade: 29, psicologo: "Dra. Carla", ultima: "26/05/2026", temProntuario: true  },
-  { id: 9,  nome: "Isabela Martins",   idade: 45, psicologo: "Dr. Marcos", ultima: "26/05/2026", temProntuario: true  },
-  { id: 10, nome: "João Pedro Silva",  idade: 33, psicologo: "Dra. Carla", ultima: "28/05/2026", temProntuario: true  },
-];
+type Row = {
+  id: string;
+  prontuarioId: string;
+  nome: string;
+  idade: number | string;
+  psicologo: string;
+  ultima: string;
+  temProntuario: boolean;
+};
 
 function getInitials(nome) {
   const parts = nome.trim().split(" ");
@@ -28,10 +29,67 @@ const AVATAR_COLORS = [
 export default function ProntuariosPage() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState("");
+  const [rows, setRows] = useState<Row[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const filtrados = PACIENTES.filter(p =>
-    p.nome.toLowerCase().includes(busca.toLowerCase())
-  );
+  useEffect(() => {
+    let active = true;
+    async function load() {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const [pacientes, prontuarios, psicologos] = await Promise.all([
+          getAllPacientes(),
+          getAllProntuarios(),
+          getAllPsicologos(),
+        ]);
+
+        if (!active) return;
+
+        const psicologoMap = new Map(psicologos.map(p => [p.id, p.nome]));
+
+        const prontuariosByPaciente = new Map<string, any[]>();
+        prontuarios.forEach((pr: any) => {
+          const list = prontuariosByPaciente.get(pr.pacienteId) ?? [];
+          list.push(pr);
+          prontuariosByPaciente.set(pr.pacienteId, list);
+        });
+
+        const buildRows: Row[] = pacientes.map(p => {
+          const prList = prontuariosByPaciente.get(p.id ?? "") ?? [];
+          const latest = prList.length ? prList.sort((a, b) => new Date(b.dataAbertura).getTime() - new Date(a.dataAbertura).getTime())[0] : null;
+
+          const dataNascimento = typeof p.dataNascimento === "string" ? new Date(p.dataNascimento) : (p.dataNascimento ? new Date(p.dataNascimento) : null);
+          const idade = dataNascimento ? Math.max(0, new Date().getFullYear() - dataNascimento.getFullYear()) : "—";
+
+          return {
+            id: p.id ?? "",
+            prontuarioId: latest?.id ?? "",
+            nome: p.nome,
+            idade,
+            psicologo: psicologoMap.get(p.psicologoId) ?? "—",
+            ultima: latest ? new Date(latest.dataAbertura).toLocaleDateString("pt-BR") : "—",
+            temProntuario: prList.length > 0,
+          };
+        });
+
+        setRows(buildRows);
+      } catch (e) {
+        setError("Não foi possível carregar os prontuários.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+    return () => { active = false; };
+  }, []);
+
+  const filtrados = rows.filter(p => p.nome.toLowerCase().includes(busca.toLowerCase()));
+
+  const { pageItems, page, setPage, totalPages } = usePagination(filtrados, 5, busca);
 
   return (
     <AppLayout breadcrumb="Prontuário >">
@@ -57,8 +115,8 @@ export default function ProntuariosPage() {
           <div style={{ position: "relative" }}>
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none"
               style={{ position: "absolute", left: "10px", top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }}>
-              <circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="2" fill="none"/>
-              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#999" strokeWidth="2" strokeLinecap="round"/>
+              <circle cx="11" cy="11" r="7" stroke="#999" strokeWidth="2" fill="none" />
+              <line x1="16.5" y1="16.5" x2="21" y2="21" stroke="#999" strokeWidth="2" strokeLinecap="round" />
             </svg>
             <input
               type="text"
@@ -95,7 +153,7 @@ export default function ProntuariosPage() {
             padding: "10px 20px",
             gap: "12px",
           }}>
-            {["Paciente", "Idade", "Psicólogo", "Última Consulta", "Ações"].map(h => (
+            {["Paciente", "Idade", "Psicólogo", "Data Abertura", "Ações"].map(h => (
               <div key={h} style={{
                 fontSize: "12px",
                 fontWeight: "700",
@@ -112,7 +170,7 @@ export default function ProntuariosPage() {
               Nenhum paciente encontrado.
             </div>
           ) : (
-            filtrados.map((p, i) => (
+            pageItems.map((p, i) => (
               <div
                 key={p.id}
                 style={{
@@ -132,7 +190,7 @@ export default function ProntuariosPage() {
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   <div style={{
                     width: "34px", height: "34px", borderRadius: "50%",
-                    background: AVATAR_COLORS[p.id % AVATAR_COLORS.length],
+                    background: AVATAR_COLORS[(Number(p.id) || i) % AVATAR_COLORS.length],
                     color: "white", fontSize: "12px", fontWeight: "700",
                     display: "flex", alignItems: "center", justifyContent: "center",
                     flexShrink: 0,
@@ -143,7 +201,7 @@ export default function ProntuariosPage() {
                 </div>
 
                 {/* Idade */}
-                <div style={{ fontSize: "13px", color: "#555" }}>{p.idade} anos</div>
+                <div style={{ fontSize: "13px", color: "#555" }}>{typeof p.idade === 'number' ? `${p.idade} anos` : p.idade}</div>
 
                 {/* Psicólogo */}
                 <div style={{ fontSize: "13px", color: "#555" }}>{p.psicologo}</div>
@@ -155,7 +213,7 @@ export default function ProntuariosPage() {
                 <div style={{ display: "flex", gap: "8px" }}>
                   {p.temProntuario ? (
                     <button
-                      onClick={() => navigate(`/prontuario/${p.id}`)}
+                      onClick={() => navigate(`/prontuario/${p.prontuarioId}`)}
                       style={{
                         padding: "6px 14px",
                         background: "#EBF3FF",
@@ -198,9 +256,12 @@ export default function ProntuariosPage() {
           )}
         </div>
 
-        {/* Count footer */}
-        <div style={{ fontSize: "12px", color: "#888", textAlign: "right" }}>
-          {filtrados.length} {filtrados.length === 1 ? "paciente encontrado" : "pacientes encontrados"}
+        {/* Count footer + pagination */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
+          <span style={{ fontSize: "12px", color: "#888" }}>
+            {filtrados.length} {filtrados.length === 1 ? "paciente encontrado" : "pacientes encontrados"}
+          </span>
+          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>
       </div>
     </AppLayout>

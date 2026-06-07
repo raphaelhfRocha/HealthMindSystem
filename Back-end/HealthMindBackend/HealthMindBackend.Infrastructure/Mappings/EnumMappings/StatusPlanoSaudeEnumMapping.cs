@@ -13,6 +13,9 @@ namespace HealthMindBackend.Infrastructure.Mappings.EnumMappings
         new()
         {
             { StatusPlanoSaudeEnum.StsAtivo, "Ativo" },
+            { StatusPlanoSaudeEnum.StsSuspenso, "Suspenso" },
+            { StatusPlanoSaudeEnum.StsEmAnalise, "Em análise" },
+            { StatusPlanoSaudeEnum.StsDescredenciado, "Descredenciado" },
             { StatusPlanoSaudeEnum.StsInativo, "Inativo" }
         };
 

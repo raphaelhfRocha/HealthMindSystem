@@ -12,10 +12,9 @@ namespace HealthMindBackend.Application.DTOs
     {
         public String? Id { get; set; }
         public String? PsicologoId { get; set; }
-        [Required(ErrorMessage = "Data disponibilidade obrigatória")]
         public DateTime DataDisponibilidade { get; set; }
-        [Required(ErrorMessage = "Hora inicial obrigatória")]
         public TimeSpan HoraInicio { get; set; }
+        public StatusTipoAtendimentoEnum StatusTipoAtendimento { get; set; }
         public StatusDisponibilidadeEnum StatusDisponibilidade { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using HealthMindBackend.Application.Pagamentos.Commands;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento;
 using MediatR;
@@ -31,9 +32,18 @@ namespace HealthMindBackend.Application.Pagamentos.Handlers
             if (sessaoPagamentoFound == null)
                 throw new KeyNotFoundException("Sessão/Pagamento não encontrado");
 
-            sessaoPagamentoFound.Pagamento.Update(request.Valor, request.DataPagamento,
-                request.StatusFormaPagamento, request.StatusPagamento, request.StatusParcelado,
-                request.TotalParcelas);
+            if (request.StatusPagamento == StatusPagamentoEnum.StsIsento)
+                request.DataPagamento = DateTime.MinValue;
+
+            sessaoPagamentoFound.Pagamento.Update(
+                request.ValorCoberturaPlano,
+                request.ValorConsultaFinal,
+                request.DataPagamento,
+                request.StatusFormaPagamento,
+                request.StatusPagamento,
+                request.StatusParcelado,
+                request.TotalParcelas
+            );
 
             var pagamentoDefinido = await _sessaoRepository.DefinirPagamento(request.SessaoId, sessaoPagamentoFound.Pagamento);
 

@@ -20,7 +20,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
         public RecepcionistaRepository(IMongoDbContext context, ISequentialIdGenerator sequentialIdGenerator)
         {
-            _collection = context.Database.GetCollection<Recepcionista>("USUARIO");
+            _collection = context.Database.GetCollection<Recepcionista>("RECEPCIONISTA");
             _sequentialIdGenerator = sequentialIdGenerator;
         }
 

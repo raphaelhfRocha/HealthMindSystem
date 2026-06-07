@@ -1,5 +1,6 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +47,53 @@ namespace HealthMindBackend.API.Controllers
             planoSaudeDto.Id = planoSaudeId;
             await _planoSaudeService.AtualizarPlanoSaude(planoSaudeDto);
             return Ok(planoSaudeDto);
+        }
+
+        [HttpPost("{planoSaudeId}/coberturas-plano")]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RegistrarCoberturaPlano(String planoSaudeId, [FromBody] CoberturaPlanoDTO coberturaPlanoDto)
+        {
+            if (planoSaudeId == null)
+                return BadRequest(nameof(planoSaudeId));
+
+            await _planoSaudeService.RegistrarCoberturaPlano(planoSaudeId, coberturaPlanoDto);
+            return Ok(coberturaPlanoDto);
+        }
+
+        [HttpPut("{planoSaudeId}/coberturas-plano/{especialidade}")]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AtualizarCoberturaPlano(String planoSaudeId, String especialidade, CoberturaPlanoDTO coberturaPlanoDto)
+        {
+            if (planoSaudeId == null)
+                return BadRequest(nameof(planoSaudeId));
+            if (especialidade == null)
+                return BadRequest(nameof(especialidade));
+
+            coberturaPlanoDto.Especialidade = especialidade;
+            await _planoSaudeService.AtualizarCoberturaPlano(planoSaudeId, coberturaPlanoDto);
+            return Ok(coberturaPlanoDto);
+        }
+
+        [HttpDelete("{planoSaudeId}/coberturas-plano/{especialidade}")]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> RemoverCoberturaPlano(String planoSaudeId, String especialidade)
+        {
+            if (planoSaudeId == null)
+                return BadRequest(nameof(planoSaudeId));
+            if (especialidade == null)
+                return BadRequest(nameof(especialidade));
+
+            await _planoSaudeService.RemoverCoberturaPlano(planoSaudeId, especialidade);
+            return NoContent();
         }
     }
 }

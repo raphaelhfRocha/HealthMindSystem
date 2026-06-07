@@ -13,6 +13,8 @@ namespace HealthMindBackend.Domain.Enums
         [Description("Pago")]
         StsPago,
         [Description("Pendente")]
-        StsPendente
+        StsPendente,
+        [Description("Isento")]
+        StsIsento
     }
 }

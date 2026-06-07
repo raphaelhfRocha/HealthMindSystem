@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Application.Services;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Validations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -162,6 +164,31 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(historicoId));
 
             historicoMedicoDto.Id = historicoId;
+
+            // Busca as metas terapeuticas existentes existentes no banco de dados
+            var metasTerapeuticasExistentes = await _historicoMedicoService.GetMetaTerapeuticasByHistoricoMedicoId(historicoId) ?? new List<MetaTerapeuticaDTO>();
+
+            if (historicoMedicoDto.MetasTerapeuticasDTO != null)
+            {
+                foreach (var metaTerapeuticaDto in historicoMedicoDto.MetasTerapeuticasDTO)
+                {
+                    metaTerapeuticaDto.HistoricoMedicoId = historicoId;
+
+                    if (!String.IsNullOrWhiteSpace(metaTerapeuticaDto.Id))
+                    {
+                        var metaTerapeuticaExistente = metasTerapeuticasExistentes.FirstOrDefault(m => m.Id == metaTerapeuticaDto.Id);
+                        if (metaTerapeuticaExistente != null)
+                        {
+                            await _historicoMedicoService.AlterarMetaTerapeutica(historicoId, metaTerapeuticaDto.Id, metaTerapeuticaDto);
+                        }
+                    }
+                    else
+                    {
+                        await _historicoMedicoService.AdicionarMetaTerapeutica(metaTerapeuticaDto);
+                    }
+                }
+            }
+
             await _historicoMedicoService.AtualizarHistoricoMedico(historicoMedicoDto);
             return Ok(historicoMedicoDto);
         }
@@ -200,6 +227,42 @@ namespace HealthMindBackend.API.Controllers
                 return BadRequest(nameof(historicoId));
             
             await _historicoMedicoService.ExcluirHistoricoMedico(historicoId);
+            return NoContent();
+        }
+
+        /// <summary>
+        /// Exclusão de Saúde Mental.
+        /// </summary>
+        /// <response code="204">Saude Mental excluído</response>
+        /// <response code="400">Dado inválido</response>
+        /// <response code="404">Dado não encontrado</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a exclusão de histórico médico**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite o parâmetro de histórico médico no campo de Id do histórico**
+        /// 
+        /// **3. Em seguida clique no botão Execute**
+        /// 
+        /// **[DELETE] - /api/HistoricoMedico/saude-mental/{históricoId}**
+        /// 
+        /// </remarks>
+        /// <param name="historicoId">Id Histórico médico</param>
+        [HttpDelete("saude-mental/{historicoId}")]
+        [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExcluirSaudeMental(String historicoId)
+        {
+            if (historicoId == null)
+                return BadRequest(nameof(historicoId));
+
+            await _historicoMedicoService.ExcluirSaudeMental(historicoId);
             return NoContent();
         }
     }

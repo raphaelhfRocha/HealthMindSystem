@@ -1,18 +1,27 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
+import SearchEnderecoByCEP from "../../shared/components/SearchEnderecoByCEP/SearchEnderecoByCEP";
+import { editarProntuario, getProntuarioById } from "../../shared/services/prontuario.service";
+import { ContatoEmergenciaDTO } from "../../shared/types/dtos/ContatoEmergencia.dto";
+import { EnderecoDTO } from "../../shared/types/dtos/Endereco.dto";
+import { ProntuarioDTO } from "../../shared/types/dtos/Prontuario.dto";
 
-const CONTATOS_EMERGENCIA = {
-  1:  { nome: "Carlos Souza",                telefone: "(11) 97777-1111", relacao: "Pai",     endereco: "Rua das Flores, 123, Jardim Primavera",    cep: "01234-567" },
-  2:  { nome: "Fernanda Mendes",             telefone: "(11) 96666-2222", relacao: "Esposa",  endereco: "Av. Brasil, 456, Centro",                  cep: "02345-678" },
-  3:  { nome: "Paulo Ferreira",              telefone: "(21) 95555-3333", relacao: "Irmão",   endereco: "Rua do Comércio, 78, Tijuca",              cep: "03456-789" },
-  4:  { nome: "Mariana Almeida",             telefone: "(31) 94444-4444", relacao: "Mãe",     endereco: "Rua São Paulo, 910, Savassi",              cep: "04567-890" },
-  5:  { nome: "Roberto Lima",                telefone: "(11) 93333-5555", relacao: "Pai",     endereco: "Rua das Palmeiras, 12, Moema",             cep: "05678-901" },
-  6:  { nome: "Juliana Costa",               telefone: "(41) 92222-6666", relacao: "Mãe",     endereco: "Rua XV de Novembro, 34, Batel",            cep: "06789-012" },
-  7:  { nome: "Ricardo Nunes",               telefone: "(51) 91111-7777", relacao: "Cônjuge", endereco: "Av. Ipiranga, 56, Moinhos de Vento",      cep: "07890-123" },
-  8:  { nome: "Sandra Rocha",                telefone: "(85) 90000-8888", relacao: "Mãe",     endereco: "Rua Dragão do Mar, 89, Meireles",          cep: "08901-234" },
-  9:  { nome: "Eduardo Martins",             telefone: "(11) 99999-9999", relacao: "Filho",   endereco: "Rua Augusta, 101, Consolação",             cep: "09012-345" },
-  10: { nome: "Daniel Silva Santos Carneiro",telefone: "(11) 90691-6969", relacao: "Pai",     endereco: "Rua dos Três Reis, Parque Novo Mundo",     cep: "06958-192" },
+type FormData = {
+  nome: string;
+  telefone: string;
+  relacaoParentesco: string;
+  enderecoDTO: EnderecoDTO;
+};
+
+const EMPTY_ENDERECO: EnderecoDTO = {
+  cep: "",
+  logradouro: "",
+  complemento: "",
+  bairro: "",
+  uf: "",
+  localidade: "",
+  regiao: "",
 };
 
 const inputStyle = {
@@ -42,24 +51,88 @@ function Field({ label, value, onChange, type = "text" }) {
 export default function EditarContatoEmergenciaPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const original = CONTATOS_EMERGENCIA[Number(id)];
-  const [form, setForm] = useState(original ? { ...original } : null);
+  const [prontuario, setProntuario] = useState<ProntuarioDTO | null>(null);
+  const [form, setForm] = useState<FormData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
-  if (!original || !form) {
+  useEffect(() => {
+    let active = true;
+
+    async function load() {
+      if (!id) {
+        setError("Prontuário não informado.");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        const prontuarioCarregado = await getProntuarioById(id);
+        if (!active) return;
+
+        setProntuario(prontuarioCarregado);
+        setForm({
+          nome: prontuarioCarregado.contatoEmergenciaDTO?.nome ?? "",
+          telefone: prontuarioCarregado.contatoEmergenciaDTO?.telefone ?? "",
+          relacaoParentesco: prontuarioCarregado.contatoEmergenciaDTO?.relacaoParentesco ?? "",
+          enderecoDTO: prontuarioCarregado.contatoEmergenciaDTO?.enderecoDTO ?? { ...EMPTY_ENDERECO },
+        });
+      } catch {
+        if (active) {
+          setError("Contato não encontrado.");
+        }
+      } finally {
+        if (active) setLoading(false);
+      }
+    }
+
+    load();
+    return () => { active = false; };
+  }, [id]);
+
+  const handleSave = async () => {
+    if (!prontuario || !form) return;
+
+    try {
+      setSaved(false);
+      const payload: ProntuarioDTO = {
+        ...prontuario,
+        contatoEmergenciaDTO: {
+          prontuarioId: prontuario.id ?? "",
+          nome: form.nome,
+          telefone: form.telefone,
+          relacaoParentesco: form.relacaoParentesco,
+          enderecoDTO: form.enderecoDTO,
+        },
+      };
+
+      await editarProntuario(prontuario.id ?? id ?? "", payload);
+      setSaved(true);
+      setTimeout(() => navigate(`/prontuario/${prontuario.id ?? id}`), 1200);
+    } catch {
+      setError("Não foi possível salvar o contato de emergência.");
+    }
+  };
+
+  if (loading) {
     return (
       <AppLayout breadcrumb="Prontuário > Editar Contato">
-        <div style={{ textAlign: "center", padding: "3rem", color: "#aaa" }}>Contato não encontrado.</div>
+        <div style={{ textAlign: "center", padding: "3rem", color: "#aaa" }}>Carregando contato...</div>
       </AppLayout>
     );
   }
 
-  const set = (field) => (val) => setForm(f => ({ ...f, [field]: val }));
-
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => { setSaved(false); navigate(`/prontuario/${id}`); }, 1500);
-  };
+  if (!prontuario || !form) {
+    return (
+      <AppLayout breadcrumb="Prontuário > Editar Contato">
+        <div style={{ textAlign: "center", padding: "3rem", color: "#aaa" }}>{error ?? "Contato não encontrado."}</div>
+      </AppLayout>
+    );
+  }
 
   return (
     <AppLayout breadcrumb="Prontuário > Editar Contato de Emergência">
@@ -69,7 +142,7 @@ export default function EditarContatoEmergenciaPage() {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
             <button
-              onClick={() => navigate(`/prontuario/${id}`)}
+              onClick={() => navigate(`/prontuario/${prontuario.id ?? id}`)}
               style={{ background: "none", border: "1px solid #dde3f0", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px", color: "#1A4FA3", fontWeight: "600" }}
               onMouseEnter={e => e.currentTarget.style.background = "#f0f4ff"}
               onMouseLeave={e => e.currentTarget.style.background = "none"}
@@ -97,6 +170,12 @@ export default function EditarContatoEmergenciaPage() {
           </button>
         </div>
 
+        {error && (
+          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
+            {error}
+          </div>
+        )}
+
         {/* Form card */}
         <div style={{
           background: "white", borderRadius: "14px", padding: "24px 28px",
@@ -108,18 +187,19 @@ export default function EditarContatoEmergenciaPage() {
 
           {/* Row 1: nome, telefone, relação */}
           <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "16px" }}>
-            <Field label="Nome"               value={form.nome}     onChange={set("nome")}     />
-            <Field label="Telefone"           value={form.telefone} onChange={set("telefone")} type="tel" />
-            <Field label="Relação/Parentesco" value={form.relacao}  onChange={set("relacao")}  />
+            <Field label="Nome" value={form.nome} onChange={val => setForm(current => current ? { ...current, nome: val } : current)} />
+            <Field label="Telefone" value={form.telefone} onChange={val => setForm(current => current ? { ...current, telefone: val } : current)} type="tel" />
+            <Field label="Relação/Parentesco" value={form.relacaoParentesco} onChange={val => setForm(current => current ? { ...current, relacaoParentesco: val } : current)} />
           </div>
 
           <div style={{ borderTop: "1px solid #eef0f6" }} />
 
           {/* Row 2: endereço, cep */}
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: "16px" }}>
-            <Field label="Endereço" value={form.endereco} onChange={set("endereco")} />
-            <Field label="CEP"      value={form.cep}      onChange={set("cep")}      />
-          </div>
+          <SearchEnderecoByCEP
+            value={form.enderecoDTO}
+            onChangeEndereco={(endereco: EnderecoDTO) => setForm(current => current ? { ...current, enderecoDTO: endereco } : current)}
+            inputStyle={{ width: "100%", height: "38px", border: "1px solid #dde3f0", borderRadius: "8px", padding: "0 12px", fontSize: "14px", color: "#1a1a1a", outline: "none", background: "white", boxSizing: "border-box", fontFamily: "inherit" }}
+          />
         </div>
       </div>
     </AppLayout>

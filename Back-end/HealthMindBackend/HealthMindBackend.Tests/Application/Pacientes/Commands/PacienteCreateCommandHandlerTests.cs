@@ -45,7 +45,8 @@ namespace HealthMindBackend.Tests.Application.Pacientes.Commands
                 command.CpfCnpj,
                 command.Telefone,
                 command.PsicologoId,
-                command.DataNascimento);
+                command.DataNascimento,
+                command.PlanoSaudePaciente);
 
             _repositoryMock
                 .Setup(p => p.CadastrarPaciente(It.IsAny<Paciente>()))
