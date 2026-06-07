@@ -1,5 +1,4 @@
 ﻿using HealthMindBackend.API.DTOs;
-using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
