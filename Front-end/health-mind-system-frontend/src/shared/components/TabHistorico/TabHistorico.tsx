@@ -1,5 +1,10 @@
 import { CSSProperties, useEffect, useState } from "react";
 import { HistoricoMedicoDTO } from "../../types/dtos/HistoricoMedico.dto";
+import ModalConfirm from "../ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 
 const DEFAULT_LABEL_MINI: CSSProperties = {
@@ -58,21 +63,20 @@ export default function TabHistorico({
     const [expectativaAtendimento, setExpectativaAtendimento] = useState(historico?.expectativaAtendimento ?? "");
     const [salvando, setSalvando] = useState(false);
     const [excluindo, setExcluindo] = useState(false);
-    const [erro, setErro] = useState<string | null>(null);
+    const [confirmAction, setConfirmAction] = useState<"update" | "delete" | null>(null);
+    const [status, setStatus] = useState<StatusMessage | null>(null);
 
     useEffect(() => {
         setRazaoAtendimento(historico?.razaoAtendimento ?? "");
         setImpactoRazao(historico?.impactoRazao ?? "");
         setExpectativaAtendimento(historico?.expectativaAtendimento ?? "");
         setEditando(false);
-        setErro(null);
     }, [historico]);
 
     function abrirEdicao() {
         setRazaoAtendimento(historico?.razaoAtendimento ?? "");
         setImpactoRazao(historico?.impactoRazao ?? "");
         setExpectativaAtendimento(historico?.expectativaAtendimento ?? "");
-        setErro(null);
         setEditando(true);
     }
 
@@ -80,35 +84,78 @@ export default function TabHistorico({
         setRazaoAtendimento(historico?.razaoAtendimento ?? "");
         setImpactoRazao(historico?.impactoRazao ?? "");
         setExpectativaAtendimento(historico?.expectativaAtendimento ?? "");
-        setErro(null);
         setEditando(false);
+    }
+
+    function solicitarSalvar() {
+        if (registrado) {
+            setConfirmAction("update");
+        } else {
+            salvar();
+        }
     }
 
     async function salvar() {
         try {
             setSalvando(true);
-            setErro(null);
             await onSalvar({ razaoAtendimento, impactoRazao, expectativaAtendimento });
             setEditando(false);
-        } catch {
-            setErro("Não foi possível salvar o histórico.");
+            setConfirmAction(null);
+            setStatus({ type: "success", message: registrado ? MESSAGES.SUCCESS.UPDATED : MESSAGES.SUCCESS.CREATED });
+        } catch (err) {
+            const parsed = parseApiError(err);
+            setConfirmAction(null);
+            setStatus({ type: "error", message: parsed.message, details: parsed.details });
         } finally {
             setSalvando(false);
         }
     }
 
-    async function excluir() {
-        if (!window.confirm("Deseja realmente excluir o histórico médico deste paciente?")) return;
+    async function confirmExcluir() {
         try {
             setExcluindo(true);
-            setErro(null);
             await onExcluir();
-        } catch {
-            setErro("Não foi possível excluir o histórico.");
+            setConfirmAction(null);
+            setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+        } catch (err) {
+            const parsed = parseApiError(err);
+            setConfirmAction(null);
+            setStatus({ type: "error", message: parsed.message, details: parsed.details });
         } finally {
             setExcluindo(false);
         }
     }
+
+    const modals = (
+        <>
+            {confirmAction === "update" && (
+                <ModalConfirm
+                    actionType="update"
+                    message="Tem certeza que deseja salvar as alterações do histórico médico?"
+                    loading={salvando}
+                    onConfirm={salvar}
+                    onClose={() => setConfirmAction(null)}
+                />
+            )}
+            {confirmAction === "delete" && (
+                <ModalConfirm
+                    actionType="delete"
+                    message="Deseja realmente excluir o histórico médico deste paciente? Esta ação não poderá ser desfeita."
+                    loading={excluindo}
+                    onConfirm={confirmExcluir}
+                    onClose={() => setConfirmAction(null)}
+                />
+            )}
+            {status && (
+                <ModalMessagesStatus
+                    type={status.type}
+                    message={status.message}
+                    details={status.details}
+                    onClose={() => setStatus(null)}
+                />
+            )}
+        </>
+    );
 
     if (!temProntuario) {
         return (
@@ -132,21 +179,18 @@ export default function TabHistorico({
     if (registrado && !editando) {
         return (
             <div style={cardStyle}>
+                {modals}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
                     <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Histórico</h2>
                     <div style={{ display: "flex", gap: "8px" }}>
                         <button onClick={abrirEdicao} style={{ padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer" }}>
                             Editar
                         </button>
-                        <button onClick={excluir} disabled={excluindo} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
+                        <button onClick={() => setConfirmAction("delete")} disabled={excluindo} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
                             {excluindo ? "Excluindo..." : "Excluir"}
                         </button>
                     </div>
                 </div>
-
-                {erro && (
-                    <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
-                )}
 
                 <ViewField label="Queixa principal e motivo do atendimento" value={historico?.razaoAtendimento} labelMini={labelMini} />
                 <ViewField label="Como esses sintomas/problemas afetam o dia a dia do paciente (no trabalho, nos estudos, nos relacionamentos, no seu sono, etc.)?" value={historico?.impactoRazao} labelMini={labelMini} />
@@ -158,11 +202,8 @@ export default function TabHistorico({
     // Modo edição/registro: formulário.
     return (
         <div style={cardStyle}>
+            {modals}
             <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>{registrado ? "Editar Histórico" : "Registrar Histórico"}</h2>
-
-            {erro && (
-                <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
-            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={labelMini}>Queixa principal e motivo do atendimento</label>
@@ -181,7 +222,7 @@ export default function TabHistorico({
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                 <button onClick={cancelar} disabled={salvando} style={btnGray()}>Cancelar</button>
-                <button onClick={salvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : registrado ? "Salvar Alterações" : "Registrar Histórico"}</button>
+                <button onClick={solicitarSalvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : registrado ? "Salvar Alterações" : "Registrar Histórico"}</button>
             </div>
         </div>
     );

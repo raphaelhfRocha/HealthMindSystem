@@ -14,6 +14,16 @@ import { PlanoSaudeDTO } from "../../shared/types/dtos/PlanoSaude.dto";
 import { CoberturaPlanoDTO } from "../../shared/types/dtos/CoberturaPlano.dto";
 import { formatCurrency } from "../../shared/utils/formatCurrency";
 import { formatPhone } from "../../shared/utils/formatPhone";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
+
+type ConfirmAction =
+  | { kind: "update-plano" }
+  | { kind: "update-cobertura"; especialidadeOriginal: string }
+  | { kind: "delete-cobertura"; especialidade: string };
 
 function statusPlanoLabel(status: StatusPlanoSaudeEnum): string {
   const labels: Record<number, string> = {
@@ -82,6 +92,11 @@ export default function VisualizarPlanoSaudePage() {
   const [salvandoNovaCobertura, setSalvandoNovaCobertura] = useState(false);
   const [erroNovaCobertura, setErroNovaCobertura] = useState<string | null>(null);
 
+  // Confirmação (PUT/DELETE) e mensagens de status
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [excluindoCobertura, setExcluindoCobertura] = useState(false);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
+
   const carregar = useCallback(async () => {
     if (!id) {
       setError("Plano de saúde não encontrado.");
@@ -124,12 +139,18 @@ export default function VisualizarPlanoSaudePage() {
     setEditandoPlano(true);
   }
 
-  async function salvarPlano() {
+  function solicitarSalvarPlano() {
     if (!plano?.id || !planoForm) return;
     if (!planoForm.nome.trim() || !planoForm.codigo.trim()) {
       setErroPlano("Nome e código são obrigatórios.");
       return;
     }
+    setErroPlano(null);
+    setConfirmAction({ kind: "update-plano" });
+  }
+
+  async function salvarPlano() {
+    if (!plano?.id || !planoForm) return;
     try {
       setSalvandoPlano(true);
       setErroPlano(null);
@@ -143,9 +164,13 @@ export default function VisualizarPlanoSaudePage() {
         coberturasPlanoDTO: plano.coberturasPlanoDTO ?? [],
       });
       setEditandoPlano(false);
+      setConfirmAction(null);
       await carregar();
-    } catch {
-      setErroPlano("Não foi possível salvar o plano de saúde.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvandoPlano(false);
     }
@@ -167,12 +192,18 @@ export default function VisualizarPlanoSaudePage() {
     setErroCobertura(null);
   }
 
-  async function salvarCobertura(especialidadeOriginal: string) {
+  function solicitarSalvarCobertura(especialidadeOriginal: string) {
     if (!plano?.id || !coberturaForm) return;
     if (!coberturaForm.especialidade.trim()) {
       setErroCobertura("A especialidade é obrigatória.");
       return;
     }
+    setErroCobertura(null);
+    setConfirmAction({ kind: "update-cobertura", especialidadeOriginal });
+  }
+
+  async function salvarCobertura(especialidadeOriginal: string) {
+    if (!plano?.id || !coberturaForm) return;
     try {
       setSalvandoCobertura(true);
       setErroCobertura(null);
@@ -182,9 +213,13 @@ export default function VisualizarPlanoSaudePage() {
         valorMaximoCobertura: Number(coberturaForm.valorMaximoCobertura) || 0,
       });
       cancelarEdicaoCobertura();
+      setConfirmAction(null);
       await carregar();
-    } catch {
-      setErroCobertura("Não foi possível salvar a cobertura.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvandoCobertura(false);
     }
@@ -192,13 +227,29 @@ export default function VisualizarPlanoSaudePage() {
 
   async function excluirCobertura(especialidade: string) {
     if (!plano?.id) return;
-    if (!window.confirm(`Deseja realmente excluir a cobertura "${especialidade}"?`)) return;
     try {
-      setErroCobertura(null);
+      setExcluindoCobertura(true);
       await removerCoberturaPlano(plano.id, especialidade);
+      setConfirmAction(null);
       await carregar();
-    } catch {
-      setErroCobertura("Não foi possível excluir a cobertura.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    } finally {
+      setExcluindoCobertura(false);
+    }
+  }
+
+  function handleConfirm() {
+    if (!confirmAction) return;
+    if (confirmAction.kind === "update-plano") {
+      salvarPlano();
+    } else if (confirmAction.kind === "update-cobertura") {
+      salvarCobertura(confirmAction.especialidadeOriginal);
+    } else {
+      excluirCobertura(confirmAction.especialidade);
     }
   }
 
@@ -265,6 +316,37 @@ export default function VisualizarPlanoSaudePage() {
 
   return (
     <AppLayout breadcrumb="Planos de Saúde > Visualizar">
+      {confirmAction && (
+        <ModalConfirm
+          actionType={confirmAction.kind === "delete-cobertura" ? "delete" : "update"}
+          message={
+            confirmAction.kind === "delete-cobertura"
+              ? `Deseja realmente excluir a cobertura "${confirmAction.especialidade}"? Esta ação não poderá ser desfeita.`
+              : confirmAction.kind === "update-plano"
+                ? "Tem certeza que deseja salvar as alterações deste plano de saúde?"
+                : "Tem certeza que deseja salvar as alterações desta cobertura?"
+          }
+          loading={
+            confirmAction.kind === "delete-cobertura"
+              ? excluindoCobertura
+              : confirmAction.kind === "update-plano"
+                ? salvandoPlano
+                : salvandoCobertura
+          }
+          onConfirm={handleConfirm}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
+      )}
+
       <div style={{ width: "100%", maxWidth: "760px", display: "flex", flexDirection: "column", gap: "16px" }}>
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
@@ -324,7 +406,7 @@ export default function VisualizarPlanoSaudePage() {
 
               <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                 <button onClick={() => { setEditandoPlano(false); setErroPlano(null); }} disabled={salvandoPlano} style={btnGray()}>Cancelar</button>
-                <button onClick={salvarPlano} disabled={salvandoPlano} style={btnPrimary(salvandoPlano)}>{salvandoPlano ? "Salvando..." : "Salvar Alterações"}</button>
+                <button onClick={solicitarSalvarPlano} disabled={salvandoPlano} style={btnPrimary(salvandoPlano)}>{salvandoPlano ? "Salvando..." : "Salvar Alterações"}</button>
               </div>
             </div>
           ) : (
@@ -415,7 +497,7 @@ export default function VisualizarPlanoSaudePage() {
 
                       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                         <button onClick={cancelarEdicaoCobertura} disabled={salvandoCobertura} style={btnGray()}>Cancelar</button>
-                        <button onClick={() => salvarCobertura(cobertura.especialidade)} disabled={salvandoCobertura} style={btnPrimary(salvandoCobertura)}>{salvandoCobertura ? "Salvando..." : "Salvar"}</button>
+                        <button onClick={() => solicitarSalvarCobertura(cobertura.especialidade)} disabled={salvandoCobertura} style={btnPrimary(salvandoCobertura)}>{salvandoCobertura ? "Salvando..." : "Salvar"}</button>
                       </div>
                     </div>
                   );
@@ -428,7 +510,7 @@ export default function VisualizarPlanoSaudePage() {
                     <InfoField label="Valor máximo" value={formatCurrency(cobertura.valorMaximoCobertura)} />
                     <div style={{ display: "flex", gap: "8px" }}>
                       <button onClick={() => abrirEdicaoCobertura(cobertura)} style={btnEditar}>Editar</button>
-                      <button onClick={() => excluirCobertura(cobertura.especialidade)} style={btnExcluir}>Excluir</button>
+                      <button onClick={() => setConfirmAction({ kind: "delete-cobertura", especialidade: cobertura.especialidade })} style={btnExcluir}>Excluir</button>
                     </div>
                   </div>
                 );

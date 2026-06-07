@@ -8,6 +8,11 @@ import { DisponibilidadeDTO } from "../../shared/types/dtos/Disponibilidade.dto"
 import { extractDateKey, formatDateLabel, formatTimeLabel, getDataHoraDisponibilidade, getDiaSemana } from "../../shared/utils/sessao";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
 import { formatDate } from "../../shared/utils/dateUtils";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 function tipoAtendimentoLabel(tipo: StatusTipoAtendimentoEnum): string {
   const labels: Record<number, string> = {
@@ -121,12 +126,13 @@ export default function DisponibilidadesPage() {
   const [disponibilidades, setDisponibilidades] = useState<DisponibilidadeDTO[]>([]);
   const [loadingPsicologos, setLoadingPsicologos] = useState(true);
   const [loadingDisponibilidades, setLoadingDisponibilidades] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   const [modalAberto, setModalAberto] = useState(false);
   const [salvando, setSalvando] = useState(false);
   const [erroModal, setErroModal] = useState<string | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<DisponibilidadeDTO | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -140,7 +146,7 @@ export default function DisponibilidadesPage() {
         setPsicologos([...dados].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")));
       } catch {
         if (isActive) {
-          setError("Não foi possível carregar os psicólogos.");
+          setStatus({ type: "error", message: "Não foi possível carregar os psicólogos." });
         }
       } finally {
         if (isActive) {
@@ -164,11 +170,10 @@ export default function DisponibilidadesPage() {
   async function carregarDisponibilidades(id: string) {
     try {
       setLoadingDisponibilidades(true);
-      setError(null);
       const dados = await getDisponibilidadesByPsicologoId(id);
       setDisponibilidades(ordenarDisponibilidades(dados));
     } catch {
-      setError("Não foi possível carregar as disponibilidades.");
+      setStatus({ type: "error", message: "Não foi possível carregar as disponibilidades." });
       setDisponibilidades([]);
     } finally {
       setLoadingDisponibilidades(false);
@@ -203,31 +208,30 @@ export default function DisponibilidadesPage() {
       await adicionarDisponibilidade(psicologoSelecionado, nova);
       await carregarDisponibilidades(psicologoSelecionado.id as string);
       setModalAberto(false);
-    } catch {
-      setErroModal("Não foi possível adicionar a disponibilidade. Tente novamente.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      setErroModal(parseApiError(err).message);
     } finally {
       setSalvando(false);
     }
   }
 
-  async function handleExcluir(disponibilidade: DisponibilidadeDTO) {
-    const disponibilidadeId = disponibilidade.id;
+  async function confirmExcluir() {
+    const disponibilidadeId = confirmTarget?.id;
     if (!disponibilidadeId || !psicologoSelecionado) {
-      return;
-    }
-
-    const quando = `${formatDateLabel(extractDateKey(disponibilidade.dataDisponibilidade))} às ${formatTimeLabel(disponibilidade.horaInicio)}`;
-    if (!window.confirm(`Deseja realmente excluir a disponibilidade de ${quando}?`)) {
       return;
     }
 
     try {
       setExcluindoId(disponibilidadeId);
-      setError(null);
       await excluirDisponibilidade(psicologoSelecionado.id as string, disponibilidadeId);
       setDisponibilidades(prev => prev.filter(item => item.id !== disponibilidadeId));
-    } catch {
-      setError("Não foi possível excluir a disponibilidade. Tente novamente.");
+      setConfirmTarget(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmTarget(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindoId(null);
     }
@@ -246,6 +250,25 @@ export default function DisponibilidadesPage() {
           error={erroModal}
           onSave={handleSalvar}
           onClose={() => { if (!salvando) setModalAberto(false); }}
+        />
+      )}
+
+      {confirmTarget && (
+        <ModalConfirm
+          actionType="delete"
+          message={`Deseja realmente excluir a disponibilidade de ${formatDateLabel(extractDateKey(confirmTarget.dataDisponibilidade))} às ${formatTimeLabel(confirmTarget.horaInicio)}? Esta ação não poderá ser desfeita.`}
+          loading={excluindoId === confirmTarget.id}
+          onConfirm={confirmExcluir}
+          onClose={() => setConfirmTarget(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
         />
       )}
 
@@ -279,12 +302,6 @@ export default function DisponibilidadesPage() {
             </select>
           </label>
         </div>
-
-        {error && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {error}
-          </div>
-        )}
 
         {/* Lista de disponibilidades */}
         {!psicologoSelecionado ? (
@@ -330,7 +347,7 @@ export default function DisponibilidadesPage() {
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
                       <button
-                        onClick={() => handleExcluir(d)}
+                        onClick={() => setConfirmTarget(d)}
                         disabled={excluindoId === d.id}
                         style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === d.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === d.id ? 0.6 : 1 }}
                         onMouseEnter={e => { if (excluindoId !== d.id) e.currentTarget.style.background = "#ffdede"; }}

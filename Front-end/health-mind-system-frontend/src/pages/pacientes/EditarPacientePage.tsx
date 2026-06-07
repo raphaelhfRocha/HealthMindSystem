@@ -14,6 +14,11 @@ import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
 import { formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { formatPhone } from "../../shared/utils/formatPhone";
 import { pacienteValidation, PacienteFormData } from "../../shared/validations/paciente/paciente.validation";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 function sortByNome<T extends { nome: string }>(items: T[]) {
   return [...items].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
@@ -64,8 +69,11 @@ export function EditarPacientePage() {
   const navigate = useNavigate();
   const pacienteId = id ?? "";
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
   const [paciente, setPaciente] = useState<PacienteDTO | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [pendingValues, setPendingValues] = useState<PacienteFormData | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
   const [planosSaude, setPlanosSaude] = useState<PlanoSaudeDTO[]>([]);
 
@@ -101,7 +109,6 @@ export function EditarPacientePage() {
     async function carregarPaciente() {
       try {
         setLoading(true);
-        setErro(null);
 
         const [pacienteCarregado, psicologosCarregados, planosCarregados] = await Promise.all([
           getPacienteById(pacienteId),
@@ -134,7 +141,7 @@ export function EditarPacientePage() {
         });
       } catch {
         if (isActive) {
-          setErro("Não foi possível carregar o paciente.");
+          setStatus({ type: "error", message: "Não foi possível carregar o paciente." });
         }
       } finally {
         if (isActive) {
@@ -170,14 +177,24 @@ export function EditarPacientePage() {
     e.currentTarget.style.borderColor = "#dde3f0";
   };
 
-  const onSubmit = handleSubmit(async values => {
+  const onSubmit = handleSubmit(values => {
     if (!pacienteId) {
       return;
     }
 
-    try {
-      setErro(null);
+    setPendingValues(values);
+    setConfirmOpen(true);
+  });
 
+  const handleConfirmUpdate = async () => {
+    if (!pacienteId || !pendingValues) {
+      return;
+    }
+
+    const values = pendingValues;
+    setSaving(true);
+
+    try {
       const atualizado = await editarPaciente(pacienteId, {
         id: pacienteId,
         nome: values.nome.trim(),
@@ -197,11 +214,17 @@ export function EditarPacientePage() {
       });
 
       setPaciente(atualizado);
-      navigate("/paciente");
-    } catch {
-      setErro("Não foi possível salvar as alterações.");
+      setConfirmOpen(false);
+      setPendingValues(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmOpen(false);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    } finally {
+      setSaving(false);
     }
-  });
+  };
 
   if (loading) {
     return (
@@ -239,13 +262,32 @@ export function EditarPacientePage() {
 
   return (
     <AppLayout breadcrumb="Pacientes >">
-      <div style={{ width: "100%", maxWidth: "640px", display: "flex", flexDirection: "column", gap: "20px" }}>
-        {erro && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {erro}
-          </div>
-        )}
+      {confirmOpen && (
+        <ModalConfirm
+          actionType="update"
+          message="Tem certeza que deseja salvar as alterações deste paciente?"
+          loading={saving}
+          onConfirm={handleConfirmUpdate}
+          onClose={() => setConfirmOpen(false)}
+        />
+      )}
 
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => {
+            const wasSuccess = status.type === "success";
+            setStatus(null);
+            if (wasSuccess) {
+              navigate("/paciente");
+            }
+          }}
+        />
+      )}
+
+      <div style={{ width: "100%", maxWidth: "640px", display: "flex", flexDirection: "column", gap: "20px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
           <button
             onClick={() => navigate("/paciente")}
@@ -411,12 +453,12 @@ export function EditarPacientePage() {
             </button>
             <button
               type="submit"
-              disabled={!isValid || isSubmitting || !psicologos.length}
-              style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || !psicologos.length ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || !psicologos.length ? 0.5 : 1 }}
-              onMouseEnter={e => { if (isValid && !isSubmitting && psicologos.length) e.currentTarget.style.filter = "brightness(1.12)"; }}
+              disabled={!isValid || isSubmitting || saving || !psicologos.length}
+              style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || saving || !psicologos.length ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || saving || !psicologos.length ? 0.5 : 1 }}
+              onMouseEnter={e => { if (isValid && !isSubmitting && !saving && psicologos.length) e.currentTarget.style.filter = "brightness(1.12)"; }}
               onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
             >
-              {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+              {saving ? "Salvando..." : "Salvar Alterações"}
             </button>
           </div>
 

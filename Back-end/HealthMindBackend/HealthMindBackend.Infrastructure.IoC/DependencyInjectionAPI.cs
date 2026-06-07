@@ -15,6 +15,7 @@ using HealthMindBackend.Application.Pagamentos.Commands;
 using HealthMindBackend.Application.Progressoes.Commands;
 using HealthMindBackend.Application.Prontuarios.Commands;
 using HealthMindBackend.Application.Psicologos.Commands;
+using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Application.Validators.CoberturasPlanos;
@@ -120,6 +121,8 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<IValidator<CoberturaPlanoUpdateCommand>, CoberturaPlanoUpdateCommandValidator>();
             services.AddScoped<IValidator<PsicologoCreateCommand>, PsicologoCreateCommandValidator>();
             services.AddScoped<IValidator<PsicologoUpdateCommand>, PsicologoUpdateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaCreateCommand>, RecepcionistaCreateCommandValidator>();
+            services.AddScoped<IValidator<RecepcionistaUpdateCommand>, RecepcionistaUpdateCommandValidator>();
             services.AddScoped<IValidator<SessaoCreateCommand>, SessaoCreateCommandValidator>();
             services.AddScoped<IValidator<SessaoUpdateCommand>, SessaoUpdateCommandValidator>();
             services.AddScoped<IValidator<EscalaSessaoCreateCommand>, EscalaSessaoCreateCommandValidator>();

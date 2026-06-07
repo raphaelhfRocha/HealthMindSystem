@@ -18,6 +18,11 @@ import { getAllPlanosSaude } from "../../shared/services/plano-saude.service";
 import { getAllPsicologos } from "../../shared/services/psicologo.service";
 import { formatCep } from "../../shared/utils";
 import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 
 const TABS = ["Informações do Paciente", "Contato de Emergência", "Anotações", "Medicamentos"];
@@ -258,6 +263,9 @@ export default function VisualizarProntuarioPage() {
   const [error, setError] = useState<string | null>(null);
   const [planosPorId, setPlanosPorId] = useState<Record<string, string>>({});
   const [psicologosPorId, setPsicologosPorId] = useState<Record<string, string>>({});
+  const [status, setStatus] = useState<StatusMessage | null>(null);
+  const [confirmMedId, setConfirmMedId] = useState<string | null>(null);
+  const [excluindoMed, setExcluindoMed] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -370,20 +378,47 @@ export default function VisualizarProntuarioPage() {
 
   const handleAddMedication = async (med: { nome: string; dosagem: string; frequencia: string }) => {
     if (!prontuario?.id) return;
-    await registrarMedicamento(prontuario.id, { prontuarioId: prontuario.id, ...med });
-    await loadData();
+    try {
+      await registrarMedicamento(prontuario.id, { prontuarioId: prontuario.id, ...med });
+      await loadData();
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    }
   };
 
   const handleEditMedication = async (medId: string, med: { nome: string; dosagem: string; frequencia: string; statusMedicamentoUso?: StatusMedicamentoUsoEnum }) => {
     if (!prontuario?.id) return;
-    await editarMedicamento(prontuario.id, medId, { id: medId, prontuarioId: prontuario.id, ...med });
-    await loadData();
+    try {
+      await editarMedicamento(prontuario.id, medId, { id: medId, prontuarioId: prontuario.id, ...med });
+      await loadData();
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    }
   };
 
   const handleDeleteMedication = async (medId: string) => {
-    if (!prontuario?.id) return;
-    await excluirMedicamento(prontuario.id, medId);
-    await loadData();
+    setConfirmMedId(medId);
+  };
+
+  const confirmDeleteMedication = async () => {
+    if (!prontuario?.id || !confirmMedId) return;
+    try {
+      setExcluindoMed(true);
+      await excluirMedicamento(prontuario.id, confirmMedId);
+      await loadData();
+      setConfirmMedId(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmMedId(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    } finally {
+      setExcluindoMed(false);
+    }
   };
 
   if (loading) {
@@ -415,6 +450,25 @@ export default function VisualizarProntuarioPage() {
 
   return (
     <AppLayout breadcrumb="Prontuário >">
+      {confirmMedId && (
+        <ModalConfirm
+          actionType="delete"
+          message="Deseja realmente excluir este medicamento? Esta ação não poderá ser desfeita."
+          loading={excluindoMed}
+          onConfirm={confirmDeleteMedication}
+          onClose={() => setConfirmMedId(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
+      )}
+
       <div style={{ width: "100%", maxWidth: "720px", display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

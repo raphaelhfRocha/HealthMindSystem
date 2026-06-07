@@ -10,6 +10,11 @@ import { StatusRoleEnum } from "../../shared/domain/enums/status-role.enum";
 import { formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { recepcionistaValidation, RecepcionistaFormData } from "../../shared/validations/recepcionista/recepcionista.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 const statusCargoRecepcionista = StatusCargoEnum.stsRecepcionista;
 const statusRoleColaborador = StatusRoleEnum.stsColaborador;
@@ -19,9 +24,12 @@ export default function EditarRecepcionistaPage() {
   const navigate = useNavigate();
   const recepcionistaId = id ?? "";
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
   const [excluindo, setExcluindo] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [recepcionista, setRecepcionista] = useState<RecepcionistaDTO | null>(null);
+  const [confirmAction, setConfirmAction] = useState<"update" | "delete" | null>(null);
+  const [pendingValues, setPendingValues] = useState<RecepcionistaFormData | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   const {
     control,
@@ -46,7 +54,6 @@ export default function EditarRecepcionistaPage() {
     async function carregarRecepcionista() {
       try {
         setLoading(true);
-        setErro(null);
 
         const dados = await getAllRecepcionistas();
         if (!isActive) return;
@@ -65,7 +72,7 @@ export default function EditarRecepcionistaPage() {
         }
       } catch {
         if (isActive) {
-          setErro("Não foi possível carregar o recepcionista.");
+          setStatus({ type: "error", message: "Não foi possível carregar o recepcionista." });
         }
       } finally {
         if (isActive) {
@@ -99,14 +106,24 @@ export default function EditarRecepcionistaPage() {
   const focusBlue = e => e.target.style.borderColor = "#1A4FA3";
   const blurGray = e => e.target.style.borderColor = "#dde3f0";
 
-  const onSubmit = handleSubmit(async values => {
+  const onSubmit = handleSubmit(values => {
     if (!recepcionistaId) {
       return;
     }
 
-    try {
-      setErro(null);
+    setPendingValues(values);
+    setConfirmAction("update");
+  });
 
+  const handleConfirmUpdate = async () => {
+    if (!recepcionistaId || !pendingValues) {
+      return;
+    }
+
+    const values = pendingValues;
+    setSaving(true);
+
+    try {
       await editarRecepcionista(recepcionistaId, {
         id: recepcionistaId,
         nome: values.nome.trim(),
@@ -116,30 +133,34 @@ export default function EditarRecepcionistaPage() {
         statusRole: values.statusRole,
       });
 
-      navigate("/recepcionistas");
-    } catch {
-      setErro("Não foi possível salvar as alterações.");
+      setConfirmAction(null);
+      setPendingValues(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    } finally {
+      setSaving(false);
     }
-  });
+  };
 
-  const handleExcluir = async () => {
+  const handleConfirmDelete = async () => {
     if (!recepcionistaId) {
       return;
     }
 
-    if (!window.confirm("Deseja realmente excluir este recepcionista?")) {
-      return;
-    }
+    setExcluindo(true);
 
     try {
-      setExcluindo(true);
-      setErro(null);
-
       await excluirRecepcionista(recepcionistaId);
 
-      navigate("/recepcionistas");
-    } catch {
-      setErro("Não foi possível excluir o recepcionista.");
+      setConfirmAction(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindo(false);
     }
@@ -147,13 +168,42 @@ export default function EditarRecepcionistaPage() {
 
   return (
     <AppLayout breadcrumb="Recepcionistas >">
-      <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      {confirmAction === "update" && (
+        <ModalConfirm
+          actionType="update"
+          message="Tem certeza que deseja salvar as alterações deste recepcionista?"
+          loading={saving}
+          onConfirm={handleConfirmUpdate}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
 
-        {erro && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {erro}
-          </div>
-        )}
+      {confirmAction === "delete" && (
+        <ModalConfirm
+          actionType="delete"
+          message="Deseja realmente excluir este recepcionista? Esta ação não poderá ser desfeita."
+          loading={excluindo}
+          onConfirm={handleConfirmDelete}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => {
+            const wasSuccess = status.type === "success";
+            setStatus(null);
+            if (wasSuccess) {
+              navigate("/recepcionistas");
+            }
+          }}
+        />
+      )}
+
+      <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
         {!recepcionista ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "15px" }}>
@@ -192,9 +242,9 @@ export default function EditarRecepcionistaPage() {
               <div style={{ display: "flex", justifyContent: "space-between", gap: "10px" }}>
                 <button
                   type="button"
-                  onClick={handleExcluir}
-                  disabled={excluindo || isSubmitting}
-                  style={{ padding: "10px 22px", background: "#fff5f5", border: "1px solid #ffd0d0", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "#e05050", cursor: excluindo || isSubmitting ? "not-allowed" : "pointer", opacity: excluindo || isSubmitting ? 0.6 : 1 }}
+                  onClick={() => setConfirmAction("delete")}
+                  disabled={excluindo || isSubmitting || saving}
+                  style={{ padding: "10px 22px", background: "#fff5f5", border: "1px solid #ffd0d0", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "#e05050", cursor: excluindo || isSubmitting || saving ? "not-allowed" : "pointer", opacity: excluindo || isSubmitting || saving ? 0.6 : 1 }}
                 >
                   {excluindo ? "Excluindo..." : "Excluir"}
                 </button>
@@ -208,12 +258,12 @@ export default function EditarRecepcionistaPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={!isValid || isSubmitting || excluindo || !recepcionistaId}
-                    style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || excluindo || !recepcionistaId ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || excluindo || !recepcionistaId ? 0.5 : 1 }}
-                    onMouseEnter={e => { if (isValid && !isSubmitting && !excluindo && recepcionistaId) e.currentTarget.style.filter = "brightness(1.12)"; }}
+                    disabled={!isValid || isSubmitting || saving || excluindo || !recepcionistaId}
+                    style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || saving || excluindo || !recepcionistaId ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || saving || excluindo || !recepcionistaId ? 0.5 : 1 }}
+                    onMouseEnter={e => { if (isValid && !isSubmitting && !saving && !excluindo && recepcionistaId) e.currentTarget.style.filter = "brightness(1.12)"; }}
                     onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
                   >
-                    {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+                    {saving ? "Salvando..." : "Salvar Alterações"}
                   </button>
                 </div>
               </div>

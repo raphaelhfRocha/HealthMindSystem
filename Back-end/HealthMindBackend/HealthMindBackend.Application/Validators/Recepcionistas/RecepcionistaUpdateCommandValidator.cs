@@ -30,20 +30,20 @@ namespace HealthMindBackend.Application.Validators.Recepcionistas
             RuleFor(r => r.Email.Endereco)
                 .NotEmpty().WithMessage("E-mail Recepcionista Obrigatório")
                 .EmailAddress().WithMessage("E-mail inválido")
-                .MustAsync(async (email, cancellationToken) =>
+                .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var emailExistente = await _recepcionistaRepository.GetRecepcionistaByEmail(email);
-                    return emailExistente == null;
+                    var emailExistente = await _recepcionistaRepository.GetRecepcionistaByEmail(command.Email.Endereco);
+                    return emailExistente == null || emailExistente.Id == command.Id;
                 })
                 .WithMessage("E-mail já cadastrado");
 
             RuleFor(p => p.CpfCnpj.Numero)
                 .NotEmpty().WithMessage("CPF Recepcionista Obrigatório")
                 .Must(CpfValidationHelper.IsValid).WithMessage("CPF Inválido")
-                .MustAsync(async (cpf, cancellationToken) =>
+                .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var cpfExistente = await _recepcionistaRepository.GetRecepcionistaByCpf(cpf);
-                    return cpfExistente == null;
+                    var cpfExistente = await _recepcionistaRepository.GetRecepcionistaByCpf(command.CpfCnpj.Numero);
+                    return cpfExistente == null || cpfExistente.Id == command.Id;
 
                 }).WithMessage("CPF já cadastrado");
 

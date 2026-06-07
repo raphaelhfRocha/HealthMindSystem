@@ -12,6 +12,11 @@ import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
 import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
 import { DisponibilidadeDTO } from "../../shared/types/dtos/Disponibilidade.dto";
 import { StatusDisponibilidadeEnum } from "../../shared/domain/enums/status-disponibilidade.enum";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 function statusSessaoLabel(status: StatusSessaoEnum): string {
   const labels: Record<number, string> = {
@@ -200,12 +205,13 @@ export default function AgendaDoDiaPage() {
   const [pacientes, setPacientes] = useState<PacienteDTO[]>([]);
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   const [sessaoEmEdicao, setSessaoEmEdicao] = useState<SessaoDTO | null>(null);
   const [salvandoEdicao, setSalvandoEdicao] = useState(false);
   const [erroEdicao, setErroEdicao] = useState<string | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<SessaoDTO | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -228,7 +234,7 @@ export default function AgendaDoDiaPage() {
         setPsicologos(psicologosDados);
       } catch {
         if (isActive) {
-          setError("Não foi possível carregar os agendamentos do dia.");
+          setStatus({ type: "error", message: "Não foi possível carregar os agendamentos do dia." });
         }
       } finally {
         if (isActive) {
@@ -263,24 +269,22 @@ export default function AgendaDoDiaPage() {
     return sessoes.filter(sessao => extractDateKey(sessao.dataSessao) === dateKey);
   }, [dateKey, sessoes]);
 
-  async function handleExcluir(sessao: SessaoDTO) {
-    const sessaoId = sessao.id;
+  async function confirmExcluir() {
+    const sessaoId = confirmTarget?.id;
     if (!sessaoId) {
-      return;
-    }
-
-    const pacienteNome = pacientesPorId.get(sessao.pacienteId)?.nome ?? "este paciente";
-    if (!window.confirm(`Deseja realmente excluir a sessão de ${pacienteNome} às ${formatTimeLabel(sessao.horaInicio)}?`)) {
       return;
     }
 
     try {
       setExcluindoId(sessaoId);
-      setError(null);
       await excluirSessao(sessaoId);
       setSessoes(prev => prev.filter(item => item.id !== sessaoId));
-    } catch {
-      setError("Não foi possível excluir a sessão. Tente novamente.");
+      setConfirmTarget(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmTarget(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindoId(null);
     }
@@ -305,8 +309,9 @@ export default function AgendaDoDiaPage() {
       await alterarSessao(sessaoEmEdicao.id, sessaoAtualizada);
       setSessoes(prev => sortSessoesByDateAndTime(prev.map(item => item.id === sessaoEmEdicao.id ? sessaoAtualizada : item)));
       setSessaoEmEdicao(null);
-    } catch {
-      setErroEdicao("Não foi possível salvar as alterações. Tente novamente.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      setErroEdicao(parseApiError(err).message);
     } finally {
       setSalvandoEdicao(false);
     }
@@ -325,6 +330,29 @@ export default function AgendaDoDiaPage() {
           onClose={() => { if (!salvandoEdicao) setSessaoEmEdicao(null); }}
         />
       )}
+
+      {confirmTarget && (
+        <ModalConfirm
+          actionType="delete"
+          title="Cancelar sessão"
+          message={`Deseja realmente cancelar a sessão de ${pacientesPorId.get(confirmTarget.pacienteId)?.nome ?? "este paciente"} às ${formatTimeLabel(confirmTarget.horaInicio)}? Esta ação não poderá ser desfeita.`}
+          confirmLabel="Cancelar sessão"
+          cancelLabel="Voltar"
+          loading={excluindoId === confirmTarget.id}
+          onConfirm={confirmExcluir}
+          onClose={() => setConfirmTarget(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
+      )}
+
       <div style={{
         background: "white",
         borderRadius: "16px",
@@ -365,7 +393,6 @@ export default function AgendaDoDiaPage() {
               {loading ? "Carregando..." : `${agendamentos.length} ${agendamentos.length === 1 ? "agendamento" : "agendamentos"}`}
             </span>
           </div>
-          {error && <div style={{ marginBottom: "1.2rem", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>{error}</div>}
         </div>
 
         {agendamentos.length === 0 ? (
@@ -444,7 +471,7 @@ export default function AgendaDoDiaPage() {
                       Reagendar
                     </button>
                     <button
-                      onClick={() => handleExcluir(ag)}
+                      onClick={() => setConfirmTarget(ag)}
                       disabled={excluindoId === ag.id}
                       title="Excluir sessão"
                       style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === ag.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === ag.id ? 0.6 : 1 }}

@@ -10,6 +10,11 @@ import { StatusRoleEnum } from "../../shared/domain/enums/status-role.enum";
 import { formatCpfCnpj, formatCrp, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { psicologoValidation, PsicologoFormData } from "../../shared/validations/psicologo/psicologo.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 const statusCargoPsicologo = StatusCargoEnum.stsPsicologo;
 const statusRoleAdmin = StatusRoleEnum.stsAdmin;
@@ -19,8 +24,11 @@ export default function EditarPsicologoPage() {
   const navigate = useNavigate();
   const psicologoId = id ?? "";
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState<string | null>(null);
   const [psicologo, setPsicologo] = useState<PsicologoDTO | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [pendingValues, setPendingValues] = useState<PsicologoFormData | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   const {
     control,
@@ -48,7 +56,6 @@ export default function EditarPsicologoPage() {
     async function carregarPsicologo() {
       try {
         setLoading(true);
-        setErro(null);
 
         const dados = await getAllPsicologos();
         if (!isActive) return;
@@ -70,7 +77,7 @@ export default function EditarPsicologoPage() {
         }
       } catch {
         if (isActive) {
-          setErro("Não foi possível carregar o psicólogo.");
+          setStatus({ type: "error", message: "Não foi possível carregar o psicólogo." });
         }
       } finally {
         if (isActive) {
@@ -104,14 +111,24 @@ export default function EditarPsicologoPage() {
   const focusBlue = e => e.target.style.borderColor = "#1A4FA3";
   const blurGray = e => e.target.style.borderColor = "#dde3f0";
 
-  const onSubmit = handleSubmit(async values => {
+  const onSubmit = handleSubmit(values => {
     if (!psicologoId) {
       return;
     }
 
-    try {
-      setErro(null);
+    setPendingValues(values);
+    setConfirmOpen(true);
+  });
 
+  const handleConfirmUpdate = async () => {
+    if (!psicologoId || !pendingValues) {
+      return;
+    }
+
+    const values = pendingValues;
+    setSaving(true);
+
+    try {
       await editarPsicologo(psicologoId, {
         id: psicologoId,
         nome: values.nome.trim(),
@@ -124,23 +141,46 @@ export default function EditarPsicologoPage() {
         statusRole: values.statusRole,
       });
 
-      console.log("Dados editados:", values);
-
-      navigate("/psicologos");
-    } catch {
-      setErro("Não foi possível salvar as alterações.");
+      setConfirmOpen(false);
+      setPendingValues(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmOpen(false);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
+    } finally {
+      setSaving(false);
     }
-  });
+  };
 
   return (
     <AppLayout breadcrumb="Psicólogos >">
-      <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "20px" }}>
+      {confirmOpen && (
+        <ModalConfirm
+          actionType="update"
+          message="Tem certeza que deseja salvar as alterações deste psicólogo?"
+          loading={saving}
+          onConfirm={handleConfirmUpdate}
+          onClose={() => setConfirmOpen(false)}
+        />
+      )}
 
-        {erro && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {erro}
-          </div>
-        )}
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => {
+            const wasSuccess = status.type === "success";
+            setStatus(null);
+            if (wasSuccess) {
+              navigate("/psicologos");
+            }
+          }}
+        />
+      )}
+
+      <div style={{ width: "100%", maxWidth: "560px", display: "flex", flexDirection: "column", gap: "20px" }}>
 
         {!psicologo ? (
           <div style={{ textAlign: "center", padding: "3rem", color: "#aaa", fontSize: "15px" }}>
@@ -190,12 +230,12 @@ export default function EditarPsicologoPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={!isValid || isSubmitting || !psicologoId}
-                  style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || !psicologoId ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || !psicologoId ? 0.5 : 1 }}
-                  onMouseEnter={e => { if (isValid && !isSubmitting && psicologoId) e.currentTarget.style.filter = "brightness(1.12)"; }}
+                  disabled={!isValid || isSubmitting || saving || !psicologoId}
+                  style={{ padding: "10px 22px", background: "#1A4FA3", border: "none", borderRadius: "12px", fontSize: "13px", fontWeight: "600", color: "white", cursor: !isValid || isSubmitting || saving || !psicologoId ? "not-allowed" : "pointer", opacity: !isValid || isSubmitting || saving || !psicologoId ? 0.5 : 1 }}
+                  onMouseEnter={e => { if (isValid && !isSubmitting && !saving && psicologoId) e.currentTarget.style.filter = "brightness(1.12)"; }}
                   onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
                 >
-                  {isSubmitting ? "Salvando..." : "Salvar Alterações"}
+                  {saving ? "Salvando..." : "Salvar Alterações"}
                 </button>
               </div>
             </form>

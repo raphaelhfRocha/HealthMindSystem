@@ -11,6 +11,11 @@ import { formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { recepcionistaValidation, RecepcionistaFormData } from "../../shared/validations/recepcionista/recepcionista.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
+import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 const AVATAR_COLORS = [
   "#1A4FA3", "#3BB077", "#E06B4A", "#7B5EA7",
@@ -106,8 +111,9 @@ export default function RecepcionistasPage() {
   const [busca, setBusca] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<RecepcionistaDTO | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -115,7 +121,6 @@ export default function RecepcionistasPage() {
     async function carregarRecepcionistas() {
       try {
         setLoading(true);
-        setError(null);
 
         const dados = await getAllRecepcionistas();
         if (!isActive) return;
@@ -123,7 +128,7 @@ export default function RecepcionistasPage() {
         setRecepcionistas(ordenarRecepcionistas(dados));
       } catch {
         if (isActive) {
-          setError("Não foi possível carregar os recepcionistas.");
+          setStatus({ type: "error", message: "Não foi possível carregar os recepcionistas." });
         }
       } finally {
         if (isActive) {
@@ -151,8 +156,6 @@ export default function RecepcionistasPage() {
 
   const handleAdd = async (values: RecepcionistaFormData) => {
     try {
-      setError(null);
-
       const criado = await cadastrarRecepcionista({
         ...values,
         cpfCnpj: normalizeCpfCnpj(values.cpfCnpj),
@@ -160,28 +163,29 @@ export default function RecepcionistasPage() {
 
       setRecepcionistas(prev => ordenarRecepcionistas([...prev, criado]));
       setShowModal(false);
-    } catch {
-      setError("Não foi possível cadastrar o recepcionista.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     }
   };
 
-  const handleDelete = async (recepcionista: RecepcionistaDTO) => {
-    const recepcionistaId = recepcionista.id;
+  const confirmDelete = async () => {
+    const recepcionistaId = confirmTarget?.id;
     if (!recepcionistaId) return;
-
-    if (!window.confirm(`Deseja realmente excluir o recepcionista "${recepcionista.nome}"?`)) {
-      return;
-    }
 
     try {
       setExcluindoId(recepcionistaId);
-      setError(null);
 
       await excluirRecepcionista(recepcionistaId);
 
       setRecepcionistas(prev => prev.filter(r => r.id !== recepcionistaId));
-    } catch {
-      setError("Não foi possível excluir o recepcionista.");
+      setConfirmTarget(null);
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmTarget(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindoId(null);
     }
@@ -193,6 +197,25 @@ export default function RecepcionistasPage() {
     <AppLayout breadcrumb="Recepcionistas >">
       {showModal && (
         <ModalNovoRecepcionista onSave={handleAdd} onClose={closeModal} />
+      )}
+
+      {confirmTarget && (
+        <ModalConfirm
+          actionType="delete"
+          message={`Deseja realmente excluir o recepcionista "${confirmTarget.nome}"? Esta ação não poderá ser desfeita.`}
+          loading={excluindoId === confirmTarget.id}
+          onConfirm={confirmDelete}
+          onClose={() => setConfirmTarget(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
       )}
 
       <div style={{ width: "100%", maxWidth: "980px", display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -229,12 +252,6 @@ export default function RecepcionistasPage() {
             </button>
           </div>
         </div>
-
-        {error && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {error}
-          </div>
-        )}
 
         {/* Table card */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
@@ -295,7 +312,7 @@ export default function RecepcionistasPage() {
                       Editar
                     </button>
                     <button
-                      onClick={() => handleDelete(r)}
+                      onClick={() => setConfirmTarget(r)}
                       disabled={excluindoId === recepcionistaId}
                       style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === recepcionistaId ? "not-allowed" : "pointer", opacity: excluindoId === recepcionistaId ? 0.6 : 1, whiteSpace: "nowrap" }}
                       onMouseEnter={e => { if (excluindoId !== recepcionistaId) e.currentTarget.style.background = "#ffdede"; }}

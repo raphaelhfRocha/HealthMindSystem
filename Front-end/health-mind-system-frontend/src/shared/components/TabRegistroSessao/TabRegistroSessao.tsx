@@ -1,10 +1,18 @@
-import { useMemo, useState } from "react";
+import { CSSProperties, useMemo, useState } from "react";
 import { SessaoDTO } from "../../types/dtos/Sessao.dto";
-import { getAllSessoes, adicionarRegistroSessao, alterarRegistroSessao, excluirRegistroSessao, excluirSessao } from "../../services/sessao.service";
+import { adicionarRegistroSessao, alterarRegistroSessao, excluirRegistroSessao } from "../../services/sessao.service";
 import { formatTimeLabel } from "../../utils/sessao";
 import { extractDateKey, formatDateLabel } from "../../utils/dateUtils";
 import { formatCurrency } from "../../utils";
 import { StatusPagamentoEnum } from "../../domain/enums/status-pagamento.enum";
+import ModalConfirm from "../ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
+type ConfirmAction =
+  | { kind: "update-registro"; sessao: SessaoDTO }
+  | { kind: "delete-registro"; sessao: SessaoDTO };
 
 
 function btnPrimary(disabled = false) {
@@ -21,13 +29,13 @@ function statusPagamentoBadge(status?: StatusPagamentoEnum): { label: string; bg
   return { label: "Pendente", bg: "#FFF8E6", color: "#856404" };
 }
 
-export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: { sessoes: SessaoDTO[]; onReload: () => Promise<void> }) {
+export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: { sessoes: SessaoDTO[]; onReload: () => Promise<void>; textAreaStyle?: React.CSSProperties }) {
   const [editandoId, setEditandoId] = useState<string | null>(null);
   const [registroDraft, setRegistroDraft] = useState("");
   const [salvando, setSalvando] = useState(false);
-  const [excluindoId, setExcluindoId] = useState<string | null>(null);
   const [excluindoRegistroId, setExcluindoRegistroId] = useState<string | null>(null);
-  const [erro, setErro] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   const ordenadas = useMemo(
     () => [...sessoes].sort((a, b) => extractDateKey(b.dataSessao).localeCompare(extractDateKey(a.dataSessao))),
@@ -35,9 +43,17 @@ export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: 
   );
 
   function abrirEdicao(sessao: SessaoDTO) {
-    setErro(null);
     setEditandoId(sessao.id ?? null);
     setRegistroDraft(sessao.registrosSessoesDTO?.[0]?.registro ?? "");
+  }
+
+  function solicitarSalvarRegistro(sessao: SessaoDTO) {
+    if (!sessao.id) return;
+    if (sessao.registrosSessoesDTO?.[0]?.id) {
+      setConfirmAction({ kind: "update-registro", sessao });
+    } else {
+      salvarRegistro(sessao);
+    }
   }
 
   async function salvarRegistro(sessao: SessaoDTO) {
@@ -46,62 +62,83 @@ export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: 
 
     try {
       setSalvando(true);
-      setErro(null);
       if (registroExistente?.id) {
         await alterarRegistroSessao(registroExistente.id, sessao.id, { sessaoId: sessao.id, registro: registroDraft });
       } else {
         await adicionarRegistroSessao(sessao.id, { sessaoId: sessao.id, registro: registroDraft });
       }
       setEditandoId(null);
+      setConfirmAction(null);
       await onReload();
-    } catch {
-      setErro("Não foi possível salvar o registro.");
+      setStatus({ type: "success", message: registroExistente?.id ? MESSAGES.SUCCESS.UPDATED : MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvando(false);
     }
   }
 
-  async function removerRegistro(sessao: SessaoDTO) {
-    const registroExistente = sessao.registrosSessoesDTO?.[0];
-    if (!sessao.id || !registroExistente?.id) return;
-    if (!window.confirm("Deseja realmente excluir este registro? Esta ação não pode ser desfeita.")) return;
+  async function confirmRemoverRegistro() {
+    const sessao = confirmAction?.kind === "delete-registro" ? confirmAction.sessao : null;
+    const registroExistente = sessao?.registrosSessoesDTO?.[0];
+    if (!sessao?.id || !registroExistente?.id) return;
 
     try {
       setExcluindoRegistroId(sessao.id);
-      setErro(null);
       await excluirRegistroSessao(sessao.id, registroExistente.id);
+      setConfirmAction(null);
       await onReload();
-    } catch {
-      setErro("Não foi possível excluir o registro.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindoRegistroId(null);
     }
   }
 
-  async function removerSessao(sessao: SessaoDTO) {
-    if (!sessao.id) return;
-    if (!window.confirm("Deseja realmente excluir esta sessão? Esta ação não pode ser desfeita.")) return;
-
-    try {
-      setExcluindoId(sessao.id);
-      setErro(null);
-      await excluirSessao(sessao.id);
-      await onReload();
-    } catch {
-      setErro("Não foi possível excluir a sessão.");
-    } finally {
-      setExcluindoId(null);
+  function handleConfirm() {
+    if (!confirmAction) return;
+    if (confirmAction.kind === "update-registro") {
+      salvarRegistro(confirmAction.sessao);
+    } else {
+      confirmRemoverRegistro();
     }
   }
 
   return (
     <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", flexDirection: "column", gap: "16px" }}>
-      <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Registro de Sessão</h2>
-
-      {erro && (
-        <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
+      {confirmAction?.kind === "update-registro" && (
+        <ModalConfirm
+          actionType="update"
+          message="Tem certeza que deseja salvar as alterações deste registro de sessão?"
+          loading={salvando}
+          onConfirm={handleConfirm}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+      {confirmAction?.kind === "delete-registro" && (
+        <ModalConfirm
+          actionType="delete"
+          message="Deseja realmente excluir este registro? Esta ação não poderá ser desfeita."
+          loading={excluindoRegistroId === confirmAction.sessao.id}
+          onConfirm={handleConfirm}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
       )}
 
+      <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Registro de Sessão</h2>
 
       {ordenadas.length === 0 ? (
         <div style={{ textAlign: "center", padding: "2.5rem 0", color: "#bbb", fontSize: "14px" }}>
@@ -146,7 +183,7 @@ export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: 
                       <button onClick={() => abrirEdicao(sessao)} style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "white", border: "1px solid #dde3f0", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}>
                         {registro ? "Alterar registro" : "Registrar"}
                       </button>
-                        <button onClick={() => removerRegistro(sessao)} disabled={excluindoRegistroId === sessao.id} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoRegistroId === sessao.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoRegistroId === sessao.id ? 0.6 : 1 }}>
+                        <button onClick={() => setConfirmAction({ kind: "delete-registro", sessao })} disabled={excluindoRegistroId === sessao.id} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoRegistroId === sessao.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoRegistroId === sessao.id ? 0.6 : 1 }}>
                           {excluindoRegistroId === sessao.id ? "Excluindo..." : "Excluir registro"}
                         </button>
                     </div>
@@ -158,7 +195,7 @@ export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: 
                     <textarea value={registroDraft} onChange={e => setRegistroDraft(e.target.value)} placeholder="Descreva observações, temas abordados, evolução e próximos passos..." style={textAreaStyle} autoFocus />
                     <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                       <button onClick={() => setEditandoId(null)} disabled={salvando} style={btnGray()}>Cancelar</button>
-                      <button onClick={() => salvarRegistro(sessao)} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : "Salvar registro"}</button>
+                      <button onClick={() => solicitarSalvarRegistro(sessao)} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : "Salvar registro"}</button>
                     </div>
                   </div>
                 )}

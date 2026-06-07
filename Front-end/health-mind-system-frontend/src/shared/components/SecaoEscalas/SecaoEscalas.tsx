@@ -5,6 +5,12 @@ import { extractDateKey, formatDate, formatDateLabel } from "../../utils/dateUti
 import { formatTimeLabel } from "../../utils/sessao";
 import { adicionarEscalaSessao, alterarEscalaSessao, excluirEscalaSessao } from "../../services/sessao.service";
 import GraficoEscalas from "../GraficoEscalas/GraficoEscalas";
+import ModalConfirm from "../ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
+type ConfirmAction = { kind: "update" } | { kind: "delete"; escala: EscalaSessaoDTO };
 
 type EscalaCampo = "humor" | "ansiedade" | "sono" | "funcSocial";
 type EscalaSerie = { key: EscalaCampo; label: string; color: string; nota: string };
@@ -59,6 +65,8 @@ export default function SecaoEscalas({
   const [salvando, setSalvando] = useState(false);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmAction | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   // Sessões que ainda não tiveram uma escala registrada.
   const sessoesDisponiveis = useMemo(
@@ -101,11 +109,25 @@ export default function SecaoEscalas({
     setForm({ ...emptyEscala });
   }
 
+  function solicitarSalvar() {
+    if (!form.sessaoId) {
+      setErro("Selecione a sessão da avaliação.");
+      return;
+    }
+    setErro(null);
+    if (editandoId) {
+      setConfirmAction({ kind: "update" });
+    } else {
+      salvar();
+    }
+  }
+
   async function salvar() {
     if (!form.sessaoId) {
       setErro("Selecione a sessão da avaliação.");
       return;
     }
+    const isEdit = !!editandoId;
     const payload: EscalaSessaoDTO = {
       sessaoId: form.sessaoId,
       humor: Number(form.humor), ansiedade: Number(form.ansiedade), sono: Number(form.sono), funcSocial: Number(form.funcSocial),
@@ -120,25 +142,32 @@ export default function SecaoEscalas({
         await adicionarEscalaSessao(form.sessaoId, payload);
       }
       cancelar();
+      setConfirmAction(null);
       await onReload();
-    } catch {
-      setErro("Não foi possível salvar a avaliação.");
+      setStatus({ type: "success", message: isEdit ? MESSAGES.SUCCESS.UPDATED : MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvando(false);
     }
   }
 
-  async function excluir(escala: EscalaSessaoDTO) {
-    if (!escala.id || !escala.sessaoId) return;
-    if (!window.confirm("Deseja realmente excluir esta avaliação?")) return;
+  async function confirmExcluir() {
+    const escala = confirmAction?.kind === "delete" ? confirmAction.escala : null;
+    if (!escala?.id || !escala.sessaoId) return;
     try {
       setExcluindoId(escala.id);
-      setErro(null);
       await excluirEscalaSessao(escala.id, escala.sessaoId);
       if (editandoId === escala.id) cancelar();
+      setConfirmAction(null);
       await onReload();
-    } catch {
-      setErro("Não foi possível excluir a avaliação.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setConfirmAction(null);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setExcluindoId(null);
     }
@@ -170,13 +199,39 @@ export default function SecaoEscalas({
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
         <button onClick={cancelar} disabled={salvando} style={btnGray()}>Cancelar</button>
-        <button onClick={salvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : "Salvar"}</button>
+        <button onClick={solicitarSalvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : "Salvar"}</button>
       </div>
     </div>
   );
 
   return (
     <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {confirmAction?.kind === "update" && (
+        <ModalConfirm
+          actionType="update"
+          message="Tem certeza que deseja salvar as alterações desta avaliação?"
+          loading={salvando}
+          onConfirm={salvar}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+      {confirmAction?.kind === "delete" && (
+        <ModalConfirm
+          actionType="delete"
+          message="Deseja realmente excluir esta avaliação? Esta ação não poderá ser desfeita."
+          loading={excluindoId === confirmAction.escala.id}
+          onConfirm={confirmExcluir}
+          onClose={() => setConfirmAction(null)}
+        />
+      )}
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
+      )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
         <div>
           <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: "0 0 2px" }}>Escalas por Sessão</h2>
@@ -228,7 +283,7 @@ export default function SecaoEscalas({
                     <button onClick={() => abrirEdicao(escala)} style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0, padding: "5px 12px", background: "white", border: "1px solid #dde3f0", borderRadius: "8px", fontSize: "11px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer" }}>
                       Editar
                     </button>
-                    <button onClick={() => excluir(escala)} disabled={excluindoId === escala.id} style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0, padding: "5px 12px", background: "white", border: "1px solid #f3d0d0", borderRadius: "8px", fontSize: "11px", fontWeight: "600", color: "#b03a2e", cursor: excluindoId === escala.id ? "not-allowed" : "pointer", opacity: excluindoId === escala.id ? 0.5 : 1 }}>
+                    <button onClick={() => setConfirmAction({ kind: "delete", escala })} disabled={excluindoId === escala.id} style={{ display: "flex", alignItems: "center", gap: "4px", flexShrink: 0, padding: "5px 12px", background: "white", border: "1px solid #f3d0d0", borderRadius: "8px", fontSize: "11px", fontWeight: "600", color: "#b03a2e", cursor: excluindoId === escala.id ? "not-allowed" : "pointer", opacity: excluindoId === escala.id ? 0.5 : 1 }}>
                       {excluindoId === escala.id ? "Excluindo..." : "Excluir"}
                     </button>
                   </div>

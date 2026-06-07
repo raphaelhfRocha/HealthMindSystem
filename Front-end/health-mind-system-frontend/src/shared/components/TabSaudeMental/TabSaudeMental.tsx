@@ -1,6 +1,11 @@
 import { CSSProperties, useEffect, useState } from "react";
 import { HistoricoMedicoDTO } from "../../types/dtos/HistoricoMedico.dto";
 import { SaudeMentalDTO } from "../../types/dtos/SaudeMental.dto";
+import ModalConfirm from "../ModalConfirm/ModalConfirm";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 
 const DEFAULT_LABEL_MINI: CSSProperties = {
@@ -70,7 +75,8 @@ export default function TabSaudeMental({
     const [antecedentes, setAntecedentes] = useState(sm?.antecedentes ?? "");
     const [salvando, setSalvando] = useState(false);
     const [excluindo, setExcluindo] = useState(false);
-    const [erro, setErro] = useState<string | null>(null);
+    const [confirmAction, setConfirmAction] = useState<"update" | "delete" | null>(null);
+    const [status, setStatus] = useState<StatusMessage | null>(null);
 
     useEffect(() => {
         setDiagnosticoPrevio(sm?.diagnosticoPrevio ?? "");
@@ -78,7 +84,6 @@ export default function TabSaudeMental({
         setStatusInternacao(sm?.statusInternacao ?? "");
         setAntecedentes(sm?.antecedentes ?? "");
         setEditando(false);
-        setErro(null);
     }, [sm]);
 
     function abrirEdicao() {
@@ -86,7 +91,6 @@ export default function TabSaudeMental({
         setAcompanhamento(sm?.acompanhamento ?? "");
         setStatusInternacao(sm?.statusInternacao ?? "");
         setAntecedentes(sm?.antecedentes ?? "");
-        setErro(null);
         setEditando(true);
     }
 
@@ -95,35 +99,78 @@ export default function TabSaudeMental({
         setAcompanhamento(sm?.acompanhamento ?? "");
         setStatusInternacao(sm?.statusInternacao ?? "");
         setAntecedentes(sm?.antecedentes ?? "");
-        setErro(null);
         setEditando(false);
+    }
+
+    function solicitarSalvar() {
+        if (registrado) {
+            setConfirmAction("update");
+        } else {
+            salvar();
+        }
     }
 
     async function salvar() {
         try {
             setSalvando(true);
-            setErro(null);
             await onSalvar({ diagnosticoPrevio, acompanhamento, statusInternacao, antecedentes });
             setEditando(false);
-        } catch {
-            setErro("Não foi possível salvar a saúde mental.");
+            setConfirmAction(null);
+            setStatus({ type: "success", message: registrado ? MESSAGES.SUCCESS.UPDATED : MESSAGES.SUCCESS.CREATED });
+        } catch (err) {
+            const parsed = parseApiError(err);
+            setConfirmAction(null);
+            setStatus({ type: "error", message: parsed.message, details: parsed.details });
         } finally {
             setSalvando(false);
         }
     }
 
-    async function excluir() {
-        if (!window.confirm("Deseja realmente excluir os dados de saúde mental deste paciente?")) return;
+    async function confirmExcluir() {
         try {
             setExcluindo(true);
-            setErro(null);
             await onExcluir();
-        } catch {
-            setErro("Não foi possível excluir a saúde mental.");
+            setConfirmAction(null);
+            setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+        } catch (err) {
+            const parsed = parseApiError(err);
+            setConfirmAction(null);
+            setStatus({ type: "error", message: parsed.message, details: parsed.details });
         } finally {
             setExcluindo(false);
         }
     }
+
+    const modals = (
+        <>
+            {confirmAction === "update" && (
+                <ModalConfirm
+                    actionType="update"
+                    message="Tem certeza que deseja salvar as alterações de saúde mental?"
+                    loading={salvando}
+                    onConfirm={salvar}
+                    onClose={() => setConfirmAction(null)}
+                />
+            )}
+            {confirmAction === "delete" && (
+                <ModalConfirm
+                    actionType="delete"
+                    message="Deseja realmente excluir os dados de saúde mental deste paciente? Esta ação não poderá ser desfeita."
+                    loading={excluindo}
+                    onConfirm={confirmExcluir}
+                    onClose={() => setConfirmAction(null)}
+                />
+            )}
+            {status && (
+                <ModalMessagesStatus
+                    type={status.type}
+                    message={status.message}
+                    details={status.details}
+                    onClose={() => setStatus(null)}
+                />
+            )}
+        </>
+    );
 
     if (!temProntuario) {
         return (
@@ -147,21 +194,18 @@ export default function TabSaudeMental({
     if (registrado && !editando) {
         return (
             <div style={cardStyle}>
+                {modals}
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
                     <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Saúde Mental</h2>
                     <div style={{ display: "flex", gap: "8px" }}>
                         <button onClick={abrirEdicao} style={{ padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer" }}>
                             Editar
                         </button>
-                        <button onClick={excluir} disabled={excluindo} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
+                        <button onClick={() => setConfirmAction("delete")} disabled={excluindo} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
                             {excluindo ? "Excluindo..." : "Excluir"}
                         </button>
                     </div>
                 </div>
-
-                {erro && (
-                    <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
-                )}
 
                 <ViewField label="Diagnóstico prévio relacionado à saúde mental" value={sm?.diagnosticoPrevio} labelMini={labelMini} />
                 <ViewField label="Acompanhamento psicológico/psiquiátrico anterior" value={sm?.acompanhamento} labelMini={labelMini} />
@@ -174,11 +218,8 @@ export default function TabSaudeMental({
     // Modo edição/registro: formulário.
     return (
         <div style={cardStyle}>
+            {modals}
             <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>{registrado ? "Editar Saúde Mental" : "Registrar Saúde Mental"}</h2>
-
-            {erro && (
-                <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
-            )}
 
             <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label style={labelMini}>Diagnóstico prévio relacionado à saúde mental</label>
@@ -202,7 +243,7 @@ export default function TabSaudeMental({
 
             <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px" }}>
                 <button onClick={cancelar} disabled={salvando} style={btnGray()}>Cancelar</button>
-                <button onClick={salvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : registrado ? "Salvar Alterações" : "Registrar Saúde Mental"}</button>
+                <button onClick={solicitarSalvar} disabled={salvando} style={btnPrimary(salvando)}>{salvando ? "Salvando..." : registrado ? "Salvar Alterações" : "Registrar Saúde Mental"}</button>
             </div>
         </div>
     );
