@@ -3,9 +3,13 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
 import { getAllSessoes } from "../../shared/services/sessao.service";
 import { extractDateKey } from "../../shared/utils/sessao";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import { useCurrentPsicologoId } from "../../shared/hooks/useCurrentPsicologo";
 
 export default function AgendamentosPage() {
   const navigate = useNavigate();
+  const { isPsicologo } = usePermissions();
+  const { psicologoId } = useCurrentPsicologoId();
   const [totalSessoes, setTotalSessoes] = useState(0);
   const [sessoesHoje, setSessoesHoje] = useState(0);
   const [loadingResumo, setLoadingResumo] = useState(true);
@@ -17,11 +21,16 @@ export default function AgendamentosPage() {
     async function carregarResumo() {
       try {
         setLoadingResumo(true);
-        const sessoes = await getAllSessoes();
+        const todasSessoes = await getAllSessoes();
 
         if (!isActive) {
           return;
         }
+
+        // Psicólogo enxerga apenas as próprias sessões.
+        const sessoes = isPsicologo
+          ? todasSessoes.filter(sessao => sessao.psicologoId === psicologoId)
+          : todasSessoes;
 
         const hojeKey = extractDateKey(new Date());
         setTotalSessoes(sessoes.length);
@@ -42,7 +51,7 @@ export default function AgendamentosPage() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [isPsicologo, psicologoId]);
 
   return (
     <AppLayout breadcrumb="Agendamentos >">
@@ -62,29 +71,32 @@ export default function AgendamentosPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", flexDirection: "column", gap: "16px"  }}>
-          <button
-            style={{
-              width: "100%",
-              maxWidth: "520px",
-              padding: "18px 24px",
-              background: "#4FC3D8",
-              border: "none",
-              borderRadius: "40px",
-              color: "white",
-              fontSize: "17px",
-              fontWeight: "600",
-              cursor: "pointer",
-              transition: "filter 0.15s, transform 0.15s",
-              boxShadow: "0 4px 14px rgba(79,195,216,0.35)",
-            }}
-            onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.08)"}
-            onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
-            onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
-            onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
-            onClick={() => navigate("/agendamentos/realizar")}
-          >
-            Realizar Agendamento
-          </button>
+          {/* Psicólogo possui acesso somente à consulta de agendamentos. */}
+          {!isPsicologo && (
+            <button
+              style={{
+                width: "100%",
+                maxWidth: "520px",
+                padding: "18px 24px",
+                background: "#4FC3D8",
+                border: "none",
+                borderRadius: "40px",
+                color: "white",
+                fontSize: "17px",
+                fontWeight: "600",
+                cursor: "pointer",
+                transition: "filter 0.15s, transform 0.15s",
+                boxShadow: "0 4px 14px rgba(79,195,216,0.35)",
+              }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.08)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+              onMouseDown={e => e.currentTarget.style.transform = "scale(0.97)"}
+              onMouseUp={e => e.currentTarget.style.transform = "scale(1)"}
+              onClick={() => navigate("/agendamentos/realizar")}
+            >
+              Realizar Agendamento
+            </button>
+          )}
           <button
             style={{
               width: "100%",
@@ -108,17 +120,6 @@ export default function AgendamentosPage() {
           >
             Consultar Agendamento
           </button>
-        </div>
-
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "12px" }}>
-          <div style={{ border: "1px solid #e8ecf5", borderRadius: "14px", padding: "14px 16px", background: "#fbfcff" }}>
-            <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>Sessões carregadas</div>
-            <div style={{ fontSize: "24px", fontWeight: "700", color: "#1A4FA3" }}>{loadingResumo ? "..." : totalSessoes}</div>
-          </div>
-          <div style={{ border: "1px solid #e8ecf5", borderRadius: "14px", padding: "14px 16px", background: "#fbfcff" }}>
-            <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "4px" }}>Sessões de hoje</div>
-            <div style={{ fontSize: "24px", fontWeight: "700", color: "#1A4FA3" }}>{loadingResumo ? "..." : sessoesHoje}</div>
-          </div>
         </div>
 
         {error && (

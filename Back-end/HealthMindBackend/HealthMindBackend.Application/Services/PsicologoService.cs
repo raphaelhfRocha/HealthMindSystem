@@ -50,12 +50,6 @@ namespace HealthMindBackend.Application.Services
             await _mediator.Send(disponibilidadeDeleteCommand);
         }
 
-        public async Task ExcluirPsicologo(String psicologoId)
-        {
-            var psicologoDeleteCommand = new PsicologoDeleteCommand(psicologoId);
-            await _mediator.Send(psicologoDeleteCommand);
-        }
-
         public async Task<IEnumerable<PsicologoDTO>> GetAllPsicologos()
         {
             var getAllPsicologosQuery = new GetAllPsicologosQuery();

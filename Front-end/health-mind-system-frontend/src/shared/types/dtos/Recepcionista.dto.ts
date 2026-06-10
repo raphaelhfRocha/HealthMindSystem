@@ -5,6 +5,7 @@ export interface RecepcionistaDTO {
     id?: string;
     nome: string;
     email: string;
+    senha?: string;
     cpfCnpj: string;
     statusCargo: StatusCargoEnum;
     statusRole: StatusRoleEnum;

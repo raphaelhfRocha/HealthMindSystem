@@ -1,12 +1,15 @@
 ﻿using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "StsPsicologo,StsRecepcionista")]
     public class PacienteController : ControllerBase
     {
         private readonly IPacienteService _pacienteService;
@@ -33,6 +36,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Paciente**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo, StsRecepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]
@@ -46,8 +50,8 @@ namespace HealthMindBackend.API.Controllers
         /// Obter paciente por Id
         /// </summary>
         /// <response code="200">Paciente encontrado</response>
-        /// <response code="400">Dados inválido</response>
-        /// <response code="404">Paciente não encontrado</response>
+        /// <response code="400">Dados inv�lido</response>
+        /// <response code="404">Paciente n�o encontrado</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
         /// **Esse endpoint é dedicado a obter paciente por Id**
@@ -63,6 +67,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="id">
         /// ID Paciente
         /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
@@ -84,19 +89,20 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="404">Pacientes não encontrados</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a lista de pacientes por Nome**
+        /// **Esse endpoint � dedicado a lista de pacientes por Nome**
         /// 
         /// Como usar:
         /// 
         /// **1. Digite o nome dos pacientes registrados no campo do parâmetro nome**
         /// 
-        /// **2. Em seguida clique no botão Execute**
+        /// **2. Em seguida clique no bot�o Execute**
         /// 
         /// **[GET] - /api/Paciente/nome/{nome}**
         /// </remarks>
         /// <param name="nome">
         /// Nome paciente
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpGet("nome/{nome}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
@@ -117,20 +123,21 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="404">Pacientes não encontrados</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a lista de pacientes por Id Psicologo**
+        /// **Esse endpoint � dedicado a lista de pacientes por Id Psicologo**
         /// 
         /// Como usar:
         /// 
-        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
+        /// **1. Digite o Id do psicologo registrado no campo do par�metro psicologoId**
         /// 
-        /// **2. Em seguida clique no botão Execute**
+        /// **2. Em seguida clique no bot�o Execute**
         /// 
         /// **[GET] - /api/Paciente/psicologo/{psicologoId}**
         /// </remarks>
         /// <param name="psicologoId">
-        /// ID Psicólogo
+        /// ID Psic�logo
         /// </param>
-        [HttpGet("psicologos/{psicologoId}")]
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status404NotFound)]
@@ -147,13 +154,13 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="400">Dados inválidos</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de pacientes**
+        /// **Esse endpoint � dedicado a cadastro de pacientes**
         /// 
         /// Como usar:
         /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// **1. Clique no bot�o Try it out na sess�o de Parameters(Par�metros)**
         /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
+        /// **2. Digite os dados na sess�o Request Body(Corpo da requisi��o) que deseja cadastrar seguindo o modelo abaixo:**
         /// **[POST] - /api/Paciente**
         /// ```
         /// {
@@ -169,6 +176,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="pacienteDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpPost]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]
@@ -181,14 +189,14 @@ namespace HealthMindBackend.API.Controllers
 
 
         /// <summary>
-        /// Edição de paciente
+        /// Edi��o de paciente
         /// </summary>
         /// <response code="200">Paciente editado</response>
         /// <response code="400">Dados inválidos</response>
         /// <response code="404">Paciente não encontrado</response>
         /// <response code="500">Erro interno</response>
         /// <remarks>
-        /// **Esse endpoint é dedicado a edição de paciente**
+        /// Esse endpoint � dedicado a edi��o de paciente**
         /// 
         /// 
         /// Como usar:
@@ -215,6 +223,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="pacienteDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpPut("{pacienteId}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]

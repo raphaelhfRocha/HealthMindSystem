@@ -1,6 +1,9 @@
-﻿using HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,9 +16,10 @@ namespace HealthMindBackend.Domain.Interfaces
     {
         Task<IEnumerable<Psicologo>> GetAllPsicologos();
         Task<Psicologo> GetPsicologoById(String psicologoId);
-        Task<Psicologo> GetPsicologoByEmail(String email);
-        Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj);
-        Task<Psicologo> GetPsicologoByCrp(String crp);
+        Task<Psicologo> GetPsicologoByUsuarioId(String usuarioId);
+        Task<Psicologo> GetPsicologoByEmail(Email email);
+        Task<Psicologo> GetPsicologoByCpfCnpj(CpfCnpj cpfCnpj);
+        Task<Psicologo> GetPsicologoByCrp(Crp crp);
         Task<List<Psicologo>> GetPsicologosByNome(String nome);
         Task<List<Psicologo>> GetPsicologosByEspecialidade(String especialidade);
         Task<List<Disponibilidade>> GetDisponibilidadesByPsicologoId(String psicologoId);

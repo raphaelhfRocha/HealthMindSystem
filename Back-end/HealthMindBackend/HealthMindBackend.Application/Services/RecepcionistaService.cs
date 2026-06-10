@@ -3,6 +3,7 @@ using FluentValidation;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Recepcionistas.Commands;
+using HealthMindBackend.Application.Recepcionistas.Queries;
 using HealthMindBackend.Application.Usuarios.Commands;
 using HealthMindBackend.Application.Usuarios.Queries;
 using MediatR;
@@ -48,6 +49,13 @@ namespace HealthMindBackend.Application.Services
             var getAllRecepcionistasQuery = new GetAllRecepcionistasQuery();
             var result = await _mediator.Send(getAllRecepcionistasQuery);
             return _mapper.Map<IEnumerable<RecepcionistaDTO>>(result);
+        }
+
+        public async Task<RecepcionistaDTO> GetRecepcionistaById(String recepcionistaId)
+        {
+            var getRecepcionistaByIdQuery = new GetRecepcionistaByIdQuery(recepcionistaId);
+            var result = await _mediator.Send(getRecepcionistaByIdQuery);
+            return _mapper.Map<RecepcionistaDTO>(result);
         }
     }
 }

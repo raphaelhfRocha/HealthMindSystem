@@ -38,7 +38,9 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
                 request.ValorConsulta
             );
 
-            return await _psicologoRepository.CadastrarPsicologo(psicologo);
+            await _psicologoRepository.CadastrarPsicologo(psicologo);
+
+            return psicologo;
         }
     }
 }

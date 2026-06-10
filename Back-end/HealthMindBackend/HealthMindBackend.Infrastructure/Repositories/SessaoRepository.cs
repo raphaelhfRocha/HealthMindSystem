@@ -217,5 +217,10 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
             return sessao.EscalasSessoes.ToList();
         }
+
+        public async Task<List<Sessao>> GetSessoesByPacienteId(String pacienteId)
+        {
+            return await _collection.Find(s => s.PacienteId == pacienteId).ToListAsync();
+        }
     }
 }

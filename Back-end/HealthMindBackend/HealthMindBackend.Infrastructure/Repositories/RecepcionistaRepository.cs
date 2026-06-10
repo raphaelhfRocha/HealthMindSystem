@@ -2,6 +2,8 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -14,7 +16,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class RecepcionistaRepository : IRecepcionistaRepository
     {
-        private const string SequenceName = "RECEPCIONISTA";
+        private const String SequenceName = "RECEPCIONISTA";
         private readonly IMongoCollection<Recepcionista> _collection;
         private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
@@ -47,19 +49,24 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return await _collection.Find(_ => true).ToListAsync();
         }
 
-        public async Task<Recepcionista> GetRecepcionistaByCpf(String cpf)
+        public async Task<Recepcionista> GetRecepcionistaByCpf(CpfCnpj cpf)
         {
-            return await _collection.Find(r => r.CpfCnpj.Numero == cpf).FirstOrDefaultAsync();
+            return await _collection.Find(r => r.CpfCnpj == cpf).FirstOrDefaultAsync();
         }
 
-        public async Task<Recepcionista> GetRecepcionistaByEmail(String email)
+        public async Task<Recepcionista> GetRecepcionistaByEmail(Email email)
         {
-            return await _collection.Find(r => r.Email.Endereco == email).FirstOrDefaultAsync();
+            return await _collection.Find(r => r.Email == email).FirstOrDefaultAsync();
         }
 
         public async Task<Recepcionista> GetRecepcionistaById(String id)
         {
             return await _collection.Find(r => r.Id == id).FirstOrDefaultAsync();
+        }
+
+        public async Task<Recepcionista> GetRecepcionistaByUsuarioId(String usuarioId)
+        {
+            return await _collection.Find(r => r.UsuarioId == usuarioId).FirstOrDefaultAsync();
         }
     }
 }

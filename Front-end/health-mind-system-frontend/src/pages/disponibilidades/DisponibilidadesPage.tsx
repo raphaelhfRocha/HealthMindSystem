@@ -11,6 +11,9 @@ import { formatDate } from "../../shared/utils/dateUtils";
 import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
 import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
 import { MESSAGES } from "../../shared/constants/messages";
+import { useAuth } from "../../shared/context/AuthContext";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
 
 type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
@@ -121,6 +124,8 @@ function ModalNovaDisponibilidade({ psicologoNome, saving, error, onSave, onClos
 }
 
 export default function DisponibilidadesPage() {
+  const { user } = useAuth();
+  const { isPsicologo, isRecepcionista } = usePermissions();
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
   const [psicologoId, setPsicologoId] = useState("");
   const [disponibilidades, setDisponibilidades] = useState<DisponibilidadeDTO[]>([]);
@@ -166,6 +171,19 @@ export default function DisponibilidadesPage() {
     () => psicologos.find(item => item.id === psicologoId) ?? null,
     [psicologos, psicologoId]
   );
+
+  // Psicólogo fica travado nas próprias disponibilidades (seleção automática).
+  useEffect(() => {
+    if (isPsicologo && psicologos.length > 0 && !psicologoId) {
+      const proprio = findPsicologoByEmail(psicologos, user?.email);
+      if (proprio?.id) {
+        setPsicologoId(proprio.id);
+      }
+    }
+  }, [isPsicologo, psicologos, user?.email, psicologoId]);
+
+  // Recepcionista acessa esta tela apenas para consulta.
+  const podeGerenciar = !isRecepcionista;
 
   async function carregarDisponibilidades(id: string) {
     try {
@@ -275,33 +293,37 @@ export default function DisponibilidadesPage() {
       <div style={{ width: "100%", maxWidth: "860px", display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Disponibilidades dos Psicólogos</h1>
-          <button
-            onClick={() => { setErroModal(null); setModalAberto(true); }}
-            disabled={!psicologoSelecionado}
-            style={{ height: "36px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "0 18px", color: "white", fontSize: "13px", fontWeight: "600", cursor: psicologoSelecionado ? "pointer" : "not-allowed", opacity: psicologoSelecionado ? 1 : 0.5, display: "flex", alignItems: "center", gap: "6px" }}
-            onMouseEnter={e => { if (psicologoSelecionado) e.currentTarget.style.filter = "brightness(1.12)"; }}
-            onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
-          >
-            <span style={{ fontSize: "18px", lineHeight: 1 }}>+</span>
-            Adicionar Disponibilidade
-          </button>
+          {podeGerenciar && (
+            <button
+              onClick={() => { setErroModal(null); setModalAberto(true); }}
+              disabled={!psicologoSelecionado}
+              style={{ height: "36px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "0 18px", color: "white", fontSize: "13px", fontWeight: "600", cursor: psicologoSelecionado ? "pointer" : "not-allowed", opacity: psicologoSelecionado ? 1 : 0.5, display: "flex", alignItems: "center", gap: "6px" }}
+              onMouseEnter={e => { if (psicologoSelecionado) e.currentTarget.style.filter = "brightness(1.12)"; }}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+            >
+              <span style={{ fontSize: "18px", lineHeight: 1 }}>+</span>
+              Adicionar Disponibilidade
+            </button>
+          )}
         </div>
 
-        {/* Seletor de psicólogo */}
-        <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", padding: "18px 20px" }}>
-          <label style={{ ...labelStyle, maxWidth: "420px" }}>
-            Psicólogo
-            <select
-              value={psicologoId}
-              onChange={e => setPsicologoId(e.target.value)}
-              style={inputStyle}
-              disabled={loadingPsicologos}
-            >
-              <option value="">{loadingPsicologos ? "Carregando..." : "Selecione um psicólogo..."}</option>
-              {psicologos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
-            </select>
-          </label>
-        </div>
+        {/* Seletor de psicólogo — psicólogo logado fica restrito às próprias disponibilidades */}
+        {!isPsicologo && (
+          <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", padding: "18px 20px" }}>
+            <label style={{ ...labelStyle, maxWidth: "420px" }}>
+              Psicólogo
+              <select
+                value={psicologoId}
+                onChange={e => setPsicologoId(e.target.value)}
+                style={inputStyle}
+                disabled={loadingPsicologos}
+              >
+                <option value="">{loadingPsicologos ? "Carregando..." : "Selecione um psicólogo..."}</option>
+                {psicologos.map(p => <option key={p.id} value={p.id}>{p.nome}</option>)}
+              </select>
+            </label>
+          </div>
+        )}
 
         {/* Lista de disponibilidades */}
         {!psicologoSelecionado ? (
@@ -346,15 +368,19 @@ export default function DisponibilidadesPage() {
                       </span>
                     </div>
                     <div style={{ display: "flex", gap: "8px" }}>
-                      <button
-                        onClick={() => setConfirmTarget(d)}
-                        disabled={excluindoId === d.id}
-                        style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === d.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === d.id ? 0.6 : 1 }}
-                        onMouseEnter={e => { if (excluindoId !== d.id) e.currentTarget.style.background = "#ffdede"; }}
-                        onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
-                      >
-                        {excluindoId === d.id ? "Excluindo..." : "Excluir"}
-                      </button>
+                      {podeGerenciar ? (
+                        <button
+                          onClick={() => setConfirmTarget(d)}
+                          disabled={excluindoId === d.id}
+                          style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === d.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === d.id ? 0.6 : 1 }}
+                          onMouseEnter={e => { if (excluindoId !== d.id) e.currentTarget.style.background = "#ffdede"; }}
+                          onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
+                        >
+                          {excluindoId === d.id ? "Excluindo..." : "Excluir"}
+                        </button>
+                      ) : (
+                        <span style={{ fontSize: "13px", color: "#ccc" }}>—</span>
+                      )}
                     </div>
                   </div>
                 );

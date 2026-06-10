@@ -32,7 +32,7 @@ namespace HealthMindBackend.Application.Validators.Recepcionistas
                 .EmailAddress().WithMessage("E-mail inválido")
                 .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var emailExistente = await _recepcionistaRepository.GetRecepcionistaByEmail(command.Email.Endereco);
+                    var emailExistente = await _recepcionistaRepository.GetRecepcionistaByEmail(command.Email);
                     return emailExistente == null || emailExistente.Id == command.Id;
                 })
                 .WithMessage("E-mail já cadastrado");
@@ -42,7 +42,7 @@ namespace HealthMindBackend.Application.Validators.Recepcionistas
                 .Must(CpfValidationHelper.IsValid).WithMessage("CPF Inválido")
                 .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var cpfExistente = await _recepcionistaRepository.GetRecepcionistaByCpf(command.CpfCnpj.Numero);
+                    var cpfExistente = await _recepcionistaRepository.GetRecepcionistaByCpf(command.CpfCnpj);
                     return cpfExistente == null || cpfExistente.Id == command.Id;
 
                 }).WithMessage("CPF já cadastrado");

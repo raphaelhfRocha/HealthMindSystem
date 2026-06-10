@@ -41,6 +41,8 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => src.CpfCnpj.Numero)
                 )
                 .ReverseMap();
+            //CreateMap<Usuario, PsicologoDTO>().ReverseMap();
+            //CreateMap<Usuario, RecepcionistaDTO>().ReverseMap();
             CreateMap<Psicologo, PsicologoDTO>()
                 .ForMember(
                     dest => dest.DisponibilidadesDTO,

@@ -9,16 +9,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HealthMindBackend.Application\HealthMindBackend.Application.csproj" />
     <ProjectReference Include="..\HealthMindBackend.Infrastructure.IoC\HealthMindBackend.Infrastructure.IoC.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="DTOs\" />
   </ItemGroup>
 
 </Project>

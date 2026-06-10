@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class SessaoController : ControllerBase
     {
         private readonly ISessaoService _sessaoService;
@@ -35,6 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/Sessao**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
@@ -45,6 +49,40 @@ namespace HealthMindBackend.API.Controllers
             return Ok(result);
         }
 
+        /// <summary>
+        /// Lista de sessões por Id Paciente
+        /// </summary>
+        /// <response code="200">Sessões encontrados</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Sessões não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a lista de sessões por Id Paciente**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do prontuário registrado no campo do parâmetro pacienteId**
+        /// 
+        /// **2. Em seguida clique no botão Execute**
+        /// 
+        /// **[GET] - /api/Sessao/paciente/{pacienteId}**
+        /// </remarks>
+        /// <param name="pacienteId">
+        /// ID Paciente.
+        /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
+        [HttpGet("paciente/{pacienteId}")]
+        [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetSessoesByPacienteId(String pacienteId)
+        {
+            if (pacienteId == null)
+                return BadRequest(nameof(pacienteId));
+
+            var result = await _sessaoService.GetSessoesByPacienteId(pacienteId);
+            return Ok(result);
+        }
 
         /// <summary>
         /// Lista de sessões por Id Psicólogo
@@ -67,6 +105,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Prontuário.
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("psicologo/{psicologoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
@@ -101,6 +140,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoId">
         /// ID Sessão
         /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("{sessaoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status404NotFound)]
@@ -155,6 +195,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpPost]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status400BadRequest)]
@@ -169,6 +210,7 @@ namespace HealthMindBackend.API.Controllers
                 new { sessaoId = result.Id }, result);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("{sessaoId}/registros-sessoes")]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -182,6 +224,7 @@ namespace HealthMindBackend.API.Controllers
             await _sessaoService.AdicionarRegistroSessao(registroSessaoDto);
             return Created($"/api/Sessao/{sessaoId}/registro-sessao", registroSessaoDto);
         }
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("{sessaoId}/escalas-sessoes")]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -240,6 +283,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="sessaoDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpPut("{sessaoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status400BadRequest)]
@@ -293,6 +337,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="pagamentoDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpPut("pagamento/{sessaoId}")]
         [ProducesResponseType(typeof(PagamentoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PagamentoDTO), StatusCodes.Status400BadRequest)]
@@ -308,6 +353,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(pagamentoDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{sessaoId}/registros-sessoes/{registroSessaoId}")]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -326,6 +372,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(registroSessaoDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{sessaoId}/registros-sessoes/{registroSessaoId}")]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(RegistroSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -342,6 +389,7 @@ namespace HealthMindBackend.API.Controllers
             return NoContent();
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{sessaoId}/escalas-sessoes/{escalaSessaoId}")]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -360,6 +408,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(escalaSessaoDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{sessaoId}/escalas-sessoes/{escalaSessaoId}")]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(EscalaSessaoDTO), StatusCodes.Status400BadRequest)]
@@ -398,6 +447,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="sessaoId">ID Sessão</param>
+        [Authorize(Roles = "StsRecepcionista")]
         [HttpDelete("{sessaoId}")]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(SessaoDTO), StatusCodes.Status400BadRequest)]

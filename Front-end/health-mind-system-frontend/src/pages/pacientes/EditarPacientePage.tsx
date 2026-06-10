@@ -320,7 +320,7 @@ export function EditarPacientePage() {
            errors={errors}
            name="email"
            label="E-mail *"
-           placeholder="email@exemplo.com" type="email"
+           placeholder="usuario@healthmind.com" type="email"
            inputStyle={inputStyle}
            onFocus={focusBlue}
            onBlur={blurGray}

@@ -15,6 +15,9 @@ import { StatusDisponibilidadeEnum } from "../../shared/domain/enums/status-disp
 import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
 import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
 import { MESSAGES } from "../../shared/constants/messages";
+import { useAuth } from "../../shared/context/AuthContext";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
 
 type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
@@ -200,6 +203,8 @@ function ModalEditarSessao({ sessao, pacienteNome, psicologoNome, saving, error,
 export default function AgendaDoDiaPage() {
   const { date } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { isPsicologo } = usePermissions();
 
   const [sessoes, setSessoes] = useState<SessaoDTO[]>([]);
   const [pacientes, setPacientes] = useState<PacienteDTO[]>([]);
@@ -261,13 +266,22 @@ export default function AgendaDoDiaPage() {
     return new Map(psicologos.filter(psicologo => psicologo.id).map(psicologo => [psicologo.id as string, psicologo]));
   }, [psicologos]);
 
+  // Id do psicólogo logado (quando aplicável), para restringir a agenda.
+  const psicologoLogadoId = useMemo(
+    () => (isPsicologo ? findPsicologoByEmail(psicologos, user?.email)?.id ?? null : null),
+    [isPsicologo, psicologos, user?.email]
+  );
+
   const agendamentos = useMemo(() => {
     if (!dateKey) {
       return [];
     }
 
-    return sessoes.filter(sessao => extractDateKey(sessao.dataSessao) === dateKey);
-  }, [dateKey, sessoes]);
+    return sessoes.filter(sessao =>
+      extractDateKey(sessao.dataSessao) === dateKey &&
+      (!isPsicologo || sessao.psicologoId === psicologoLogadoId)
+    );
+  }, [dateKey, sessoes, isPsicologo, psicologoLogadoId]);
 
   async function confirmExcluir() {
     const sessaoId = confirmTarget?.id;
@@ -280,7 +294,7 @@ export default function AgendaDoDiaPage() {
       await excluirSessao(sessaoId);
       setSessoes(prev => prev.filter(item => item.id !== sessaoId));
       setConfirmTarget(null);
-      setStatus({ type: "success", message: MESSAGES.SUCCESS.DELETED });
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.SESSION_CANCELLED });
     } catch (err) {
       const parsed = parseApiError(err);
       setConfirmTarget(null);
@@ -460,47 +474,52 @@ export default function AgendaDoDiaPage() {
                     {statusSessaoLabel(ag.statusSessao)}
                   </div>
 
-                  <div style={{ display: "flex", gap: "6px" }}>
-                    <button
-                      onClick={() => { setErroEdicao(null); setSessaoEmEdicao(ag); }}
-                      title="Reagendar sessão"
-                      style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
-                    >
-                      Reagendar
-                    </button>
-                    <button
-                      onClick={() => setConfirmTarget(ag)}
-                      disabled={excluindoId === ag.id}
-                      title="Excluir sessão"
-                      style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === ag.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === ag.id ? 0.6 : 1 }}
-                      onMouseEnter={e => { if (excluindoId !== ag.id) e.currentTarget.style.background = "#ffdede"; }}
-                      onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
-                    >
-                      {excluindoId === ag.id ? "Cancelando..." : "Cancelar"}
-                    </button>
-                  </div>
+                  {/* Psicólogo possui acesso somente de consulta. */}
+                  {!isPsicologo && (
+                    <div style={{ display: "flex", gap: "6px" }}>
+                      <button
+                        onClick={() => { setErroEdicao(null); setSessaoEmEdicao(ag); }}
+                        title="Reagendar sessão"
+                        style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
+                        onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
+                      >
+                        Reagendar
+                      </button>
+                      <button
+                        onClick={() => setConfirmTarget(ag)}
+                        disabled={excluindoId === ag.id}
+                        title="Excluir sessão"
+                        style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === ag.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === ag.id ? 0.6 : 1 }}
+                        onMouseEnter={e => { if (excluindoId !== ag.id) e.currentTarget.style.background = "#ffdede"; }}
+                        onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
+                      >
+                        {excluindoId === ag.id ? "Cancelando..." : "Cancelar"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
-          <button
-            onClick={() => navigate(dateKey ? `/agendamentos/realizar?date=${dateKey}` : "/agendamentos/realizar")}
-            style={{
-              background: "#1A4FA3", border: "none", borderRadius: "20px",
-              padding: "10px 24px", color: "white", fontSize: "14px",
-              fontWeight: "600", cursor: "pointer",
-            }}
-            onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.12)"}
-            onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
-          >
-            + Novo Agendamento
-          </button>
-        </div>
+        {!isPsicologo && (
+          <div style={{ marginTop: "1.5rem", display: "flex", justifyContent: "flex-end" }}>
+            <button
+              onClick={() => navigate(dateKey ? `/agendamentos/realizar?date=${dateKey}` : "/agendamentos/realizar")}
+              style={{
+                background: "#1A4FA3", border: "none", borderRadius: "20px",
+                padding: "10px 24px", color: "white", fontSize: "14px",
+                fontWeight: "600", cursor: "pointer",
+              }}
+              onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.12)"}
+              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+            >
+              + Novo Agendamento
+            </button>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

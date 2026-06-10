@@ -9,6 +9,8 @@ import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
 import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
 import { extractDateKey, formatTimeLabel } from "../../shared/utils/sessao";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
+import { useAuth } from "../../shared/context/AuthContext";
+import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
 
 function getInitials(nome: string) {
   const parts = nome.trim().split(" ").filter(Boolean);
@@ -53,6 +55,7 @@ type LinhaHistorico = {
 
 export default function HistoricoPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [busca, setBusca] = useState("");
   const [pacientes, setPacientes] = useState<PacienteDTO[]>([]);
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
@@ -113,8 +116,19 @@ export default function HistoricoPage() {
     return mapa;
   }, [sessoes]);
 
+  // Psicólogo enxerga apenas os pacientes sob sua responsabilidade.
+  const psicologoLogadoId = useMemo(
+    () => findPsicologoByEmail(psicologos, user?.email)?.id ?? null,
+    [psicologos, user?.email]
+  );
+
+  const pacientesVisiveis = useMemo(
+    () => (psicologoLogadoId ? pacientes.filter(p => p.psicologoId === psicologoLogadoId) : []),
+    [pacientes, psicologoLogadoId]
+  );
+
   const linhas = useMemo<LinhaHistorico[]>(() => {
-    return pacientes
+    return pacientesVisiveis
       .filter(paciente => paciente.id)
       .map((paciente, index) => {
         const sessoesPaciente = sessoesPorPaciente.get(paciente.id as string) ?? [];
@@ -135,7 +149,7 @@ export default function HistoricoPage() {
         };
       })
       .sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR"));
-  }, [pacientes, sessoesPorPaciente, psicologosPorId]);
+  }, [pacientesVisiveis, sessoesPorPaciente, psicologosPorId]);
 
   const filtrados = useMemo(
     () => linhas.filter(linha => linha.nome.toLowerCase().includes(busca.toLowerCase())),
@@ -185,7 +199,7 @@ export default function HistoricoPage() {
         {/* Table card */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "Idade", "Psicólogo", "Sessões", "Última Sessão", "Ações"].map(h => (
+            {["Paciente", "Idade", "Psicólogo", "Sessões", "Data Abertura", "Ações"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 {h}
               </div>
@@ -245,6 +259,7 @@ export default function HistoricoPage() {
                   <button
                     onClick={() => navigate(`/historico/${p.id}`)}
                     style={{
+                      display: "inline-flex", alignItems: "center", gap: "6px",
                       padding: "6px 16px", background: "#EBF3FF", border: "none",
                       borderRadius: "16px", fontSize: "12px", fontWeight: "600",
                       color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap",
@@ -252,7 +267,11 @@ export default function HistoricoPage() {
                     onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
                     onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
                   >
-                    Ver Histórico
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                      <path d="M2 12 C4 7 8 4 12 4 C16 4 20 7 22 12 C20 17 16 20 12 20 C8 20 4 17 2 12Z" stroke="#1A4FA3" strokeWidth="2" fill="none" strokeLinejoin="round" />
+                      <circle cx="12" cy="12" r="3" stroke="#1A4FA3" strokeWidth="2" fill="none" />
+                    </svg>
+                    Visualizar
                   </button>
                 </div>
               </div>

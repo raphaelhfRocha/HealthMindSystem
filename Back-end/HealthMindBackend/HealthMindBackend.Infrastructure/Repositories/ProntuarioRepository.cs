@@ -1,4 +1,4 @@
-Ôªøusing HealthMindBackend.Domain.Entities;
+using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Domain.ValueObjects.Contato.ContatoEmergencia;
@@ -88,7 +88,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 
             var result = await _collection.UpdateOneAsync(filter, update);
             if (result.MatchedCount == 0)
-                throw new KeyNotFoundException("Medicamento n√£o encontrado para atualiza√ß√£o");
+                throw new KeyNotFoundException("Medicamento n„o encontrado para atualizaÁ„o");
 
             return medicamento;
         }

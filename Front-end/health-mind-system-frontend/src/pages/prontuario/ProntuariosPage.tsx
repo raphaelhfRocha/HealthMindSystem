@@ -5,6 +5,8 @@ import { getAllPacientes } from "../../shared/services/paciente.service";
 import { getAllProntuarios } from "../../shared/services/prontuario.service";
 import { getAllPsicologos } from "../../shared/services/psicologo.service";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
+import { useAuth } from "../../shared/context/AuthContext";
+import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
 
 type Row = {
   id: string;
@@ -28,6 +30,7 @@ const AVATAR_COLORS = [
 
 export default function ProntuariosPage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [busca, setBusca] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -50,6 +53,12 @@ export default function ProntuariosPage() {
 
         const psicologoMap = new Map(psicologos.map(p => [p.id, p.nome]));
 
+        // Psicólogo enxerga apenas os pacientes sob sua responsabilidade.
+        const psicologoLogadoId = findPsicologoByEmail(psicologos, user?.email)?.id ?? null;
+        const pacientesVisiveis = psicologoLogadoId
+          ? pacientes.filter(p => p.psicologoId === psicologoLogadoId)
+          : [];
+
         const prontuariosByPaciente = new Map<string, any[]>();
         prontuarios.forEach((pr: any) => {
           const list = prontuariosByPaciente.get(pr.pacienteId) ?? [];
@@ -57,7 +66,7 @@ export default function ProntuariosPage() {
           prontuariosByPaciente.set(pr.pacienteId, list);
         });
 
-        const buildRows: Row[] = pacientes.map(p => {
+        const buildRows: Row[] = pacientesVisiveis.map(p => {
           const prList = prontuariosByPaciente.get(p.id ?? "") ?? [];
           const latest = prList.length ? prList.sort((a, b) => new Date(b.dataAbertura).getTime() - new Date(a.dataAbertura).getTime())[0] : null;
 
@@ -85,7 +94,7 @@ export default function ProntuariosPage() {
 
     load();
     return () => { active = false; };
-  }, []);
+  }, [user?.email]);
 
   const filtrados = rows.filter(p => p.nome.toLowerCase().includes(busca.toLowerCase()));
 
@@ -215,6 +224,9 @@ export default function ProntuariosPage() {
                     <button
                       onClick={() => navigate(`/prontuario/${p.prontuarioId}`)}
                       style={{
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: "6px",
                         padding: "6px 14px",
                         background: "#EBF3FF",
                         border: "none",
@@ -228,6 +240,10 @@ export default function ProntuariosPage() {
                       onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
                       onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
                     >
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M2 12 C4 7 8 4 12 4 C16 4 20 7 22 12 C20 17 16 20 12 20 C8 20 4 17 2 12Z" stroke="#1A4FA3" strokeWidth="2" fill="none" strokeLinejoin="round" />
+                        <circle cx="12" cy="12" r="3" stroke="#1A4FA3" strokeWidth="2" fill="none" />
+                      </svg>
                       Visualizar
                     </button>
                   ) : (

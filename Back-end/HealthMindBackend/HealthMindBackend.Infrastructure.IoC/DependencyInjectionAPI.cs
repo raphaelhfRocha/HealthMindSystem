@@ -1,4 +1,6 @@
 using FluentValidation;
+using HealthMindBackend.Application.Authentications.Commands;
+using HealthMindBackend.Application.Auths.Commands;
 using HealthMindBackend.Application.Behaviors;
 using HealthMindBackend.Application.CoberturasPlanos.Commands;
 using HealthMindBackend.Application.Diagnosticos.Commands;
@@ -18,6 +20,7 @@ using HealthMindBackend.Application.Psicologos.Commands;
 using HealthMindBackend.Application.Recepcionistas.Commands;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Application.Sessoes.Commands;
+using HealthMindBackend.Application.Validators.Auths;
 using HealthMindBackend.Application.Validators.CoberturasPlanos;
 using HealthMindBackend.Application.Validators.Diagnosticos;
 using HealthMindBackend.Application.Validators.Disponibilidades;
@@ -39,6 +42,9 @@ using HealthMindBackend.Infrastructure.Mappings.Serializers;
 using HealthMindBackend.Infrastructure.Persistence.Context;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using HealthMindBackend.Infrastructure.Repositories;
+using HealthMindBackend.Infrastructure.Security.Credenciais;
+using HealthMindBackend.Infrastructure.Security.JWT;
+using HealthMindBackend.Infrastructure.Security.PasswordHasher;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson.Serialization;
@@ -49,7 +55,6 @@ namespace HealthMindBackend.Infrastructure.IoC
     {
         public static IServiceCollection AddInfrastructureAPI(this IServiceCollection services, IConfiguration configuration)
         {
-
             services.Configure<MongoDbSettings>(
                 configuration.GetSection("MongoDbSettings"));
 
@@ -85,6 +90,11 @@ namespace HealthMindBackend.Infrastructure.IoC
             BsonSerializer.TryRegisterSerializer(typeof(StatusMedicamentoUsoEnum),
                 new StatusMedicamentoUsoEnumSerializer());
 
+            services.AddScoped<IAuthRepository, AuthRepository>();
+            services.AddScoped<IAuthService, AuthService>();
+            services.AddTransient<IPasswordHasherService, PasswordHasherService>();
+            services.AddTransient<IGeradorCredenciaisService, GeradorCredenciaisService>();
+            services.AddTransient<ITokenService, TokenService>();
             services.AddScoped<IDiagnosticoRepository, DiagnosticoRepository>();
             services.AddScoped<IDiagnosticoService, DiagnosticoService>();
             services.AddScoped<IHistoricoMedicoRepository, HistoricoMedicoRepository>();
@@ -104,6 +114,11 @@ namespace HealthMindBackend.Infrastructure.IoC
             services.AddScoped<IPlanoSaudeService, PlanoSaudeService>();
             services.AddScoped<IPlanoSaudeRepository, PlanoSaudeRepository>();
 
+            services.AddScoped<IValidator<AuthLoginCommand>, AuthLoginCommandValidator>();
+            services.AddScoped<IValidator<AuthPsicologoCreateCommand>, AuthPsicologoCreateCommandValidator>();
+            services.AddScoped<IValidator<AuthPsicologoUpdateCommand>, AuthPsicologoUpdateCommandValidator>();
+            services.AddScoped<IValidator<AuthRecepcionistaCreateCommand>, AuthRecepcionistaCreateCommandValidator>();
+            services.AddScoped<IValidator<AuthRecepcionistaUpdateCommand>, AuthRecepcionistaUpdateCommandValidator>();
             services.AddScoped<IValidator<DiagnosticoCreateCommand>, DiagnosticoCreateCommandValidator>();
             services.AddScoped<IValidator<DiagnosticoUpdateCommand>, DiagnosticoUpdateCommandValidator>();
             services.AddScoped<IValidator<DisponibilidadeCreateCommand>, DisponibilidadeCreateCommandValidator>();

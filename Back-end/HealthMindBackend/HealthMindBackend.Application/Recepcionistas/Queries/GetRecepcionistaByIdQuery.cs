@@ -6,13 +6,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HealthMindBackend.Application.Psicologos.Commands
+namespace HealthMindBackend.Application.Recepcionistas.Queries
 {
-    public class PsicologoDeleteCommand : IRequest<Psicologo>
+    public class GetRecepcionistaByIdQuery : IRequest<Recepcionista>
     {
         public String Id { get; set; }
 
-        public PsicologoDeleteCommand(String id)
+        public GetRecepcionistaByIdQuery(String id)
         {
             Id = id;
         }

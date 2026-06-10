@@ -2,12 +2,15 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Enums;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "StsPsicologo,StsRecepcionista")]
     public class PlanoSaudeController : ControllerBase
     {
         private readonly IPlanoSaudeService _planoSaudeService;
@@ -17,6 +20,7 @@ namespace HealthMindBackend.API.Controllers
             _planoSaudeService = planoSaudeService;
         }
 
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status404NotFound)]
@@ -26,6 +30,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(await _planoSaudeService.GetAllPlanosSaude());
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status400BadRequest)]
@@ -37,6 +42,7 @@ namespace HealthMindBackend.API.Controllers
             return Created($"/api/PlanoSaude", planoSaudeDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{planoSaudeId}")]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PlanoSaudeDTO), StatusCodes.Status400BadRequest)]
@@ -49,6 +55,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(planoSaudeDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("{planoSaudeId}/coberturas-plano")]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]
@@ -63,6 +70,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(coberturaPlanoDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{planoSaudeId}/coberturas-plano/{especialidade}")]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]
@@ -80,6 +88,7 @@ namespace HealthMindBackend.API.Controllers
             return Ok(coberturaPlanoDto);
         }
 
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{planoSaudeId}/coberturas-plano/{especialidade}")]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(CoberturaPlanoDTO), StatusCodes.Status400BadRequest)]

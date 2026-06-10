@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../shared/context/AuthContext";
+import { usePermissions } from "../shared/hooks/usePermissions";
+import { ROLES } from "../shared/constants/roles";
 
 export const HeartECGLogo = () => (
   <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -104,23 +107,35 @@ const PlanoSaudeIcon = () => (
   </svg>
 );
 
+const AMBOS = [ROLES.PSICOLOGO, ROLES.RECEPCIONISTA];
+
 const navItems = [
-  { label: "Home",         Icon: HomeIcon,       path: "/home" },
-  { label: "Agendamentos", Icon: CalendarIcon,   path: "/agendamentos" },
-  { label: "Histórico",    Icon: HistoricoIcon,  path: "/historico" },
-  { label: "Prontuário",   Icon: ProntuarioIcon, path: "/prontuario" },
-  { label: "Paciente",     Icon: PacienteIcon,   path: "/paciente" },
-  { label: "Psicólogos",   Icon: PsicologoIcon,  path: "/psicologos" },
-  { label: "Recepcionistas", Icon: RecepcionistaIcon, path: "/recepcionistas" },
-  { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades" },
-  { label: "Planos de Saúde",  Icon: PlanoSaudeIcon,      path: "/planos-saude" },
-  { label: "Financeiro",   Icon: FinanceiroIcon, path: "/financeiro" },
+  { label: "Home",         Icon: HomeIcon,       path: "/home",            roles: AMBOS },
+  { label: "Agendamentos", Icon: CalendarIcon,   path: "/agendamentos",    roles: AMBOS },
+  { label: "Histórico",    Icon: HistoricoIcon,  path: "/historico",       roles: [ROLES.PSICOLOGO] },
+  { label: "Prontuário",   Icon: ProntuarioIcon, path: "/prontuario",      roles: [ROLES.PSICOLOGO] },
+  { label: "Paciente",     Icon: PacienteIcon,   path: "/paciente",        roles: [ROLES.RECEPCIONISTA] },
+  { label: "Psicólogos",   Icon: PsicologoIcon,  path: "/psicologos",      roles: AMBOS },
+  { label: "Recepcionistas", Icon: RecepcionistaIcon, path: "/recepcionistas", roles: [ROLES.PSICOLOGO] },
+  { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: AMBOS },
+  { label: "Planos de Saúde",  Icon: PlanoSaudeIcon,      path: "/planos-saude",     roles: [ROLES.PSICOLOGO] },
+  { label: "Financeiro",   Icon: FinanceiroIcon, path: "/financeiro",      roles: AMBOS },
 ];
 
 export default function AppLayout({ children, breadcrumb }) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
+  const { role } = usePermissions();
   const [menuAberto, setMenuAberto] = useState(false);
+
+  const itensVisiveis = navItems.filter(item => item.roles.includes(role));
+
+  const handleLogout = () => {
+    setMenuAberto(false);
+    signOut();
+    navigate("/", { replace: true });
+  };
 
   return (
     <div style={{
@@ -147,12 +162,6 @@ export default function AppLayout({ children, breadcrumb }) {
           <div style={{ lineHeight: 1.1 }}>
             <div style={{ fontSize: "13px", fontWeight: "700", color: "#1A4FA3" }}>Health</div>
             <div style={{ fontSize: "13px", fontWeight: "700", color: "#3BB077" }}>Mind</div>
-          </div>
-          {/* Hamburger placeholder */}
-          <div style={{ marginLeft: "8px", cursor: "pointer", color: "#555", display: "flex", flexDirection: "column", gap: "4px" }}>
-            <div style={{ width: "18px", height: "2px", background: "#555", borderRadius: "2px" }}/>
-            <div style={{ width: "18px", height: "2px", background: "#555", borderRadius: "2px" }}/>
-            <div style={{ width: "18px", height: "2px", background: "#555", borderRadius: "2px" }}/>
           </div>
         </div>
 
@@ -193,13 +202,13 @@ export default function AppLayout({ children, breadcrumb }) {
             }}>
               {/* User info */}
               <div style={{ padding: "14px 16px", borderBottom: "1px solid #eef0f6" }}>
-                <div style={{ fontSize: "13px", fontWeight: "700", color: "#111" }}>Administrador</div>
-                <div style={{ fontSize: "12px", color: "#aaa", marginTop: "2px" }}>admin@healthmind.com</div>
+                <div style={{ fontSize: "13px", fontWeight: "700", color: "#111" }}>{user?.nome || "Usuário"}</div>
+                <div style={{ fontSize: "12px", color: "#aaa", marginTop: "2px" }}>{user?.email || "—"}</div>
               </div>
 
               {/* Logout button */}
               <button
-                onClick={() => { setMenuAberto(false); navigate("/"); }}
+                onClick={handleLogout}
                 style={{
                   width: "100%", display: "flex", alignItems: "center", gap: "10px",
                   padding: "12px 16px", background: "none", border: "none",
@@ -214,7 +223,7 @@ export default function AppLayout({ children, breadcrumb }) {
                   <polyline points="16 17 21 12 16 7" stroke="#e05050" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                   <line x1="21" y1="12" x2="9" y2="12" stroke="#e05050" strokeWidth="2" strokeLinecap="round"/>
                 </svg>
-                Sair da conta
+                Logout
               </button>
             </div>
           )}
@@ -232,7 +241,7 @@ export default function AppLayout({ children, breadcrumb }) {
           flexShrink: 0,
           paddingTop: "8px",
         }}>
-          {navItems.map(({ label, Icon, path }) => {
+          {itensVisiveis.map(({ label, Icon, path }) => {
             const active = location.pathname === path;
             return (
               <button

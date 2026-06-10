@@ -2,6 +2,8 @@
 using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Logging;
 
@@ -9,6 +11,7 @@ namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class ProntuarioController : ControllerBase
     {
         private readonly IProntuarioService _prontuarioService;
@@ -33,6 +36,7 @@ namespace HealthMindBackend.API.Controllers
         ///
         /// **2. Em seguida clique no botão Execute**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status404NotFound)]
@@ -49,6 +53,7 @@ namespace HealthMindBackend.API.Controllers
         /// <response code="200">Prontuário encontrado</response>
         /// <response code="404">Prontuário não encontrado</response>
         /// <response code="500">Erro interno</response>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("{prontuarioId}")]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status404NotFound)]
@@ -95,6 +100,7 @@ namespace HealthMindBackend.API.Controllers
         /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
         /// <param name="prontuarioDto">Dados do prontuário a cadastrar.</param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status400BadRequest)]
@@ -154,6 +160,7 @@ namespace HealthMindBackend.API.Controllers
         /// ```
         /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{prontuarioId}")]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(ProntuarioDTO), StatusCodes.Status400BadRequest)]
@@ -199,6 +206,7 @@ namespace HealthMindBackend.API.Controllers
         /// <summary>
         /// Adiciona um medicamento ao prontuário.
         /// </summary>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("{prontuarioId}/medicamentos")]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]
@@ -216,6 +224,7 @@ namespace HealthMindBackend.API.Controllers
         /// <summary>
         /// Atualiza um medicamento do prontuário.
         /// </summary>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{prontuarioId}/medicamentos/{medicamentoId}")]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]
@@ -255,6 +264,7 @@ namespace HealthMindBackend.API.Controllers
         /// **3. Em seguida clique no botão Execute**
         /// 
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{prontuarioId}/medicamentos/{medicamentoId}")]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]

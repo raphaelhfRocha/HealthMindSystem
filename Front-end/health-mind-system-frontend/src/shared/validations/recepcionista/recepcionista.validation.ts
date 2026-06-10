@@ -12,19 +12,14 @@ export const recepcionistaValidation = z.object({
         .trim()
         .min(8, 'Nome obrigatório (mínimo 8 caracteres)'),
 
-    email: z
-        .string()
-        .trim()
-        .email('E-mail inválido'),
-
     cpfCnpj: z
         .string()
         .trim()
-        .min(1, 'CPF/CNPJ obrigatório')
+        .min(1, 'CPF obrigatório')
         .refine((value) => {
             const digits = value.replace(/\D/g, '');
-            return digits.length === 11 || digits.length === 14;
-        }, 'CPF/CNPJ inválido'),
+            return digits.length === 11;
+        }, 'CPF inválido'),
 
     statusCargo: z.nativeEnum(StatusCargoEnum),
 

@@ -3,12 +3,15 @@ using HealthMindBackend.Application.Interfaces;
 using HealthMindBackend.Application.Services;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Validations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class HistoricoMedicoController : ControllerBase
     {
         private readonly IHistoricoMedicoService _historicoMedicoService;
@@ -17,7 +20,6 @@ namespace HealthMindBackend.API.Controllers
         {
             _historicoMedicoService = historicoMedicoService;
         }
-
 
         /// <summary>
         /// Lista de todos os históricos médicos
@@ -36,6 +38,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// **[GET] - /api/HistoricoMedico**
         /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status404NotFound)]
@@ -66,6 +69,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="prontuarioId">
         /// ID Prontuário
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpGet("prontuario/{prontuarioId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status404NotFound)]
@@ -108,6 +112,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="historicoMedicoDto">
         ///     **Dados a cadastrar**
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]
@@ -153,6 +158,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="historicoMedicoDto">
         /// Dados a alterar
         /// </param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPut("{historicoId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]
@@ -216,6 +222,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="historicoId">Id Histórico médico</param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("{historicoId}")]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status400BadRequest)]
@@ -252,6 +259,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="historicoId">Id Histórico médico</param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("saude-mental/{historicoId}")]
         [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status400BadRequest)]

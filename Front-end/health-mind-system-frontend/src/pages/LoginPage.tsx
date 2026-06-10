@@ -1,5 +1,10 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../shared/context/AuthContext";
+import { loginValidation, LoginFormData } from "../shared/validations/auth/login.validation";
+import { parseApiError } from "../shared/components/ModalMessagesStatus/ModalMessagesStatus";
 
 const HeartECGIcon = () => (
   <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,18 +41,44 @@ const HeartECGIcon = () => (
 );
 
 export default function LoginPage() {
-  const [login, setLogin] = useState("");
-  const [senha, setSenha] = useState("");
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { signIn, isAuthenticated } = useAuth();
 
-  const handleSubmit = () => {
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/home");
-    }, 1000);
-  };
+  const {
+    register,
+    handleSubmit,
+    setError,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginValidation),
+    defaultValues: { email: "", senha: "" },
+    mode: "onChange",
+  });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate("/home", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = handleSubmit(async (values) => {
+    try {
+      await signIn(values.email, values.senha);
+      navigate("/home", { replace: true });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setError("root", { message: parsed.message });
+    }
+  });
+
+  const inputStyle = {
+    flex: 1, height: "38px", border: "none", borderRadius: "8px",
+    background: "#D9D9D9", padding: "0 14px", fontSize: "14px", outline: "none", color: "#333",
+  } as const;
+
+  const errorTextStyle = {
+    fontSize: "12px", color: "#b03a2e", fontWeight: 600, margin: "4px 0 0 64px",
+  } as const;
 
   return (
     <div style={{
@@ -110,48 +141,57 @@ export default function LoginPage() {
           </div>
 
           {/* Form */}
-          <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: "20px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <label style={{ fontSize: "15px", fontWeight: "500", color: "#333", minWidth: "48px" }}>Login</label>
-              <input
-                type="text"
-                value={login}
-                onChange={e => setLogin(e.target.value)}
-                style={{
-                  flex: 1, height: "38px", border: "none", borderRadius: "8px",
-                  background: "#D9D9D9", padding: "0 14px", fontSize: "14px", outline: "none", color: "#333",
-                }}
-              />
+          <form onSubmit={onSubmit} style={{ width: "100%", display: "flex", flexDirection: "column", gap: "16px" }}>
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <label style={{ fontSize: "15px", fontWeight: "500", color: "#333", minWidth: "38px" }}>Login</label>
+                <input
+                  type="email"
+                  autoComplete="username"
+                  placeholder="usuario@healthmind.com"
+                  {...register("email")}
+                  style={inputStyle}
+                />
+              </div>
+              {errors.email && <p style={errorTextStyle}>{errors.email.message}</p>}
             </div>
 
-            <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-              <label style={{ fontSize: "15px", fontWeight: "500", color: "#333", minWidth: "48px" }}>Senha</label>
-              <input
-                type="password"
-                value={senha}
-                onChange={e => setSenha(e.target.value)}
-                style={{
-                  flex: 1, height: "38px", border: "none", borderRadius: "8px",
-                  background: "#D9D9D9", padding: "0 14px", fontSize: "14px", outline: "none", color: "#333",
-                }}
-              />
+            <div>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <label style={{ fontSize: "15px", fontWeight: "500", color: "#333", minWidth: "38px" }}>Senha</label>
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="senha"
+                  {...register("senha")}
+                  style={inputStyle}
+                />
+              </div>
+              {errors.senha && <p style={errorTextStyle}>{errors.senha.message}</p>}
             </div>
 
-            <div style={{ textAlign: "right", marginTop: "-8px" }}>
-            </div>
+            {errors.root && (
+              <div style={{
+                padding: "10px 14px", borderRadius: "10px", background: "#fff5f5",
+                border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: 600,
+              }}>
+                {errors.root.message}
+              </div>
+            )}
 
             <button
-              onClick={handleSubmit}
+              type="submit"
+              disabled={isSubmitting}
               style={{
                 width: "100%", height: "42px", background: "#1A4FA3", color: "white",
                 border: "none", borderRadius: "10px", fontSize: "15px", fontWeight: "600",
-                cursor: "pointer", marginTop: "4px", transition: "opacity 0.2s",
-                opacity: loading ? 0.7 : 1,
+                cursor: isSubmitting ? "not-allowed" : "pointer", marginTop: "4px", transition: "opacity 0.2s",
+                opacity: isSubmitting ? 0.7 : 1,
               }}
             >
-              {loading ? "Entrando..." : "Entrar"}
+              {isSubmitting ? "Entrando..." : "Entrar"}
             </button>
-          </div>
+          </form>
         </div>
       </div>
     </div>

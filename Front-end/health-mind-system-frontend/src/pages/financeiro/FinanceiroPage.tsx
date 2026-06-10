@@ -15,6 +15,9 @@ import { formatHora } from "../../shared/utils/formatHora";
 import { formatBRL } from "../../shared/utils/formatBRL";
 import ModalEditarPagamento from "../../shared/components/ModalEditarPagamento/ModalEditarPagamento";
 import CardResumo from "../../shared/components/CardResumo/CardResumo";
+import { useAuth } from "../../shared/context/AuthContext";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
 
 const STATUS_FILTROS = ["todos", "pendente", "pago", "isento"] as const;
 type StatusFiltro = (typeof STATUS_FILTROS)[number];
@@ -57,6 +60,8 @@ type dadosFinanceiro = {
 };
 
 export default function FinanceiroPage() {
+  const { user } = useAuth();
+  const { isPsicologo, isRecepcionista } = usePermissions();
   const [sessoes, setSessoes] = useState<SessaoFinanceira[]>([]);
   const [loading, setLoading] = useState(true);
   const [erro, setErro] = useState<string | null>(null);
@@ -97,7 +102,17 @@ export default function FinanceiroPage() {
           psicologosMap.get(sessao.psicologoId) ?? "Não encontrado",
       }));
 
-      setSessoes(sessoesComNomes);
+      // Psicólogo visualiza apenas os pagamentos dos pacientes sob sua responsabilidade.
+      let sessoesVisiveis = sessoesComNomes;
+      if (isPsicologo) {
+        const meuId = findPsicologoByEmail(psicologos, user?.email)?.id ?? null;
+        const meusPacientes = new Set(
+          pacientes.filter((p) => p.psicologoId === meuId).map((p) => p.id)
+        );
+        sessoesVisiveis = sessoesComNomes.filter((s) => meusPacientes.has(s.pacienteId));
+      }
+
+      setSessoes(sessoesVisiveis);
     } catch (error) {
       const mensagem =
         error instanceof Error
@@ -108,7 +123,7 @@ export default function FinanceiroPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [isPsicologo, user?.email]);
 
   useEffect(() => {
     void carregarSessoes();
@@ -267,6 +282,8 @@ export default function FinanceiroPage() {
       <div style={{ width: "100%", maxWidth: "1080px", display: "flex", flexDirection: "column", gap: "20px" }}>
         <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Financeiro</h1>
 
+        {/* Recepcionista não visualiza os cards de resumo financeiro. */}
+        {!isRecepcionista && (
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
           <CardResumo
             label="Total Recebido"
@@ -308,6 +325,7 @@ export default function FinanceiroPage() {
             }
           />
         </div>
+        )}
 
         <div
           style={{
@@ -461,16 +479,21 @@ export default function FinanceiroPage() {
                     </span>
                   </div>
 
+                  {/* Psicólogo utiliza o financeiro apenas para consulta. */}
                   <div style={{ display: "flex", gap: "6px" }}>
-                    <button
-                      onClick={() => abrirEdicaoPagamento(linha)}
-                      title="Editar pagamento"
-                      style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 10px", background: "#EBF3FF", border: "none", borderRadius: "14px", fontSize: "11px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
-                      onMouseEnter={event => event.currentTarget.style.background = "#d0e4ff"}
-                      onMouseLeave={event => event.currentTarget.style.background = "#EBF3FF"}
-                    >
-                      Editar
-                    </button>
+                    {!isPsicologo ? (
+                      <button
+                        onClick={() => abrirEdicaoPagamento(linha)}
+                        title="Editar pagamento"
+                        style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 10px", background: "#EBF3FF", border: "none", borderRadius: "14px", fontSize: "11px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                        onMouseEnter={event => event.currentTarget.style.background = "#d0e4ff"}
+                        onMouseLeave={event => event.currentTarget.style.background = "#EBF3FF"}
+                      >
+                        Editar
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: "12px", color: "#ccc" }}>—</span>
+                    )}
                   </div>
                 </div>
               );

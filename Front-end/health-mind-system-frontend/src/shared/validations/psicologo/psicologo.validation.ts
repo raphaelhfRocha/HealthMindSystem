@@ -12,11 +12,6 @@ export const psicologoValidation = z.object({
         .trim()
         .min(3, 'Nome obrigatório'),
 
-    email: z
-        .string()
-        .trim()
-        .email('E-mail inválido'),
-
     cpfCnpj: z
         .string()
         .trim()

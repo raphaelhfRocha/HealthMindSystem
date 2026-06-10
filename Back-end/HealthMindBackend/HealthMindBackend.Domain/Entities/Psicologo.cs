@@ -1,4 +1,4 @@
-Ôªøusing HealthMindBackend.Domain.Enums;
+using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
 using HealthMindBackend.Domain.ValueObjects;
 using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
@@ -27,10 +27,10 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public Psicologo(String id, String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, senha, cargo, role, cpfCnpj)
+        public Psicologo(String id, String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
         {
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "O Id n√£o pode ser menor ou igual a zero");
-            ValidateUserDomain(nome, senha, cargo, role);
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "O Id n„o pode ser menor ou igual a zero");
+            ValidateUserDomain(nome, cargo, role);
             Email = email;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Crp = crp;
@@ -39,49 +39,102 @@ namespace HealthMindBackend.Domain.Entities
 
         }
 
-        public Psicologo(String id, String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, senha, cargo, role, cpfCnpj)
+        public Psicologo(String id, String nome, Email? email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
         {
-            ValidateUserDomain(nome, senha, cargo, role);
+            ValidateUserDomain(nome, cargo, role);
             Email = email;
             CpfCnpj = cpfCnpj;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Crp = crp;
         }
 
-        public Psicologo(String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, senha, cargo, role, cpfCnpj)
+        public Psicologo(String nome, Email? email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
         {
-            ValidateUserDomain(nome, senha, cargo, role);
+            ValidateUserDomain(nome, cargo, role);
+            Senha = senha;
             Email = email;
             CpfCnpj = cpfCnpj;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Crp = crp;
         }
-
-        public Psicologo(String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta, List<Disponibilidade>? disponibilidades) : base(nome, email, senha, cargo, role, cpfCnpj)
+        public Psicologo(String nome, Email? email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
         {
-            ValidateUserDomain(nome, senha, cargo, role);
+            Nome = nome;
             Email = email;
+            Senha = senha;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
+        }
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
+        {
+            ValidateUserDomain(nome, cargo, role);
+            Email = email;
+            Crp = crp;
+            CpfCnpj = cpfCnpj;
+            ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
+        }
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta, List<Disponibilidade>? disponibilidades) : base(nome, email, cargo, role, cpfCnpj)
+        {
+            ValidateUserDomain(nome, cargo, role);
+            Email = email;
+            UsuarioId = usuarioId;
             Crp = crp;
             CpfCnpj = cpfCnpj;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Disponibilidades = disponibilidades;
         }
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
+        {
+            ValidateUserDomain(nome, cargo, role);
+            //Email = email;
+            UsuarioId = usuarioId;
+            Crp = crp;
+            CpfCnpj = cpfCnpj;
+            ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
+            Disponibilidades = new List<Disponibilidade>();
+        }
+
+        public Psicologo(String id, String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            Senha = senha;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
+        }
 
         private void ValidatePsicologoDomain(StatusCargoEnum cargo, String especialidade, Decimal valorConsulta)
         {
-            DomainExceptionValidation.Validate(cargo != StatusCargoEnum.StsPsicologo, "Cargo inv√°lido para psic√≥logo");
-            DomainExceptionValidation.Validate(String.IsNullOrEmpty(especialidade), "Especialidade est√° vazia.");
+            DomainExceptionValidation.Validate(cargo != StatusCargoEnum.StsPsicologo, "Cargo inv·lido para psicÛlogo");
+            DomainExceptionValidation.Validate(String.IsNullOrEmpty(especialidade), "Especialidade est· vazia.");
             Especialidade = especialidade;
             ValorConsulta = valorConsulta;
         }
 
-        public void Update(String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta)
+        public void Update(String nome, Email email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta)
         {
-            ValidateUserDomain(nome, senha, cargo, role);
+            ValidateUserDomain(nome, cargo, role);
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Email = email;
             Crp = crp;
             CpfCnpj = cpfCnpj;
+        }
+
+        public void UpdatePsicologo(String id, String nome, Email? email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
+            UsuarioId = usuarioId;
+            Crp = crp;
+            Especialidade = especialidade;
+            ValorConsulta = valorConsulta;
         }
     }
 }

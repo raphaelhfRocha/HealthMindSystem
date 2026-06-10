@@ -3,7 +3,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
-import { cadastrarPsicologo, getAllPsicologos } from "../../shared/services/psicologo.service";
+import { getAllPsicologos } from "../../shared/services/psicologo.service";
+import { cadastrarPsicologo } from "../../shared/services/auth.service";
 import { StatusCargoEnum } from "../../shared/domain/enums/status-cargo.enum";
 import { StatusRoleEnum } from "../../shared/domain/enums/status-role.enum";
 import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
@@ -11,6 +12,8 @@ import { formatCpfCnpj, formatCrp, normalizeCpfCnpj } from "../../shared/utils/f
 import { psicologoValidation, PsicologoFormData } from "../../shared/validations/psicologo/psicologo.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import ModalSendEmail from "../../shared/components/ModalSendEmail/ModalSendEmail";
 
 const AVATAR_COLORS = [
   "#1A4FA3", "#3BB077", "#E06B4A", "#7B5EA7",
@@ -49,7 +52,6 @@ function ModalNovoPsicologo({ onSave, onClose }) {
     resolver: zodResolver(psicologoValidation),
     defaultValues: {
       nome: "",
-      email: "",
       cpfCnpj: "",
       crp: "",
       especialidade: "",
@@ -80,8 +82,10 @@ function ModalNovoPsicologo({ onSave, onClose }) {
           <RHFTextField control={control} errors={errors} name="cpfCnpj" label="CPF / CNPJ" placeholder="000.000.000-00 ou 00.000.000/0000-00" mask={formatCpfCnpj} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
           <RHFTextField control={control} errors={errors} name="crp" label="CRP" placeholder="Ex: 06/12345" mask={formatCrp} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
         </div>
-        <RHFTextField control={control} errors={errors} name="email" label="E-mail" placeholder="email@exemplo.com" type="email" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
         <RHFTextField control={control} errors={errors} name="valorConsulta" label="Valor da Consulta (R$)" placeholder="Ex: 150" type="number" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
+        <p style={{ fontSize: "12px", color: "#888", margin: 0, lineHeight: 1.5 }}>
+          O e-mail de acesso e a senha serão gerados automaticamente e exibidos após o cadastro.
+        </p>
 
         {/* Actions */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "4px" }}>
@@ -110,11 +114,15 @@ function ModalNovoPsicologo({ onSave, onClose }) {
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function PsicologosPage() {
   const navigate = useNavigate();
+  const { isRecepcionista } = usePermissions();
+  // Recepcionista acessa a tela de psicólogos apenas para consulta.
+  const podeGerenciar = !isRecepcionista;
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
   const [busca, setBusca] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [credenciais, setCredenciais] = useState<{ nome: string; email: string; senha: string } | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -168,17 +176,31 @@ export default function PsicologosPage() {
 
       setPsicologos(prev => ordenarPsicologos([...prev, criado]));
       setShowModal(false);
+
+      if (criado.senha) {
+        setCredenciais({ nome: criado.nome, email: criado.email, senha: criado.senha });
+      }
     } catch {
       setError("Não foi possível cadastrar o psicólogo.");
     }
   };
 
-  const COL = "210px 110px 190px 185px 170px";
+  const COL = "minmax(0, 2.2fr) 120px minmax(0, 2fr) 130px";
 
   return (
     <AppLayout breadcrumb="Psicólogos >">
       {showModal && (
         <ModalNovoPsicologo onSave={handleAdd} onClose={closeModal} />
+      )}
+
+      {credenciais && (
+        <ModalSendEmail
+          nome={credenciais.nome}
+          cargo="Psicólogo"
+          loginEmail={credenciais.email}
+          senha={credenciais.senha}
+          onClose={() => setCredenciais(null)}
+        />
       )}
 
       <div style={{ width: "100%", maxWidth: "980px", display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -204,15 +226,17 @@ export default function PsicologosPage() {
             </div>
 
             {/* Add */}
-            <button
-              onClick={openModal}
-              style={{ height: "36px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "0 18px", color: "white", fontSize: "13px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
-              onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.12)"}
-              onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
-            >
-              <span style={{ fontSize: "18px", lineHeight: 1 }}>+</span>
-              Adicionar Psicólogo
-            </button>
+            {podeGerenciar && (
+              <button
+                onClick={openModal}
+                style={{ height: "36px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "0 18px", color: "white", fontSize: "13px", fontWeight: "600", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}
+                onMouseEnter={e => e.currentTarget.style.filter = "brightness(1.12)"}
+                onMouseLeave={e => e.currentTarget.style.filter = "brightness(1)"}
+              >
+                <span style={{ fontSize: "18px", lineHeight: 1 }}>+</span>
+                Adicionar Psicólogo
+              </button>
+            )}
           </div>
         </div>
 
@@ -227,7 +251,7 @@ export default function PsicologosPage() {
 
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Psicólogo", "CRP", "Especialidade", "E-mail", "Ações"].map(h => (
+            {["Psicólogo", "CRP", "Especialidade", "Ações"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
             ))}
           </div>
@@ -272,22 +296,26 @@ export default function PsicologosPage() {
                   <div style={{ fontSize: "13px", color: "#555" }}>{p.especialidade || "—"}</div>
 
                   {/* E-mail */}
-                  <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.email || "—"}</div>
+                  {/* <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.email || "—"}</div> */}
 
                   {/* Actions */}
                   <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                      onClick={() => navigate(`/psicologos/${psicologoId}/editar`)}
-                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
-                    >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 20H8L18.5 9.5C19.3 8.7 19.3 7.3 18.5 6.5L17.5 5.5C16.7 4.7 15.3 4.7 14.5 5.5L4 16V20Z" stroke="#1A4FA3" strokeWidth="2" strokeLinejoin="round" fill="none" />
-                        <line x1="13" y1="7" x2="17" y2="11" stroke="#1A4FA3" strokeWidth="2" />
-                      </svg>
-                      Editar
-                    </button>
+                    {podeGerenciar ? (
+                      <button
+                        onClick={() => navigate(`/psicologos/${psicologoId}`)}
+                        style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#e0e5f0"}
+                        onMouseLeave={e => e.currentTarget.style.background = "#EEF1F8"}
+                      >
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                          <path d="M2 12 C4 7 8 4 12 4 C16 4 20 7 22 12 C20 17 16 20 12 20 C8 20 4 17 2 12Z" stroke="#1A4FA3" strokeWidth="2" fill="none" strokeLinejoin="round" />
+                          <circle cx="12" cy="12" r="3" stroke="#1A4FA3" strokeWidth="2" fill="none" />
+                        </svg>
+                        Visualizar
+                      </button>
+                    ) : (
+                      <span style={{ fontSize: "13px", color: "#ccc" }}>—</span>
+                    )}
                   </div>
                 </div>
               );

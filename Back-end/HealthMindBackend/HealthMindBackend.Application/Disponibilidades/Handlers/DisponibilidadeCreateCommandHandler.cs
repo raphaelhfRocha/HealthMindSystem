@@ -37,7 +37,7 @@ namespace HealthMindBackend.Application.Disponibilidades.Handlers
                         request.DataDisponibilidade == disponibilidadeFound.DataDisponibilidade &&
                         request.HoraInicio == disponibilidadeFound.HoraInicio)
                     {
-                        throw new Exception("Disponibilidade já registrada.");
+                        throw new Exception("Disponibilidade j� registrada.");
                     }
                 }
             }
