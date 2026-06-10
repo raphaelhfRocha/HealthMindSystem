@@ -172,13 +172,13 @@ export default function TabSaudeMental({
         </>
     );
 
-    if (!temProntuario) {
-        return (
-            <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
-                Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar a saúde mental.
-            </div>
-        );
-    }
+    // if (!temProntuario) {
+    //     return (
+    //         <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
+    //             Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar a saúde mental.
+    //         </div>
+    //     );
+    // }
 
     // Estado vazio: nenhum dado de saúde mental registrado e sem formulário aberto.
     if (!registrado && !editando) {
@@ -201,7 +201,14 @@ export default function TabSaudeMental({
                         <button onClick={abrirEdicao} style={{ padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer" }}>
                             Editar
                         </button>
-                        <button onClick={() => setConfirmAction("delete")} disabled={excluindo} style={{ padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
+                        <button onClick={() => setConfirmAction("delete")} disabled={excluindo} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                                <path d="M4 7H20" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
+                                <path d="M9 7V5C9 4.4 9.4 4 10 4H14C14.6 4 15 4.4 15 5V7" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <path d="M6 7L7 20C7 20.6 7.4 21 8 21H16C16.6 21 17 20.6 17 20L18 7" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                <line x1="10" y1="11" x2="10" y2="17" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
+                                <line x1="14" y1="11" x2="14" y2="17" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
+                            </svg>
                             {excluindo ? "Excluindo..." : "Excluir"}
                         </button>
                     </div>

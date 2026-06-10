@@ -142,7 +142,7 @@ export default function TabRegistroSessao({ sessoes, onReload, textAreaStyle }: 
 
       {ordenadas.length === 0 ? (
         <div style={{ textAlign: "center", padding: "2.5rem 0", color: "#bbb", fontSize: "14px" }}>
-          Nenhuma sessão registrada para este paciente.
+          Nenhuma sessão agendada para este paciente.
         </div>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>

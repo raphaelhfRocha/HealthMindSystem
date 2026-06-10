@@ -2,6 +2,9 @@ using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
 using HealthMindBackend.Domain.ValueObjects.Agenda.Disponibilidade;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using MongoDB.Driver;
 using System;
@@ -14,7 +17,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class PsicologoRepository : IPsicologoRepository
     {
-        private const string SequenceName = "PSICOLOGO";
+        private const String SequenceName = "PSICOLOGO";
         private readonly IMongoCollection<Psicologo> _collection;
         private readonly ISequentialIdGenerator _sequentialIdGenerator;
 
@@ -117,24 +120,29 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return psicologo.Disponibilidades.ToList();
         }
 
-        public async Task<Psicologo> GetPsicologoByCpfCnpj(String cpfCnpj)
+        public async Task<Psicologo> GetPsicologoByCpfCnpj(CpfCnpj cpfCnpj)
         {
-            return await _collection.Find(p => p.CpfCnpj.Numero == cpfCnpj).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.CpfCnpj == cpfCnpj).FirstOrDefaultAsync();
         }
 
-        public async Task<Psicologo> GetPsicologoByCrp(String crp)
+        public async Task<Psicologo> GetPsicologoByCrp(Crp crp)
         {
-            return await _collection.Find(p => p.Crp.Numero == crp).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.Crp == crp).FirstOrDefaultAsync();
         }
 
-        public async Task<Psicologo> GetPsicologoByEmail(String email)
+        public async Task<Psicologo> GetPsicologoByEmail(Email email)
         {
-            return await _collection.Find(p => p.Email.Endereco == email).FirstOrDefaultAsync();
+            return await _collection.Find(p => p.Email == email).FirstOrDefaultAsync();
         }
 
         public async Task<Psicologo> GetPsicologoById(String psicologoId)
         {
             return await _collection.Find(p => p.Id == psicologoId).FirstOrDefaultAsync();
+        }
+
+        public async Task<Psicologo> GetPsicologoByUsuarioId(String usuarioId)
+        {
+            return await _collection.Find(p => p.UsuarioId == usuarioId).FirstOrDefaultAsync();
         }
 
         public async Task<List<Psicologo>> GetPsicologosByEspecialidade(String especialidade)

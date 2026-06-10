@@ -259,6 +259,7 @@ namespace HealthMindBackend.API.Controllers
         /// 
         /// </remarks>
         /// <param name="historicoId">Id Histórico médico</param>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpDelete("saude-mental/{historicoId}")]
         [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status204NoContent)]
         [ProducesResponseType(typeof(SaudeMentalDTO), StatusCodes.Status400BadRequest)]

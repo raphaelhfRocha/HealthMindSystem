@@ -2,9 +2,11 @@ import {
   createContext,
   ReactNode,
   useContext,
-  useEffect,
   useState
 } from 'react';
+import { login as loginRequest } from '../services/auth.service';
+import { getClaimsFromToken } from '../utils/jwt';
+import { STORAGE_KEYS } from '../constants/storageKeys';
 
 interface User {
   id: string;
@@ -30,52 +32,51 @@ const AuthContext = createContext<AuthContextData>(
   {} as AuthContextData
 );
 
+function loadStoredUser(): User | null {
+  const stored = localStorage.getItem(STORAGE_KEYS.USER);
+
+  if (!stored) return null;
+
+  try {
+    return JSON.parse(stored) as User;
+  } catch {
+    return null;
+  }
+}
+
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const storedToken = localStorage.getItem('@healthmind:token');
-    const storedUser = localStorage.getItem('@healthmind:user');
-
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
-  }, []);
+  // Inicializa de forma síncrona a partir do localStorage para evitar
+  // "flash" de não-autenticado nas rotas protegidas no primeiro render.
+  const [user, setUser] = useState<User | null>(loadStoredUser);
+  const [token, setToken] = useState<string | null>(
+    () => localStorage.getItem(STORAGE_KEYS.TOKEN)
+  );
 
   async function signIn(email: string, senha: string) {
-    /**
-     * Aqui você chamaria sua API
-     */
+    const response = await loginRequest({ email, senha });
 
-    const fakeResponse = {
-      token: 'TOKEN_JWT_EXEMPLO',
-      user: {
-        id: '1',
-        nome: 'Raphael Rocha',
-        email,
-        role: 'ADMIN'
-      }
+    const claims = getClaimsFromToken(response.token);
+
+    const authenticatedUser: User = {
+      id: claims?.id ?? '',
+      nome: claims?.nome ?? '',
+      email: claims?.email || response.email,
+      role: claims?.role ?? ''
     };
 
+    localStorage.setItem(STORAGE_KEYS.TOKEN, response.token);
     localStorage.setItem(
-      '@healthmind:token',
-      fakeResponse.token
+      STORAGE_KEYS.USER,
+      JSON.stringify(authenticatedUser)
     );
 
-    localStorage.setItem(
-      '@healthmind:user',
-      JSON.stringify(fakeResponse.user)
-    );
-
-    setToken(fakeResponse.token);
-    setUser(fakeResponse.user);
+    setToken(response.token);
+    setUser(authenticatedUser);
   }
 
   function signOut() {
-    localStorage.removeItem('@healthmind:token');
-    localStorage.removeItem('@healthmind:user');
+    localStorage.removeItem(STORAGE_KEYS.TOKEN);
+    localStorage.removeItem(STORAGE_KEYS.USER);
 
     setToken(null);
     setUser(null);

@@ -117,6 +117,13 @@ namespace HealthMindBackend.Application.Services
             return _mapper.Map<SessaoDTO>(result);
         }
 
+        public async Task<List<SessaoDTO>> GetSessoesByPacienteId(String pacienteId)
+        {
+            var getSessoesByPacienteId = new GetSessoesByPacienteIdQuery(pacienteId);
+            var result = await _mediator.Send(getSessoesByPacienteId);
+            return _mapper.Map<List<SessaoDTO>>(result);
+        }
+
         public async Task<List<SessaoDTO>> GetSessoesByPsicologoId(String psicologoId)
         {
             var getSessoesByPsicologoIdQuery = new GetSessoesByPsicologoIdQuery(psicologoId);

@@ -6,10 +6,16 @@ import { api } from "./api";
 
 const controller = "sessao";
 const controllerSessaoPsicologo = "sessao/psicologo";
+const controllerSessaoPaciente = "sessao/paciente"
 
 export async function getAllSessoes(): Promise<SessaoDTO[]> {
     const response = await api.get<SessaoDTO[]>(controller);
     console.log("getAllSessoes:", response);
+    return response.data;
+}
+
+export async function getSessoesByPacienteId(pacienteId: string): Promise<SessaoDTO[]> {
+    const response = await api.get<SessaoDTO[]>(`${controllerSessaoPaciente}/${pacienteId}`);
     return response.data;
 }
 

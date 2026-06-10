@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using HealthMindBackend.API.DTOs;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Sessoes.Commands;
 using HealthMindBackend.Domain.Entities;
@@ -42,8 +41,8 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => src.CpfCnpj.Numero)
                 )
                 .ReverseMap();
-            CreateMap<Usuario, PsicologoCadastroDTO>().ReverseMap();
-            CreateMap<Usuario, RecepcionistaCadastroDTO>().ReverseMap();
+            //CreateMap<Usuario, PsicologoDTO>().ReverseMap();
+            //CreateMap<Usuario, RecepcionistaDTO>().ReverseMap();
             CreateMap<Psicologo, PsicologoDTO>()
                 .ForMember(
                     dest => dest.DisponibilidadesDTO,

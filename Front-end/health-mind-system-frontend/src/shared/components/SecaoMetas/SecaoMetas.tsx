@@ -1,7 +1,9 @@
-import { CSSProperties, useState } from "react";
+import { CSSProperties, useMemo, useState } from "react";
 import { StatusMetaTerapeuticaEnum } from "../../domain/enums/status-meta-terapeutica.enum";
+import { StatusSessaoEnum } from "../../domain/enums/status-sessao.enum";
 import { HistoricoMedicoDTO } from "../../types/dtos/HistoricoMedico.dto";
 import { MetaTerapeuticaDTO } from "../../types/dtos/MetaTerapeutica.dto";
+import { SessaoDTO } from "../../types/dtos/Sessao.dto";
 
 type MetaForm = {
   titulo: string;
@@ -50,6 +52,7 @@ function btnGray() {
 export default function SecaoMetas({
   historico,
   temProntuario,
+  sessoes,
   onSalvarMeta,
   emptyMeta = DEFAULT_EMPTY_META,
   labelMini = DEFAULT_LABEL_MINI,
@@ -58,6 +61,7 @@ export default function SecaoMetas({
 }: {
   historico: HistoricoMedicoDTO | null;
   temProntuario: boolean;
+  sessoes: SessaoDTO[];
   onSalvarMeta: (meta: MetaTerapeuticaDTO) => Promise<void>;
   emptyMeta?: MetaForm;
   labelMini?: CSSProperties;
@@ -70,6 +74,12 @@ export default function SecaoMetas({
   const [form, setForm] = useState({ ...emptyMeta });
   const [salvando, setSalvando] = useState(false);
   const [erro, setErro] = useState<string | null>(null);
+
+  // O paciente precisa ter ao menos uma sessão agendada (não cancelada) para registrar metas.
+  const temSessaoAgendada = useMemo(
+    () => sessoes.some(s => s.statusSessao !== StatusSessaoEnum.stsCancelada),
+    [sessoes]
+  );
 
   function abrirNova() {
     setEditandoId(null);
@@ -138,17 +148,20 @@ export default function SecaoMetas({
     <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", flexDirection: "column", gap: "16px" }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
         <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Metas Terapêuticas</h2>
-        {temProntuario && (
-          <button onClick={abrirNova} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "7px 16px", background: "#1A4FA3", border: "none", borderRadius: "16px", fontSize: "13px", fontWeight: "600", color: "white", cursor: "pointer" }}>
-            <span style={{ fontSize: "17px", lineHeight: 1 }}>+</span> Nova Meta
-          </button>
-        )}
+        <button
+          onClick={abrirNova}
+          disabled={!temSessaoAgendada}
+          title={temSessaoAgendada ? undefined : "O paciente precisa ter ao menos uma sessão agendada para registrar metas."}
+          style={{ display: "flex", alignItems: "center", gap: "6px", padding: "7px 16px", background: "#1A4FA3", border: "none", borderRadius: "16px", fontSize: "13px", fontWeight: "600", color: "white", cursor: temSessaoAgendada ? "pointer" : "not-allowed", opacity: temSessaoAgendada ? 1 : 0.5 }}
+        >
+          <span style={{ fontSize: "17px", lineHeight: 1 }}>+</span> Nova Meta
+        </button>
       </div>
 
       {erro && (
         <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
       )}
-  
+
       {mostrarNova && FormMeta}
 
       {metas.length === 0 && !mostrarNova && (

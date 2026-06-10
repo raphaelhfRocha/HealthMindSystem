@@ -32,7 +32,7 @@ namespace HealthMindBackend.Application.Validators.Psicologos
                 .EmailAddress().WithMessage("E-mail inválido")
                 .MustAsync(async (command, email, cancellationToken) =>
                 {
-                    var dadoExistente = await _psicologoRepository.GetPsicologoByEmail(email);
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByEmail(command.Email);
                     return dadoExistente == null || dadoExistente.Id == command.Id;
                 })
                 .WithMessage("E-mail já cadastrado");
@@ -46,9 +46,9 @@ namespace HealthMindBackend.Application.Validators.Psicologos
             RuleFor(p => p.CpfCnpj.Numero)
                 .NotEmpty().WithMessage("CPF/CNPJ Psicólogo Obrigatório")
                 .Must(CpfCnpjValidationHelper.IsValid).WithMessage("CPF/CNPJ Inválido")
-                .MustAsync(async (command, cpfCnpj, cancellationToken) =>
+                .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var dadoExistente = await _psicologoRepository.GetPsicologoByCpfCnpj(cpfCnpj);
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByCpfCnpj(command.CpfCnpj);
                     return dadoExistente == null || dadoExistente.Id == command.Id;
 
                 }).WithMessage("CPF/CNPJ já cadastrado");
@@ -56,9 +56,9 @@ namespace HealthMindBackend.Application.Validators.Psicologos
             RuleFor(p => p.Crp.Numero)
                 .NotEmpty().WithMessage("CRP Psicólogo Obrigatório")
                 .Must(CrpValidationHelper.IsValid).WithMessage("CRP Inválido")
-                .MustAsync(async (command, crp, cancellationToken) =>
+                .MustAsync(async (command, none, cancellationToken) =>
                 {
-                    var dadoExistente = await _psicologoRepository.GetPsicologoByCrp(crp);
+                    var dadoExistente = await _psicologoRepository.GetPsicologoByCrp(command.Crp);
                     return dadoExistente == null || dadoExistente.Id == command.Id;
                 }).WithMessage("CRP já cadastrado");
 

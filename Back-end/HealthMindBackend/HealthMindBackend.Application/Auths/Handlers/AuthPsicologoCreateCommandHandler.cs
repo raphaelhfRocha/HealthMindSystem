@@ -1,4 +1,5 @@
-﻿using HealthMindBackend.Application.Auths.Commands;
+﻿using FluentValidation;
+using HealthMindBackend.Application.Auths.Commands;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using MediatR;
@@ -12,40 +13,39 @@ namespace HealthMindBackend.Application.Auths.Handlers
 {
     public class AuthPsicologoCreateCommandHandler : IRequestHandler<AuthPsicologoCreateCommand, Usuario>
     {
+        private readonly IValidator<AuthPsicologoCreateCommand> _validatorAuthPsicologoCreateCommand;
         private readonly IAuthRepository _authRepository;
         private readonly IPsicologoRepository _psicologoRepository;
 
-        public AuthPsicologoCreateCommandHandler(IAuthRepository authRepository, IPsicologoRepository psicologoRepository)
+        public AuthPsicologoCreateCommandHandler(IValidator<AuthPsicologoCreateCommand> validatorAuthPsicologoCreateCommand, IAuthRepository authRepository, IPsicologoRepository psicologoRepository)
         {
+            _validatorAuthPsicologoCreateCommand = validatorAuthPsicologoCreateCommand;
             _authRepository = authRepository;
             _psicologoRepository = psicologoRepository;
         }
 
         public async Task<Usuario> Handle(AuthPsicologoCreateCommand request, CancellationToken cancellationToken)
         {
+            await _validatorAuthPsicologoCreateCommand.ValidateAndThrowAsync(request);
+
             var usuario = new Psicologo(
                 request.Nome,
                 request.Email,
                 request.Senha,
                 request.StatusCargo,
                 request.StatusRole,
-                request.CpfCnpj,
-                request.Crp,
-                request.Especialidade,
-                request.ValorConsulta
+                request.CpfCnpj
             );
-
-            usuario = usuario ?? 
-                throw new ArgumentNullException(nameof(usuario));
 
             var usuarioCadastrado = await _authRepository.CadastrarUsuario(usuario);
 
             var psicologo = new Psicologo(
                 request.Nome,
-                request.Email,
+                request.Email = null,
                 request.StatusCargo,
                 request.StatusRole,
                 request.CpfCnpj,
+                usuarioCadastrado.Id,
                 request.Crp,
                 request.Especialidade,
                 request.ValorConsulta

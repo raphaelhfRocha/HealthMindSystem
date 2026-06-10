@@ -1,6 +1,5 @@
 using HealthMindBackend.Domain.Enums;
 using HealthMindBackend.Domain.Validations;
-using HealthMindBackend.Domain.ValueObjects;
 using HealthMindBackend.Domain.ValueObjects.Contato;
 using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using MongoDB.Bson.Serialization.Attributes;

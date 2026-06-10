@@ -10,6 +10,7 @@ namespace HealthMindBackend.Application.Interfaces
     public interface IRecepcionistaService
     {
         Task<IEnumerable<RecepcionistaDTO>> GetAllRecepcionistas();
+        Task<RecepcionistaDTO> GetRecepcionistaById(String recepcionistaId);
         Task CadastrarRecepcionista(RecepcionistaDTO recepcionistaDto);
         Task AtualizarRecepcionista(RecepcionistaDTO recepcionistaDto);
         Task ExcluirRecepcionista(String recepcionistaId);

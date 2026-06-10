@@ -206,6 +206,7 @@ namespace HealthMindBackend.API.Controllers
         /// <summary>
         /// Adiciona um medicamento ao prontuário.
         /// </summary>
+        [Authorize(Roles = "StsPsicologo")]
         [HttpPost("{prontuarioId}/medicamentos")]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(MedicamentoDTO), StatusCodes.Status400BadRequest)]

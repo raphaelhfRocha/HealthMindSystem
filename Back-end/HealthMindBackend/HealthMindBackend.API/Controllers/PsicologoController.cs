@@ -65,6 +65,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// PsicologoId
         /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("{psicologoId}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
@@ -99,6 +100,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="nome">
         /// Nome
         /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("nome/{nome}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
@@ -133,6 +135,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="especialidade">
         /// Especialidade
         /// </param>
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("especialidade/{especialidade}")]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
@@ -167,7 +170,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="psicologoId">
         /// ID Psicólogo
         /// </param>
-        [Authorize(Roles = "StsPsicologo")]
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("{psicologoId}/disponibilidades")]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
@@ -180,73 +183,6 @@ namespace HealthMindBackend.API.Controllers
 
             return Ok(await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId));
         }
-        /// <summary>
-        /// <summary>
-        /// Edição de psicólogo
-        /// </summary>
-        /// <response code="200">Psicólogo editado</response>
-        /// <response code="400">Erro ao enviar dados - Bad Request</response>
-        /// <response code="404">Psicólogo não encontrado</response>
-        /// <response code="500">Erro interno</response>
-        /// <remarks>
-        /// **Esse endpoint é dedicado a edição de psicólogo**
-        /// 
-        /// 
-        /// Como usar:
-        /// 
-        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
-        /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
-        /// 
-        /// **[PUT] - /api/Psicologo/{psicologoId}**
-        /// ```
-        /// {
-        ///   "Nome": "Nome do psicólogo",
-        ///   "Email": "email@email.com",
-        ///   "CpfCnpj": "12345678903",
-        ///   "StatusCargo": 1,
-        ///   "StatusRole": 2,
-        ///   "Crp": "123456789",
-        ///   "Especialidade": "Especialidade",
-        ///   "disponibilidadesDTO": [
-        ///   { // Nova disponibilidade
-        ///     "dataDisponibilidade": "0000-00-00T00:00:00.000Z",
-        ///     "horaInicio": "00:00:00",
-        ///     "statusDisponibilidade": 1
-        ///   }
-        ///  ]
-        /// }
-        /// ```
-        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
-        /// </remarks>
-        /// <param name="psicologoId">
-        /// ID Psicólogo
-        /// </param>
-        [Authorize(Roles = "StsPsicologo")]
-        [HttpPut("{psicologoId}")]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
-        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> EditarPsicologo(String psicologoId, [FromBody] PsicologoDTO psicologoDto)
-        {
-            if (psicologoId == null)
-                return BadRequest(nameof(psicologoId));
-
-            psicologoDto.Id = psicologoId;
-            await _psicologoService.AtualizarPsicologo(psicologoDto);
-
-            if (psicologoDto.DisponibilidadesDTO != null)
-            {
-                foreach (var item in psicologoDto.DisponibilidadesDTO)
-                {
-                    item.PsicologoId = psicologoId;
-                    await _psicologoService.AdicionarDisponibilidade(item);
-                }
-            }
-
-            return Ok(psicologoDto);
-        }
-
         /// <summary>
         /// Exclusão de disponibilidade de psicologo.
         /// </summary>

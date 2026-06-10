@@ -15,7 +15,7 @@ namespace HealthMindBackend.Application.Auths.Commands
     public abstract class AuthUsuarioCommand : IRequest<Usuario>
     {
         public String Nome { get; set; }
-        public Email Email { get; set; }
+        public Email? Email { get; set; }
         public String Senha { get; set; }
         public CpfCnpj CpfCnpj { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }

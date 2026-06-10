@@ -3,16 +3,18 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
-import { cadastrarRecepcionista, excluirRecepcionista, getAllRecepcionistas } from "../../shared/services/recepcionista.service";
+import { getAllRecepcionistas } from "../../shared/services/recepcionista.service";
+import { cadastrarRecepcionista, excluirRecepcionista } from "../../shared/services/auth.service";
 import { StatusCargoEnum } from "../../shared/domain/enums/status-cargo.enum";
 import { StatusRoleEnum } from "../../shared/domain/enums/status-role.enum";
 import { RecepcionistaDTO } from "../../shared/types/dtos/Recepcionista.dto";
-import { formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
+import { formatCpf, formatCpfCnpj, normalizeCpfCnpj } from "../../shared/utils/formMasks";
 import { recepcionistaValidation, RecepcionistaFormData } from "../../shared/validations/recepcionista/recepcionista.validation";
 import { RHFTextField } from "../../shared/components/RHFTextField";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
 import ModalConfirm from "../../shared/components/ModalConfirm/ModalConfirm";
 import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import ModalSendEmail from "../../shared/components/ModalSendEmail/ModalSendEmail";
 import { MESSAGES } from "../../shared/constants/messages";
 
 type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
@@ -54,7 +56,6 @@ function ModalNovoRecepcionista({ onSave, onClose }) {
     resolver: zodResolver(recepcionistaValidation),
     defaultValues: {
       nome: "",
-      email: "",
       cpfCnpj: "",
       statusCargo: statusCargoEnum,
       statusRole: statusRoleEnum,
@@ -77,8 +78,10 @@ function ModalNovoRecepcionista({ onSave, onClose }) {
 
         {/* Fields */}
         <RHFTextField control={control} errors={errors} name="nome" label="Nome Completo *" placeholder="Ex: Maria da Silva" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
-        <RHFTextField control={control} errors={errors} name="cpfCnpj" label="CPF *" placeholder="000.000.000-00 ou 00.000.000/0000-00" mask={formatCpfCnpj} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
-        <RHFTextField control={control} errors={errors} name="email" label="E-mail *" placeholder="email@exemplo.com" type="email" inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
+        <RHFTextField control={control} errors={errors} name="cpfCnpj" label="CPF *" placeholder="000.000.000-00" mask={formatCpf} inputStyle={inputStyle} onFocus={focusBlue} onBlur={blurGray} />
+        <p style={{ fontSize: "12px", color: "#888", margin: 0, lineHeight: 1.5 }}>
+          O e-mail de acesso e a senha serão gerados automaticamente e exibidos após o cadastro.
+        </p>
 
         {/* Actions */}
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "10px", paddingTop: "4px" }}>
@@ -114,6 +117,7 @@ export default function RecepcionistasPage() {
   const [status, setStatus] = useState<StatusMessage | null>(null);
   const [excluindoId, setExcluindoId] = useState<string | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<RecepcionistaDTO | null>(null);
+  const [credenciais, setCredenciais] = useState<{ nome: string; email: string; senha: string } | null>(null);
 
   useEffect(() => {
     let isActive = true;
@@ -163,7 +167,12 @@ export default function RecepcionistasPage() {
 
       setRecepcionistas(prev => ordenarRecepcionistas([...prev, criado]));
       setShowModal(false);
-      setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });
+
+      if (criado.senha) {
+        setCredenciais({ nome: criado.nome, email: criado.email, senha: criado.senha });
+      } else {
+        setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });
+      }
     } catch (err) {
       const parsed = parseApiError(err);
       setStatus({ type: "error", message: parsed.message, details: parsed.details });
@@ -191,12 +200,15 @@ export default function RecepcionistasPage() {
     }
   };
 
-  const COL = "260px 200px 270px 210px";
+  const COL = "minmax(0, 2.2fr) minmax(0, 1.5fr) 230px";
 
   return (
     <AppLayout breadcrumb="Recepcionistas >">
       {showModal && (
-        <ModalNovoRecepcionista onSave={handleAdd} onClose={closeModal} />
+        <ModalNovoRecepcionista
+          onSave={handleAdd}
+          onClose={closeModal}
+        />
       )}
 
       {confirmTarget && (
@@ -218,6 +230,16 @@ export default function RecepcionistasPage() {
         />
       )}
 
+      {credenciais && (
+        <ModalSendEmail
+          nome={credenciais.nome}
+          cargo="Recepcionista"
+          loginEmail={credenciais.email}
+          senha={credenciais.senha}
+          onClose={() => setCredenciais(null)}
+        />
+      )}
+
       <div style={{ width: "100%", maxWidth: "980px", display: "flex", flexDirection: "column", gap: "16px" }}>
 
         {/* Top bar */}
@@ -233,7 +255,7 @@ export default function RecepcionistasPage() {
               </svg>
               <input
                 type="text"
-                placeholder="Buscar por nome ou e-mail..."
+                placeholder="Buscar por nome"
                 value={busca}
                 onChange={e => setBusca(e.target.value)}
                 style={{ height: "36px", border: "1px solid #dde3f0", borderRadius: "20px", padding: "0 14px 0 32px", fontSize: "13px", outline: "none", width: "240px", color: "#333", background: "white" }}
@@ -258,7 +280,7 @@ export default function RecepcionistasPage() {
 
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Recepcionista", "CPF", "E-mail", "Ações"].map(h => (
+            {["Recepcionista", "CPF", "Ações"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
             ))}
           </div>
@@ -291,27 +313,27 @@ export default function RecepcionistasPage() {
                     <span style={{ fontSize: "14px", fontWeight: "600", color: "#222" }}>{r.nome}</span>
                   </div>
 
-                  {/* CPF / CNPJ */}
+                  {/* CPF */}
                   <div style={{ fontSize: "13px", color: "#555" }}>{r.cpfCnpj ? formatCpfCnpj(r.cpfCnpj) : "—"}</div>
 
                   {/* E-mail */}
-                  <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.email || "—"}</div>
+                  {/* <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{r.email || "—"}</div> */}
 
                   {/* Actions */}
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
-                      onClick={() => navigate(`/recepcionistas/${recepcionistaId}/editar`)}
+                      onClick={() => navigate(`/recepcionistas/${recepcionistaId}`)}
                       style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
-                      onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
-                      onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
+                      onMouseEnter={e => e.currentTarget.style.background = "#e0e5f0"}
+                      onMouseLeave={e => e.currentTarget.style.background = "#EEF1F8"}
                     >
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none">
-                        <path d="M4 20H8L18.5 9.5C19.3 8.7 19.3 7.3 18.5 6.5L17.5 5.5C16.7 4.7 15.3 4.7 14.5 5.5L4 16V20Z" stroke="#1A4FA3" strokeWidth="2" strokeLinejoin="round" fill="none" />
-                        <line x1="13" y1="7" x2="17" y2="11" stroke="#1A4FA3" strokeWidth="2" />
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
+                        <path d="M2 12 C4 7 8 4 12 4 C16 4 20 7 22 12 C20 17 16 20 12 20 C8 20 4 17 2 12Z" stroke="#1A4FA3" strokeWidth="2" fill="none" strokeLinejoin="round" />
+                        <circle cx="12" cy="12" r="3" stroke="#1A4FA3" strokeWidth="2" fill="none" />
                       </svg>
-                      Editar
+                      Visualizar
                     </button>
-                    <button
+                    {/* <button
                       onClick={() => setConfirmTarget(r)}
                       disabled={excluindoId === recepcionistaId}
                       style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === recepcionistaId ? "not-allowed" : "pointer", opacity: excluindoId === recepcionistaId ? 0.6 : 1, whiteSpace: "nowrap" }}
@@ -322,7 +344,7 @@ export default function RecepcionistasPage() {
                         <path d="M5 7H19M10 11V16M14 11V16M6 7L7 19C7 20 7.5 20.5 8.5 20.5H15.5C16.5 20.5 17 20 17 19L18 7M9 7V4.5C9 4 9.5 3.5 10 3.5H14C14.5 3.5 15 4 15 4.5V7" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
                       </svg>
                       {excluindoId === recepcionistaId ? "Excluindo..." : "Excluir"}
-                    </button>
+                    </button> */}
                   </div>
                 </div>
               );
@@ -335,7 +357,11 @@ export default function RecepcionistasPage() {
           <span style={{ fontSize: "12px", color: "#888" }}>
             {filtrados.length} {filtrados.length === 1 ? "recepcionista encontrado" : "recepcionistas encontrados"}
           </span>
-          <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
+          <Pagination 
+            page={page}
+            totalPages={totalPages}
+            onPageChange={setPage}
+          />
         </div>
       </div>
     </AppLayout>

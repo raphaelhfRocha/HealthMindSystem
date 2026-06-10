@@ -1,6 +1,8 @@
 ﻿using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;
 using HealthMindBackend.Domain.Prefixes;
+using HealthMindBackend.Domain.ValueObjects.Contato;
+using HealthMindBackend.Domain.ValueObjects.Documento.CpfCnpj;
 using HealthMindBackend.Infrastructure.Persistence.Sequences;
 using HealthMindBackend.Infrastructure.Security.JWT;
 using MongoDB.Driver;
@@ -14,7 +16,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
 {
     public class AuthRepository : IAuthRepository
     {
-        private const string SequenceName = "USUARIO";
+        private const String SequenceName = "USUARIO";
         private readonly IMongoCollection<Usuario> _collection;
         private readonly ISequentialIdGenerator _sequentialIdGenerator;
         private readonly IPasswordHasherService _passwordHasher;
@@ -38,34 +40,47 @@ namespace HealthMindBackend.Infrastructure.Repositories
             return usuario;
         }
 
-        public async Task<Usuario> GetUsuarioByEmail(String email)
+        public async Task<Usuario> EditarUsuario(String id, Usuario usuario)
+        {
+            var senha = _passwordHasher.HashPassword(usuario.Senha);
+            usuario.Senha = senha;
+            await _collection.ReplaceOneAsync(u => u.Id == id, usuario);
+            return usuario;
+        }
+
+        public async Task ExcluirUsuario(String id)
+        {
+            await _collection.DeleteOneAsync(u => u.Id == id);
+        }
+
+        public async Task<Usuario> GetUsuarioByCpfCnpj(CpfCnpj cpfCnpj)
+        {
+            return await _collection.Find(u => u.CpfCnpj == cpfCnpj).FirstOrDefaultAsync();
+        }
+
+        public async Task<Usuario> GetUsuarioByEmail(Email email)
         {
             return await _collection.Find(u => u.Email == email).FirstOrDefaultAsync();
         }
 
-        public async Task<Usuario> GetUsuarioById(Usuario usuario)
+        public async Task<Usuario> GetUsuarioById(String id)
         {
-            return await _collection.Find(u => u.Id == usuario.Id).FirstOrDefaultAsync();
+            return await _collection.Find(u => u.Id == id).FirstOrDefaultAsync();
         }
 
-        public async Task<String?> Login(String email, String senha)
+        public async Task<String?> Login(Email email, String senha)
         {
             var usuarioEncontrado = await GetUsuarioByEmail(email);
 
             if (usuarioEncontrado == null)
-                throw new KeyNotFoundException("E-mail inválido");
+                throw new KeyNotFoundException("E-mail/senha inválido");
 
             Boolean senhaAutenticada = _passwordHasher.VerifyPassword(senha, usuarioEncontrado.Senha);
 
             if (!senhaAutenticada)
-                throw new KeyNotFoundException("Senha inválida");
+                throw new KeyNotFoundException("E-mail/senha inválida");
 
             return _tokenService.GenerateToken(usuarioEncontrado);
-        }
-
-        public async Task<Boolean> ValidateEmailIsAlreadyExist(String email)
-        {
-            return await _collection.Find(u => u.Email == email).AnyAsync();
         }
     }
 }

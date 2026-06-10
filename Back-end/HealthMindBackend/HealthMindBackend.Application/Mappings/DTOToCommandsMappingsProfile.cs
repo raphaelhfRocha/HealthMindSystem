@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using HealthMindBackend.Application.CoberturasPlanos.Commands;
-using HealthMindBackend.API.DTOs;
 using HealthMindBackend.Application.Auths.Commands;
+using HealthMindBackend.Application.Authentications.Commands;
 using HealthMindBackend.Application.Diagnosticos.Commands;
 using HealthMindBackend.Application.Disponibilidades.Commands;
 using HealthMindBackend.Application.DTOs;
@@ -43,8 +43,58 @@ namespace HealthMindBackend.Application.Mappings
     {
         public DTOToCommandsMappingsProfile()
         {
-            CreateMap<PsicologoCadastroDTO, AuthPsicologoCreateCommand>();
-            CreateMap<RecepcionistaCadastroDTO, AuthRecepcionistaCreateCommand>();
+            CreateMap<LoginRequestDTO, AuthLoginCommand>()
+                .ConstructUsing(
+                    src => new AuthLoginCommand(new Email(src.Email), src.Senha)
+                )
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.Ignore()
+                );
+            CreateMap<PsicologoDTO, AuthPsicologoCreateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Crp,
+                    opt => opt.MapFrom(src => new Crp(src.Crp))
+                );
+            CreateMap<PsicologoDTO, AuthPsicologoUpdateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                )
+                .ForMember(
+                    dest => dest.Crp,
+                    opt => opt.MapFrom(src => new Crp(src.Crp))
+                );
+            CreateMap<RecepcionistaDTO, AuthRecepcionistaCreateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                );
+            CreateMap<RecepcionistaDTO, AuthRecepcionistaUpdateCommand>()
+                .ForMember(
+                    dest => dest.Email,
+                    opt => opt.MapFrom(src => new Email(src.Email))
+                )
+                .ForMember(
+                    dest => dest.CpfCnpj,
+                    opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
+                );
             CreateMap<PacienteDTO, PacienteCreateCommand>()
                 .ForMember(
                     dest => dest.Email,

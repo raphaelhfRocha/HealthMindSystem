@@ -1,6 +1,5 @@
 using HealthMindBackend.API.Middleware;
 using HealthMindBackend.Infrastructure.IoC;
-using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 

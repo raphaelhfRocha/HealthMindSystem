@@ -5,6 +5,8 @@ import { useEffect, useMemo } from "react";
 import { getAllSessoes } from "../../shared/services/sessao.service";
 import { groupSessoesByDate } from "../../shared/utils/sessao";
 import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
+import { usePermissions } from "../../shared/hooks/usePermissions";
+import { useCurrentPsicologoId } from "../../shared/hooks/useCurrentPsicologo";
 
 const MESES = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",
@@ -17,6 +19,8 @@ const DIAS_SEMANA_FULL = ["Segunda-Feira", "Terça-Feira", "Quarta-Feira", "Quin
 
 export default function ConsultarAgendamentoPage() {
   const navigate = useNavigate();
+  const { isPsicologo } = usePermissions();
+  const { psicologoId } = useCurrentPsicologoId();
   const today = new Date();
 
   const [viewYear, setViewYear] = useState(today.getFullYear());
@@ -77,7 +81,12 @@ export default function ConsultarAgendamentoPage() {
       isActive = false;
     };
   }, []);
-  const sessoesPorData = useMemo(() => groupSessoesByDate(sessoes), [sessoes]);
+  // Psicólogo visualiza apenas a própria agenda.
+  const sessoesVisiveis = useMemo(
+    () => (isPsicologo ? sessoes.filter(s => s.psicologoId === psicologoId) : sessoes),
+    [sessoes, isPsicologo, psicologoId]
+  );
+  const sessoesPorData = useMemo(() => groupSessoesByDate(sessoesVisiveis), [sessoesVisiveis]);
   // Start week on Monday: Sun=0 → offset 6, Mon=1 → offset 0, ...
   const startOffset = (firstDayOfMonth + 6) % 7;
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();

@@ -9,7 +9,7 @@ namespace HealthMindBackend.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = "StsPsicologo,StsRecepcionista")]
     public class PacienteController : ControllerBase
     {
         private readonly IPacienteService _pacienteService;
@@ -67,7 +67,7 @@ namespace HealthMindBackend.API.Controllers
         /// <param name="id">
         /// ID Paciente
         /// </param>
-        [Authorize(Roles = "StsRecepcionista")]
+        [Authorize(Roles = "StsPsicologo,StsRecepcionista")]
         [HttpGet("{id}")]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(PacienteDTO), StatusCodes.Status400BadRequest)]

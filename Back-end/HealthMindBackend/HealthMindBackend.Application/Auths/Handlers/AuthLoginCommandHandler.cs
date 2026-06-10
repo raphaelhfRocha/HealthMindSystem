@@ -1,5 +1,4 @@
-﻿using HealthMindBackend.API.DTOs;
-using HealthMindBackend.Application.Authentications.Commands;
+﻿using HealthMindBackend.Application.Authentications.Commands;
 using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Domain.Entities;
 using HealthMindBackend.Domain.Interfaces;

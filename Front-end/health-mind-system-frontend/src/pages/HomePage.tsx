@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
+import { ROLES } from "../shared/constants/roles";
+import { usePermissions } from "../shared/hooks/usePermissions";
 
 const CalendarIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
@@ -69,17 +71,22 @@ const FinanceiroIcon = () => (
   </svg>
 );
 
+const AMBOS = [ROLES.PSICOLOGO, ROLES.RECEPCIONISTA];
+
 const menuItems = [
-  { label: "Agendamentos", Icon: CalendarIcon,    path: "/agendamentos" },
-  { label: "Psicólogos",   Icon: PsychologistIcon, path: "/psicologos" },
-  { label: "Prontuários",  Icon: ProntuarioIcon,  path: "/prontuario" },
-  { label: "Histórico",    Icon: HistoricoIcon,   path: "/historico" },
-  { label: "Pacientes",    Icon: PacientesIcon,   path: "/paciente" },
-  { label: "Financeiro",   Icon: FinanceiroIcon,  path: "/financeiro" },
+  { label: "Agendamentos", Icon: CalendarIcon,    path: "/agendamentos", roles: AMBOS },
+  { label: "Psicólogos",   Icon: PsychologistIcon, path: "/psicologos",  roles: AMBOS },
+  { label: "Prontuários",  Icon: ProntuarioIcon,  path: "/prontuario",   roles: [ROLES.PSICOLOGO] },
+  { label: "Histórico",    Icon: HistoricoIcon,   path: "/historico",    roles: [ROLES.PSICOLOGO] },
+  { label: "Pacientes",    Icon: PacientesIcon,   path: "/paciente",     roles: [ROLES.RECEPCIONISTA] },
+  { label: "Financeiro",   Icon: FinanceiroIcon,  path: "/financeiro",   roles: AMBOS },
 ];
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { role } = usePermissions();
+
+  const itensVisiveis = menuItems.filter(item => item.roles.includes(role));
 
   return (
     <AppLayout>
@@ -99,7 +106,7 @@ export default function HomePage() {
         </h1>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-          {menuItems.map(({ label, Icon, path }) => (
+          {itensVisiveis.map(({ label, Icon, path }) => (
             <button
               key={label}
               onClick={() => navigate(path)}

@@ -16,6 +16,7 @@ export default function TabEvolucao({ historico, temProntuario, sessoes, onSalva
       <SecaoMetas
         historico={historico}
         temProntuario={temProntuario}
+        sessoes={sessoes}
         onSalvarMeta={onSalvarMeta}
       />
       <SecaoEscalas

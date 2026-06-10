@@ -248,7 +248,7 @@ export default function SecaoEscalas({
       {mostrarNova && FormEscala}
 
       {escalas.length === 0 && !mostrarNova ? (
-        <div style={{ textAlign: "center", padding: "1.5rem 0", color: "#bbb", fontSize: "14px" }}>Nenhuma avaliação registrada ainda.</div>
+        <div style={{ textAlign: "center", padding: "1.5rem 0", color: "#bbb", fontSize: "14px" }}>{sessoesDisponiveis.length === 0 ? 'Nenhuma sessão agendada ainda.' : 'Nenhuma avaliação registrada ainda.' }</div>
       ) : (
         <>
           {pontos.length > 0 && (

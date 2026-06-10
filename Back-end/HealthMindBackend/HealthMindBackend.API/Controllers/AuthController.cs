@@ -1,5 +1,7 @@
 ﻿using HealthMindBackend.API.DTOs;
+using HealthMindBackend.Application.DTOs;
 using HealthMindBackend.Application.Interfaces;
+using HealthMindBackend.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,10 +12,14 @@ namespace HealthMindBackend.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly IPsicologoService _psicologoService;
+        private readonly IRecepcionistaService _recepcionistaService;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, IPsicologoService psicologoService, IRecepcionistaService recepcionistaService)
         {
             _authService = authService;
+            _psicologoService = psicologoService;
+            _recepcionistaService = recepcionistaService;
         }
 
         [HttpPost("login")]
@@ -24,101 +30,140 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(LoginDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Login(LoginDTO loginDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(nameof(loginDto));
+            var loginRequestDto = new LoginRequestDTO
+            {
+                Email = loginDto.Email,
+                Senha = loginDto.Senha
+            };
 
-            var usuarioAutenticado = await _authService.Login(loginDto.Email, loginDto.Senha);
+            var usuarioAutenticado = await _authService.Login(loginRequestDto);
             return Ok(usuarioAutenticado);
         }
 
-        /// <summary>
-        /// Cadastro de psicólogos
-        /// </summary>
-        /// <response code="201">Psicólogo cadastrado</response>
-        /// <response code="400">Dados inválidos</response>
-        /// <response code="500">Erro interno</response>
-        /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de psicólogos**
-        /// 
-        /// Como usar:
-        /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
-        /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
-        /// 
-        /// **[POST] - /api/Psicologo**
-        /// ```
-        /// {
-        ///   "Nome": "Nome do psicólogo",
-        ///   "Email": "email@email.com",
-        ///   "CpfCnpj": "12345678903",
-        ///   "StatusCargo": 1,
-        ///   "StatusRole": 2,
-        ///   "Crp": "123456789",
-        ///   "Especialidade": "Especialidade"
-        /// }
-        /// ```
-        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
-        /// </remarks>
-        /// <param name="psicologoCadastroDto">
-        ///     **Dados a cadastrar**
-        /// </param>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize(Roles = "StsPsicologo")]
-        [HttpPost("psicologo")]
+        [HttpPost("psicologos")]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(PsicologoCadastroDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CadastrarPsicologo([FromBody] PsicologoCadastroDTO psicologoCadastroDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(nameof(psicologoCadastroDto));
+            var psicologoDto = new PsicologoDTO
+            {
+                Nome = psicologoCadastroDto.Nome,
+                CpfCnpj = psicologoCadastroDto.CpfCnpj,
+                StatusCargo = psicologoCadastroDto.StatusCargo,
+                StatusRole = psicologoCadastroDto.StatusRole,
+                Crp = psicologoCadastroDto.Crp,
+                Especialidade = psicologoCadastroDto.Especialidade,
+                ValorConsulta = psicologoCadastroDto.ValorConsulta
+            };
 
-            await _authService.CadastrarPsicologo(psicologoCadastroDto);
-            return Created($"/api/auth/psicologo", psicologoCadastroDto);
+            await _authService.CadastrarPsicologo(psicologoDto);
+            return Created($"/api/auth/psicologo", psicologoDto);
         }
 
-        /// <summary>
-        /// Cadastro de recepcionista
-        /// </summary>
-        /// <response code="201">Recepcionista cadastrado</response>
-        /// <response code="400">Dados inválidos</response>
-        /// <response code="500">Erro interno</response>
-        /// <remarks>
-        /// **Esse endpoint é dedicado a cadastro de recepcionista**
-        /// 
-        /// Como usar:
-        /// 
-        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
-        /// 
-        /// **2. Digite os dados na sessão Request Body(Corpo da requisição) que deseja cadastrar seguindo o modelo abaixo:**
-        /// 
-        /// **[POST] - /api/Recepcionista**
-        /// ```
-        /// {
-        ///   "nome": "Nome recepcionista",
-        ///   "email": "E-mail recepcionista",
-        ///   "cpfCnpj": "894838938923",
-        ///   "statusCargo": 0,
-        ///   "statusRole": 0
-        /// }
-        /// ```
-        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
-        /// </remarks>
-        /// <param name="recepcionistaCadastroDto">
-        ///     **Dados a cadastrar**
-        /// </param>
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Authorize(Roles = "StsPsicologo")]
-        [HttpPost("recepcionista")]
+        [HttpPut("psicologos/{psicologoId}")]
+        [ProducesResponseType(typeof(PsicologoEdicaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PsicologoEdicaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PsicologoEdicaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PsicologoEdicaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditarPsicologo(String psicologoId, [FromBody] PsicologoEdicaoDTO psicologoEdicaoDto)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+
+            var psicologoFound = await _psicologoService.GetPsicologoById(psicologoId);
+            var usuarioFound = await _authService.GetUsuarioById(psicologoFound.UsuarioId);
+
+            var psicologoDto = new PsicologoDTO
+            {
+                Id = psicologoId,
+                Nome = psicologoEdicaoDto.Nome,
+                Email = usuarioFound.Email,
+                Senha = psicologoEdicaoDto.Senha,
+                CpfCnpj = psicologoEdicaoDto.CpfCnpj,
+                StatusCargo = psicologoEdicaoDto.StatusCargo,
+                StatusRole = psicologoEdicaoDto.StatusRole,
+                UsuarioId = psicologoFound.UsuarioId,
+                Crp = psicologoEdicaoDto.Crp,
+                Especialidade = psicologoEdicaoDto.Especialidade,
+                ValorConsulta = psicologoEdicaoDto.ValorConsulta,
+                RegenerarCredenciais = psicologoEdicaoDto.RegenerarCredenciais
+            };
+
+            await _authService.EditarPsicologo(psicologoDto);
+            return Ok(psicologoDto);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpPost("recepcionistas")]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status201Created)]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(RecepcionistaCadastroDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CadastrarRecepcionista([FromBody] RecepcionistaCadastroDTO recepcionistaCadastroDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(nameof(recepcionistaCadastroDto));
+            var recepcionistaDto = new RecepcionistaDTO
+            {
+                Nome = recepcionistaCadastroDto.Nome,
+                CpfCnpj = recepcionistaCadastroDto.CpfCnpj,
+                StatusCargo = recepcionistaCadastroDto.StatusCargo,
+                StatusRole = recepcionistaCadastroDto.StatusRole
+            };
 
-            await _authService.CadastrarRecepcionista(recepcionistaCadastroDto);
-            return Created($"/api/auth/recepcionista", recepcionistaCadastroDto);
+            await _authService.CadastrarRecepcionista(recepcionistaDto);
+            return Created($"/api/auth/recepcionista", recepcionistaDto);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpPut("recepcionistas/{recepcionistaId}")]
+        [ProducesResponseType(typeof(RecepcionistaEdicaoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(RecepcionistaEdicaoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(RecepcionistaEdicaoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(RecepcionistaEdicaoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditarRecepcionista(String recepcionistaId, [FromBody] RecepcionistaEdicaoDTO recepcionistaEdicaoDto)
+        {
+            if (recepcionistaId == null)
+                return BadRequest(nameof(recepcionistaId));
+
+            var recepcionistaFound = await _recepcionistaService.GetRecepcionistaById(recepcionistaId);
+            var usuarioFound = await _authService.GetUsuarioById(recepcionistaFound.UsuarioId);
+
+            var recepcionistaDto = new RecepcionistaDTO
+            {
+                Id = recepcionistaId,
+                Nome = recepcionistaEdicaoDto.Nome,
+                Email = usuarioFound.Email,
+                Senha = recepcionistaEdicaoDto.Senha,
+                CpfCnpj = recepcionistaEdicaoDto.CpfCnpj,
+                StatusCargo = recepcionistaEdicaoDto.StatusCargo,
+                StatusRole = recepcionistaEdicaoDto.StatusRole,
+                UsuarioId = recepcionistaFound.UsuarioId,
+                RegenerarCredenciais = recepcionistaEdicaoDto.RegenerarCredenciais
+            };
+
+            await _authService.EditarRecepcionista(recepcionistaDto);
+            return Ok(recepcionistaDto);
+        }
+
+        [ApiExplorerSettings(IgnoreApi = true)]
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpDelete("recepcionistas/{recepcionistaId}")]
+        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(RecepcionistaDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExcluirRecepcionista(String recepcionistaId)
+        {
+            if (recepcionistaId == null)
+                return BadRequest(nameof(recepcionistaId));
+
+            await _authService.ExcluirRecepcionista(recepcionistaId);
+            return NoContent();
         }
     }
 }

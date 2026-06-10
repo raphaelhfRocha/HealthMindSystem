@@ -10,6 +10,7 @@ namespace HealthMindBackend.Application.Interfaces
     public interface ISessaoService
     {
         Task<IEnumerable<SessaoDTO>> GetAllSessoes();
+        Task<List<SessaoDTO>> GetSessoesByPacienteId(String pacienteId);
         Task<List<SessaoDTO>> GetSessoesByPsicologoId(String psicologoId);
         Task<List<RegistroSessaoDTO>> GetRegistrosSessoesBySessaoId(String sessaoId);
         Task<List<EscalaSessaoDTO>> GetEscalasSessoesBySessaoId(String sessaoId);

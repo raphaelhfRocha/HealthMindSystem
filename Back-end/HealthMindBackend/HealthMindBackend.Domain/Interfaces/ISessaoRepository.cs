@@ -14,6 +14,7 @@ namespace HealthMindBackend.Domain.Interfaces
     {
         Task<IEnumerable<Sessao>> GetAllSessoes();
         Task<Sessao> GetSessaoById(String sessaoId);
+        Task<List<Sessao>> GetSessoesByPacienteId(String pacienteId);
         Task<List<Sessao>> GetSessoesByPsicologoId(String psicologoId);
         Task<RegistroSessao> GetRegistrosSessoesBySessaoIdAndRegistroSessaoId(String sessaoId, String registroSessaoId);
         Task<List<RegistroSessao>> GetRegistrosSessoesBySessaoId(String sessaoId);

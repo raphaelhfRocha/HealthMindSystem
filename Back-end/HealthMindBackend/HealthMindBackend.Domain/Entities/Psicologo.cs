@@ -27,7 +27,7 @@ namespace HealthMindBackend.Domain.Entities
         {
         }
 
-        public Psicologo(String id, String nome, Email email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
+        public Psicologo(String id, String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
         {
             DomainExceptionValidation.Validate(String.IsNullOrEmpty(id), "O Id não pode ser menor ou igual a zero");
             ValidateUserDomain(nome, cargo, role);
@@ -39,7 +39,7 @@ namespace HealthMindBackend.Domain.Entities
 
         }
 
-        public Psicologo(String id, String nome, Email email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
+        public Psicologo(String id, String nome, Email? email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(id, nome, email, cargo, role, cpfCnpj)
         {
             ValidateUserDomain(nome, cargo, role);
             Email = email;
@@ -48,7 +48,7 @@ namespace HealthMindBackend.Domain.Entities
             Crp = crp;
         }
 
-        public Psicologo(String nome, Email email, String senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
+        public Psicologo(String nome, Email? email, String? senha, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
         {
             ValidateUserDomain(nome, cargo, role);
             Senha = senha;
@@ -57,8 +57,16 @@ namespace HealthMindBackend.Domain.Entities
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Crp = crp;
         }
-
-        public Psicologo(String nome, Email email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
+        public Psicologo(String nome, Email? email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        {
+            Nome = nome;
+            Email = email;
+            Senha = senha;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
+        }
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
         {
             ValidateUserDomain(nome, cargo, role);
             Email = email;
@@ -66,14 +74,36 @@ namespace HealthMindBackend.Domain.Entities
             CpfCnpj = cpfCnpj;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
         }
-        public Psicologo(String nome, Email email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta, List<Disponibilidade>? disponibilidades) : base(nome, email, cargo, role, cpfCnpj)
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta, List<Disponibilidade>? disponibilidades) : base(nome, email, cargo, role, cpfCnpj)
         {
             ValidateUserDomain(nome, cargo, role);
             Email = email;
+            UsuarioId = usuarioId;
             Crp = crp;
             CpfCnpj = cpfCnpj;
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
             Disponibilidades = disponibilidades;
+        }
+        public Psicologo(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta) : base(nome, email, cargo, role, cpfCnpj)
+        {
+            ValidateUserDomain(nome, cargo, role);
+            //Email = email;
+            UsuarioId = usuarioId;
+            Crp = crp;
+            CpfCnpj = cpfCnpj;
+            ValidatePsicologoDomain(cargo, especialidade, valorConsulta);
+            Disponibilidades = new List<Disponibilidade>();
+        }
+
+        public Psicologo(String id, String nome, Email email, String senha, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            Senha = senha;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
         }
 
         private void ValidatePsicologoDomain(StatusCargoEnum cargo, String especialidade, Decimal valorConsulta)
@@ -91,6 +121,20 @@ namespace HealthMindBackend.Domain.Entities
             Email = email;
             Crp = crp;
             CpfCnpj = cpfCnpj;
+        }
+
+        public void UpdatePsicologo(String id, String nome, Email? email, StatusCargoEnum statusCargo, StatusRoleEnum statusRole, CpfCnpj cpfCnpj, String usuarioId, Crp crp, String especialidade, Decimal valorConsulta)
+        {
+            Id = id;
+            Nome = nome;
+            Email = email;
+            StatusCargo = statusCargo;
+            StatusRole = statusRole;
+            CpfCnpj = cpfCnpj;
+            UsuarioId = usuarioId;
+            Crp = crp;
+            Especialidade = especialidade;
+            ValorConsulta = valorConsulta;
         }
     }
 }
