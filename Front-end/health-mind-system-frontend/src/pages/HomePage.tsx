@@ -72,15 +72,21 @@ const FinanceiroIcon = () => (
   </svg>
 );
 
+// const SuporteIcon = () => (
+//   <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+//     <circle cx="26" cy="19" r="9" stroke="white" strokeWidth="3" fill="none"/>
+//     <path d="M10 46 C10 37 18 31 26 31 C34 31 42 37 42 46" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
+//     <path d="M13 20 C13 12 18 7 26 7 C34 7 39 12 39 20" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+//     <rect x="11" y="19" width="4.5" height="8" rx="2.2" fill="white"/>
+//     <rect x="36.5" y="19" width="4.5" height="8" rx="2.2" fill="white"/>
+//     <path d="M39 24 L39 28 C39 31 34 32 30 32" stroke="white" strokeWidth="2.5" strokeLinecap="round" fill="none"/>
+//   </svg>
+// );
+
 const RecepcionistaIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
-    <circle cx="26" cy="18" r="9" stroke="white" strokeWidth="3" fill="none"/>
-    <path d="M10 44 C10 34 18 28 26 28 C34 28 42 34 42 44" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
-    <path d="M15 18 C15 11 20 6 26 6 C32 6 37 11 37 18" stroke="white" strokeWidth="2.5" fill="none"/>
-    <rect x="12" y="16" width="5" height="8" rx="2.5" fill="white"/>
-    <rect x="35" y="16" width="5" height="8" rx="2.5" fill="white"/>
-    <path d="M37 22 L37 27 C37 29 35 30 33 30" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
-    <circle cx="32" cy="30" r="1.6" fill="white"/>
+    <circle cx="26" cy="19" r="9" stroke="white" strokeWidth="3" fill="none" />
+    <path d="M10 46 C10 37 18 31 26 31 C34 31 42 37 42 46" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none" />
   </svg>
 );
 
@@ -112,7 +118,7 @@ const menuItems = [
   { label: "Histórico",    Icon: HistoricoIcon,   path: "/historico",    roles: [ROLES.PSICOLOGO] },
   { label: "Pacientes",    Icon: PacientesIcon,   path: "/paciente",     roles: [ROLES.RECEPCIONISTA] },
   { label: "Financeiro",   Icon: FinanceiroIcon,  path: "/financeiro",   roles: AMBOS },
-  { label: "Recepcionista", Icon: RecepcionistaIcon,  path: "/recepcionistas",   roles: [ROLES.PSICOLOGO] },
+  { label: "Recepcionistas", Icon: RecepcionistaIcon,  path: "/recepcionistas",   roles: [ROLES.PSICOLOGO] },
   { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: [ROLES.PSICOLOGO] },
   { label: "Disponibilidades Psicólogos", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: [ROLES.RECEPCIONISTA] },
   { label: "Plano de Saúde", Icon: PlanoSaudeIcon, path: "/planos-saude",   roles: [ROLES.PSICOLOGO] },

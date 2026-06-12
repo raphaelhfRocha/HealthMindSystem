@@ -425,8 +425,8 @@ export default function PacientesPage() {
 
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "CPF/CNPJ", "Telefone", "E-mail", "Ações"].map(h => (
-              <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
+            {["Paciente", "CPF/CNPJ", "Telefone", "E-mail", "Ação"].map(h => (
+              <div key={h} style={{ marginRight: h === "Paciente" ? "30px" : undefined, marginLeft: h !== "Paciente" && h !== "Ação" ? "50px" : undefined, fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
             ))}
           </div>
 
@@ -458,15 +458,15 @@ export default function PacientesPage() {
                     <span style={{ fontSize: "14px", fontWeight: "600", color: "#222" }}>{paciente.nome}</span>
                   </div>
 
-                  <div style={{ fontSize: "13px", color: "#555" }}>{formatCpfCnpj(paciente.cpfCnpj) || "—"}</div>
-                  <div style={{ fontSize: "13px", color: "#555" }}>{formatPhone(paciente.telefone) || "—"}</div>
-                  <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{paciente.email || "—"}</div>
+                  <div style={{ marginLeft: "50px", fontSize: "13px", color: "#555" }}>{formatCpfCnpj(paciente.cpfCnpj) || "—"}</div>
+                  <div style={{ marginLeft: "50px", fontSize: "13px", color: "#555" }}>{formatPhone(paciente.telefone) || "—"}</div>
+                  <div style={{ marginLeft: "50px", fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{paciente.email || "—"}</div>
 
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       onClick={() => navigate(`/paciente/${pacienteId}/editar`)}
                       disabled={!pacienteId}
-                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: !pacienteId ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: !pacienteId ? 0.55 : 1 }}
+                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: !pacienteId ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: !pacienteId ? 0.55 : 1, marginLeft: "-20px" }}
                       onMouseEnter={e => { if (pacienteId) e.currentTarget.style.background = "#d0e4ff"; }}
                       onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
                     >

@@ -70,8 +70,15 @@ const FinanceiroIcon = () => (
   </svg>
 );
 
-const DisponibilidadeIcon = () => (
+const DisponibilidadesIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none"/>
+    <polyline points="12,7 12,12 15,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+);
+
+const DisponibilidadesPsicologosIcon = () => (
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none">
     <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" fill="none"/>
     <polyline points="12,7 12,12 15,14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
   </svg>
@@ -89,13 +96,15 @@ const AMBOS = [ROLES.PSICOLOGO, ROLES.RECEPCIONISTA];
 
 const navItems = [
   { label: "Home",         Icon: HomeIcon,       path: "/home",            roles: AMBOS },
-  { label: "Agendamentos", Icon: CalendarIcon,   path: "/agendamentos",    roles: AMBOS },
+  { label: "Agendamentos", Icon: CalendarIcon,   path: "/agendamentos/consultar",    roles: [ROLES.PSICOLOGO] },
+  { label: "Agendamentos", Icon: CalendarIcon, path: "/agendamentos", roles: [ROLES.RECEPCIONISTA] },
   { label: "Histórico",    Icon: HistoricoIcon,  path: "/historico",       roles: [ROLES.PSICOLOGO] },
   { label: "Prontuário",   Icon: ProntuarioIcon, path: "/prontuario",      roles: [ROLES.PSICOLOGO] },
   { label: "Paciente",     Icon: PacienteIcon,   path: "/paciente",        roles: [ROLES.RECEPCIONISTA] },
   { label: "Psicólogos",   Icon: PsicologoIcon,  path: "/psicologos",      roles: AMBOS },
   { label: "Recepcionistas", Icon: RecepcionistaIcon, path: "/recepcionistas", roles: [ROLES.PSICOLOGO] },
-  { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: AMBOS },
+  { label: "Disponibilidades", Icon: DisponibilidadesIcon, path: "/disponibilidades", roles: [ROLES.PSICOLOGO] },
+  { label: "Disponibilidades dos Psicólogos", Icon: DisponibilidadesPsicologosIcon, path: "/disponibilidades", roles: [ROLES.RECEPCIONISTA] },
   { label: "Planos de Saúde",  Icon: PlanoSaudeIcon,      path: "/planos-saude",     roles: [ROLES.PSICOLOGO] },
   { label: "Financeiro",   Icon: FinanceiroIcon, path: "/financeiro",      roles: AMBOS },
 ];

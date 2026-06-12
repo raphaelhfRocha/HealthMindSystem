@@ -1,14 +1,19 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../shared/context/AuthContext";
 import { loginValidation, LoginFormData } from "../shared/validations/auth/login.validation";
 import { parseApiError } from "../shared/components/ModalMessagesStatus/ModalMessagesStatus";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { signIn, isAuthenticated } = useAuth();
+
+  // Rota que o usuário tentou acessar antes de ser redirecionado ao login.
+  // Caso não exista (acesso direto ao login), cai no /home.
+  const from = (location.state as { from?: { pathname?: string } } | null)?.from?.pathname ?? "/home";
 
   const {
     register,
@@ -23,14 +28,14 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/home", { replace: true });
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, navigate, from]);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
       await signIn(values.email, values.senha);
-      navigate("/home", { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       const parsed = parseApiError(err);
       setError("root", { message: parsed.message });

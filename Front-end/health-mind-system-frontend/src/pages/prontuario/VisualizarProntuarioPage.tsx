@@ -40,9 +40,10 @@ function formatDateBR(value?: string | Date | null) {
   return Number.isNaN(date.getTime()) ? "—" : date.toLocaleDateString("pt-BR");
 }
 
-function InfoField({ label, value }: { label: string; value: ReactNode }) {
+function InfoField({ label, value, align = "left" }: { label: string; value: ReactNode; align?: "left" | "center" | "right" }) {
+  const alignItems = align === "center" ? "center" : align === "right" ? "flex-end" : "flex-start";
   return (
-    <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+    <div style={{ display: "flex", flexDirection: "column", gap: "4px", alignItems, textAlign: align }}>
       <span style={{ fontSize: "11px", fontWeight: "700", color: "#888", textTransform: "uppercase", letterSpacing: "0.05em" }}>{label}</span>
       <span style={{ fontSize: "14px", fontWeight: "500", color: "#1a1a1a", whiteSpace: "pre-wrap" }}>{value}</span>
     </div>
@@ -53,7 +54,7 @@ function TabInfoPaciente({ paciente, planoNome, psicologoNome }: { paciente: Pac
   return (
     <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)" }}>
       <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", marginBottom: "20px" }}>Informações do Paciente</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "3fr 1fr 1fr 0.8fr", gap: "24px 20px", marginBottom: "24px" }}>
+      <div style={{ display: "grid", gridTemplateColumns: "1.6fr 1fr 1fr 1fr", gap: "24px 20px", marginBottom: "24px" }}>
         <InfoField label="Nome Completo" value={paciente.nome} />
         <InfoField label="Data de Nascimento" value={formatDateBR(paciente.dataNascimento)} />
         <InfoField label="CPF/CNPJ" value={formatCpfCnpj(paciente.cpfCnpj)} />
@@ -77,9 +78,9 @@ function TabContatoEmergencia({ prontuario }: { prontuario: ProntuarioDTO }) {
       <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", marginBottom: "20px" }}>Contato de Emergência</h2>
       {contato ? (
         <>
-          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: "24px 20px", marginBottom: "24px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1.5fr", gap: "24px 20px", marginBottom: "24px" }}>
             <InfoField label="Nome" value={contato.nome} />
-            <InfoField label="Telefone" value={formatPhone(contato.telefone)} />
+            <InfoField label="Telefone" value={formatPhone(contato.telefone)} align="left" />
             <InfoField label="Relação/Parentesco" value={contato.relacaoParentesco} />
           </div>
           <div style={{ borderTop: "1px solid #eef0f6", marginBottom: "20px" }} />
@@ -470,26 +471,28 @@ export default function VisualizarProntuarioPage() {
       )}
 
       <div style={{ width: "100%", maxWidth: "720px", display: "flex", flexDirection: "column", gap: "16px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <button onClick={() => navigate("/prontuario")} style={{ background: "none", border: "1px solid #dde3f0", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px", color: "#1A4FA3", fontWeight: "600" }}>‹ Voltar</button>
-            <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111", margin: 0 }}>Prontuário</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <button onClick={() => navigate("/prontuario")} style={{ background: "none", border: "1px solid #dde3f0", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px", color: "#1A4FA3", fontWeight: "600" }}>‹ Voltar</button>
+          <h1 style={{ fontSize: "22px", fontWeight: "700", color: "#111", margin: 0 }}>Prontuário</h1>
+        </div>
+
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", borderBottom: "2px solid #dde3f0" }}>
+          <div style={{ display: "flex" }}>
+            {TABS.map((tab, index) => (
+              <div key={tab} onClick={() => setActiveTab(index)} style={{ padding: "8px 14px", fontSize: "12px", fontWeight: activeTab === index ? "700" : "500", color: activeTab === index ? "#1A4FA3" : "#888", borderBottom: activeTab === index ? "2px solid #1A4FA3" : "2px solid transparent", marginBottom: "-2px", cursor: "pointer", whiteSpace: "nowrap" }}>
+                {tab}
+              </div>
+            ))}
           </div>
 
           {editRoute && (
-            <button onClick={() => navigate(editRoute)} style={{ display: "flex", alignItems: "center", gap: "7px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "9px 20px", color: "white", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20H8L18.5 9.5C19.3 8.7 19.3 7.3 18.5 6.5L17.5 5.5C16.7 4.7 15.3 4.7 14.5 5.5L4 16V20Z" stroke="white" strokeWidth="2" strokeLinejoin="round" fill="none" /><line x1="13" y1="7" x2="17" y2="11" stroke="white" strokeWidth="2" /></svg>
-              Editar
-            </button>
-          )}
-        </div>
-
-        <div style={{ display: "flex", borderBottom: "2px solid #dde3f0", overflowX: "auto" }}>
-          {TABS.map((tab, index) => (
-            <div key={tab} onClick={() => setActiveTab(index)} style={{ padding: "8px 14px", fontSize: "12px", fontWeight: activeTab === index ? "700" : "500", color: activeTab === index ? "#1A4FA3" : "#888", borderBottom: activeTab === index ? "2px solid #1A4FA3" : "2px solid transparent", marginBottom: "-2px", cursor: "pointer", whiteSpace: "nowrap" }}>
-              {tab}
+            <div style={{ display: "flex", flexShrink: 0, paddingBottom: "6px", marginRight: "12px" }}>
+              <button onClick={() => navigate(editRoute)} style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "9px 20px", color: "white", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20H8L18.5 9.5C19.3 8.7 19.3 7.3 18.5 6.5L17.5 5.5C16.7 4.7 15.3 4.7 14.5 5.5L4 16V20Z" stroke="white" strokeWidth="2" strokeLinejoin="round" fill="none" /><line x1="13" y1="7" x2="17" y2="11" stroke="white" strokeWidth="2" /></svg>
+                Editar
+              </button>
             </div>
-          ))}
+          )}
         </div>
 
         {activeTab === 0 && <TabInfoPaciente paciente={paciente} planoNome={pacienteResumo.plano} psicologoNome={pacienteResumo.psicologo} />}

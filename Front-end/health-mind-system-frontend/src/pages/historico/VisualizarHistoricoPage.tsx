@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import AppLayout from "../../components/AppLayout";
 import { getPacienteById } from "../../shared/services/paciente.service";
@@ -74,12 +74,28 @@ function btnGray() {
 
 const EMPTY_META = { titulo: "", statusMetaTerapeutica: StatusMetaTerapeuticaEnum.stsNaoIniciada, observacoes: "" };
 
+type TabHandle = { editar: () => void; excluir: () => void };
+type TabState = { registrado: boolean; editando: boolean; excluindo: boolean };
+const EMPTY_TAB_STATE: TabState = { registrado: false, editando: false, excluindo: false };
+
 
 export default function VisualizarHistoricoPage() {
   const { id } = useParams();
   const pacienteId = id ?? "";
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
+
+  const histRef = useRef<TabHandle>(null);
+  const smRef = useRef<TabHandle>(null);
+  const [histState, setHistState] = useState<TabState>(EMPTY_TAB_STATE);
+  const [smState, setSmState] = useState<TabState>(EMPTY_TAB_STATE);
+
+  const handleHistState = useCallback((s: TabState) => {
+    setHistState(prev => (prev.registrado === s.registrado && prev.editando === s.editando && prev.excluindo === s.excluindo) ? prev : s);
+  }, []);
+  const handleSmState = useCallback((s: TabState) => {
+    setSmState(prev => (prev.registrado === s.registrado && prev.editando === s.editando && prev.excluindo === s.excluindo) ? prev : s);
+  }, []);
 
   const [paciente, setPaciente] = useState<PacienteDTO | null>(null);
   const [prontuario, setProntuario] = useState<ProntuarioDTO | null>(null);
@@ -261,6 +277,13 @@ export default function VisualizarHistoricoPage() {
     );
   }
 
+  const headerActions =
+    activeTab === 1 && histState.registrado && !histState.editando
+      ? { onEdit: () => histRef.current?.editar(), onDelete: () => histRef.current?.excluir(), excluindo: histState.excluindo }
+      : activeTab === 2 && smState.registrado && !smState.editando
+        ? { onEdit: () => smRef.current?.editar(), onDelete: () => smRef.current?.excluir(), excluindo: smState.excluindo }
+        : null;
+
   return (
     <AppLayout breadcrumb="Histórico >">
       <div style={{ width: "100%", maxWidth: "760px", display: "flex", flexDirection: "column", gap: "16px" }}>
@@ -278,27 +301,48 @@ export default function VisualizarHistoricoPage() {
           </h1>
         </div>
 
-        <div style={{ display: "flex", borderBottom: "2px solid #dde3f0", overflowX: "auto" }}>
-          {TABS.map((tab, i) => (
-            <div
-              key={tab}
-              onClick={() => setActiveTab(i)}
-              style={{
-                padding: "8px 14px", fontSize: "12px",
-                fontWeight: activeTab === i ? "700" : "500",
-                color: activeTab === i ? "#1A4FA3" : "#888",
-                borderBottom: activeTab === i ? "2px solid #1A4FA3" : "2px solid transparent",
-                marginBottom: "-2px", cursor: "pointer", whiteSpace: "nowrap", transition: "color 0.15s",
-              }}
-            >
-              {tab}
+        <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "12px", borderBottom: "2px solid #dde3f0" }}>
+          <div style={{ display: "flex" }}>
+            {TABS.map((tab, i) => (
+              <div
+                key={tab}
+                onClick={() => setActiveTab(i)}
+                style={{
+                  padding: "8px 14px", fontSize: "12px",
+                  fontWeight: activeTab === i ? "700" : "500",
+                  color: activeTab === i ? "#1A4FA3" : "#888",
+                  borderBottom: activeTab === i ? "2px solid #1A4FA3" : "2px solid transparent",
+                  marginBottom: "-2px", cursor: "pointer", whiteSpace: "nowrap", transition: "color 0.15s",
+                }}
+              >
+                {tab}
+              </div>
+            ))}
+          </div>
+
+          {headerActions && (
+            <div style={{ display: "flex", gap: "8px", flexShrink: 0, paddingBottom: "6px" }}>
+              <button onClick={headerActions.onEdit} style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "#1A4FA3", border: "none", borderRadius: "20px", padding: "9px 20px", fontSize: "13px", fontWeight: "600", color: "white", cursor: "pointer" }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M4 20H8L18.5 9.5C19.3 8.7 19.3 7.3 18.5 6.5L17.5 5.5C16.7 4.7 15.3 4.7 14.5 5.5L4 16V20Z" stroke="white" strokeWidth="2" strokeLinejoin="round" fill="none" /><line x1="13" y1="7" x2="17" y2="11" stroke="white" strokeWidth="2" /></svg>
+                Editar
+              </button>
+              <button onClick={headerActions.onDelete} disabled={headerActions.excluindo} style={{ display: "inline-flex", alignItems: "center", gap: "7px", background: "#922c2c", border: "1px solid #ffd0d0", borderRadius: "20px", padding: "9px 20px", fontSize: "13px", fontWeight: "600", color: "white", cursor: headerActions.excluindo ? "not-allowed" : "pointer", opacity: headerActions.excluindo ? 0.6 : 1 }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                  <path d="M4 7H20" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <path d="M9 7V5C9 4.4 9.4 4 10 4H14C14.6 4 15 4.4 15 5V7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <path d="M6 7L7 20C7 20.6 7.4 21 8 21H16C16.6 21 17 20.6 17 20L18 7" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                  <line x1="10" y1="11" x2="10" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                  <line x1="14" y1="11" x2="14" y2="17" stroke="white" strokeWidth="2" strokeLinecap="round" />
+                </svg>
+                {headerActions.excluindo ? "Excluindo..." : "Excluir"}
+              </button>
             </div>
-          ))}
+          )}
         </div>
 
         {activeTab === 0 && <TabRegistroSessao sessoes={sessoes} onReload={carregar} textAreaStyle={textAreaStyle} />}
-        {activeTab === 1 && <TabHistorico historico={historico} temProntuario={!!prontuario} onSalvar={salvarHistorico} onExcluir={excluirHistorico} />}
-        {activeTab === 2 && <TabSaudeMental historico={historico} temProntuario={!!prontuario} onSalvar={salvarSaudeMental} onExcluir={excluirSaudeMentalDoHistorico} />}
+        {activeTab === 1 && <TabHistorico ref={histRef} onStateChange={handleHistState} historico={historico} temProntuario={!!prontuario} onSalvar={salvarHistorico} onExcluir={excluirHistorico} />}
+        {activeTab === 2 && <TabSaudeMental ref={smRef} onStateChange={handleSmState} historico={historico} temProntuario={!!prontuario} onSalvar={salvarSaudeMental} onExcluir={excluirSaudeMentalDoHistorico} />}
         {activeTab === 3 && <TabEvolucao historico={historico} temProntuario={!!prontuario} sessoes={sessoes} onSalvarMeta={salvarMeta} onReload={carregar} />}
       </div>
     </AppLayout>

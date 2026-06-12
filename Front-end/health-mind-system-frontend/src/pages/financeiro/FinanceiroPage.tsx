@@ -14,10 +14,12 @@ import { toDateInput } from "../../shared/utils/dateUtils";
 import { formatHora } from "../../shared/utils/formatHora";
 import { formatBRL } from "../../shared/utils/formatBRL";
 import ModalEditarPagamento from "../../shared/components/ModalEditarPagamento/ModalEditarPagamento";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../shared/constants/messages";
 import CardResumo from "../../shared/components/CardResumo/CardResumo";
 import { useAuth } from "../../shared/context/AuthContext";
 import { usePermissions } from "../../shared/hooks/usePermissions";
-import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
+import { findPsicologoLogado } from "../../shared/hooks/useCurrentPsicologo";
 
 const STATUS_FILTROS = ["todos", "pendente", "pago", "isento"] as const;
 type StatusFiltro = (typeof STATUS_FILTROS)[number];
@@ -72,6 +74,7 @@ export default function FinanceiroPage() {
   const [salvandoPagamento, setSalvandoPagamento] = useState(false);
   const [erroPagamento, setErroPagamento] = useState<string | null>(null);
   const [marcandoId, setMarcandoId] = useState<string | null>(null);
+  const [status, setStatus] = useState<{ type: "success" | "error"; message: string; details?: ApiErrorDetail[] } | null>(null);
 
   const carregarSessoes = useCallback(async () => {
     try {
@@ -105,7 +108,7 @@ export default function FinanceiroPage() {
       // Psicólogo visualiza apenas os pagamentos dos pacientes sob sua responsabilidade.
       let sessoesVisiveis = sessoesComNomes;
       if (isPsicologo) {
-        const meuId = findPsicologoByEmail(psicologos, user?.email)?.id ?? null;
+        const meuId = findPsicologoLogado(psicologos, user)?.id ?? null;
         const meusPacientes = new Set(
           pacientes.filter((p) => p.psicologoId === meuId).map((p) => p.id)
         );
@@ -123,7 +126,7 @@ export default function FinanceiroPage() {
     } finally {
       setLoading(false);
     }
-  }, [isPsicologo, user?.email]);
+  }, [isPsicologo, user?.id, user?.email]);
 
   useEffect(() => {
     void carregarSessoes();
@@ -258,8 +261,11 @@ export default function FinanceiroPage() {
       await definirPagamento(sessaoId, pagamento);
       setPagamentoEmEdicao(null);
       await carregarSessoes();
-    } catch {
-      setErroPagamento("Não foi possível salvar o pagamento. Tente novamente.");
+      setStatus({ type: "success", message: MESSAGES.SUCCESS.UPDATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setErroPagamento(parsed.message);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvandoPagamento(false);
     }
@@ -277,6 +283,15 @@ export default function FinanceiroPage() {
           error={erroPagamento}
           onSave={handleSalvarPagamento}
           onClose={() => { if (!salvandoPagamento) setPagamentoEmEdicao(null); }}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
         />
       )}
       <div style={{ width: "100%", maxWidth: "1080px", display: "flex", flexDirection: "column", gap: "20px" }}>
@@ -396,7 +411,7 @@ export default function FinanceiroPage() {
 
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "Psicólogo", "Data Sessão", "Hora Sessão", "Data Pagamento", "Valor", "Status", "Ações"].map((header) => (
+            {["Paciente", "Psicólogo", "Data Sessão", "Hora Sessão", "Data Pagamento", "Valor", "Status", !isPsicologo ? "Ação" : ""].map((header) => (
               <div
                 key={header}
                 style={{
@@ -472,7 +487,7 @@ export default function FinanceiroPage() {
                         borderRadius: "14px",
                         padding: "4px 12px",
                         background: cfg.bg,
-                        color: cfg.color,
+                        color: cfg.color
                       }}
                     >
                       {cfg.label}
@@ -492,7 +507,7 @@ export default function FinanceiroPage() {
                         Editar
                       </button>
                     ) : (
-                      <span style={{ fontSize: "12px", color: "#ccc" }}>—</span>
+                      <span style={{ fontSize: "12px", color: "#ccc" }}></span>
                     )}
                   </div>
                 </div>

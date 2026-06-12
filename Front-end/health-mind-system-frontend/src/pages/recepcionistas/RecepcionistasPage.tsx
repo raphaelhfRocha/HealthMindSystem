@@ -280,7 +280,7 @@ export default function RecepcionistasPage() {
 
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Recepcionista", "CPF", "Ações"].map(h => (
+            {["Recepcionista", "CPF", "Ação"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
             ))}
           </div>
@@ -323,7 +323,7 @@ export default function RecepcionistasPage() {
                   <div style={{ display: "flex", gap: "8px" }}>
                     <button
                       onClick={() => navigate(`/recepcionistas/${recepcionistaId}`)}
-                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                      style={{ display: "flex", alignItems: "center", marginLeft: "-20px", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
                       onMouseEnter={e => e.currentTarget.style.background = "#e0e5f0"}
                       onMouseLeave={e => e.currentTarget.style.background = "#EEF1F8"}
                     >

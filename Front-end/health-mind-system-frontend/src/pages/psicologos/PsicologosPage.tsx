@@ -185,7 +185,12 @@ export default function PsicologosPage() {
     }
   };
 
-  const COL = "minmax(0, 2.2fr) 120px minmax(0, 2fr) 130px";
+  // Recepcionista não tem coluna de ação (visualização apenas), então a tabela
+  // usa 3 colunas para não deixar um espaço vazio à direita. A coluna de nome
+  // é mais estreita para aproximar o CRP da esquerda.
+  const COL = isRecepcionista
+    ? "minmax(0, 1.5fr) 120px minmax(0, 2.5fr)"
+    : "minmax(0, 2.2fr) 120px minmax(0, 2fr) 130px";
 
   return (
     <AppLayout breadcrumb="Psicólogos >">
@@ -251,8 +256,11 @@ export default function PsicologosPage() {
 
           {/* Header */}
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Psicólogo", "CRP", "Especialidade", "Ações"].map(h => (
-              <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
+            {(isRecepcionista
+              ? ["Psicólogo", "CRP", "Especialidade"]
+              : ["Psicólogo", "CRP", "Especialidade", "Ação"]
+            ).map(h => (
+              <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em", marginLeft: isRecepcionista && h === "Especialidade" ? "100px" : undefined }}>{h}</div>
             ))}
           </div>
 
@@ -293,17 +301,17 @@ export default function PsicologosPage() {
                   </div>
 
                   {/* Especialidade */}
-                  <div style={{ fontSize: "13px", color: "#555" }}>{p.especialidade || "—"}</div>
+                  <div style={{ fontSize: "13px", color: "#555", marginLeft: isRecepcionista ? "100px" : undefined }}>{p.especialidade || "—"}</div>
 
                   {/* E-mail */}
                   {/* <div style={{ fontSize: "13px", color: "#555", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{p.email || "—"}</div> */}
 
-                  {/* Actions */}
-                  <div style={{ display: "flex", gap: "8px" }}>
-                    {podeGerenciar ? (
+                  {/* Actions (oculto para recepcionista, que tem acesso somente de leitura) */}
+                  {podeGerenciar && (
+                    <div style={{ display: "flex", gap: "8px" }}>
                       <button
                         onClick={() => navigate(`/psicologos/${psicologoId}`)}
-                        style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap" }}
+                        style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap", marginLeft: "-20px" }}
                         onMouseEnter={e => e.currentTarget.style.background = "#e0e5f0"}
                         onMouseLeave={e => e.currentTarget.style.background = "#EEF1F8"}
                       >
@@ -313,10 +321,8 @@ export default function PsicologosPage() {
                         </svg>
                         Visualizar
                       </button>
-                    ) : (
-                      <span style={{ fontSize: "13px", color: "#ccc" }}>—</span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               );
             })

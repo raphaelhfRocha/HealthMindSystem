@@ -92,7 +92,7 @@ export default function ModalEditarPagamento({ pacienteNome, pagamento, saving, 
                     <label style={pagLabelStyle}>
                         Forma de pagamento
                         <select value={statusFormaPagamento} onChange={e => setStatusFormaPagamento(Number(e.target.value))} style={pagInputStyle}>
-                            <option value={StatusFormaPagamentoEnum.stsNone}>Não informada</option>
+                            <option value={StatusFormaPagamentoEnum.stsNone}>Nenhuma</option>
                             <option value={StatusFormaPagamentoEnum.stsDinheiro}>Dinheiro</option>
                             <option value={StatusFormaPagamentoEnum.stsCartaoDebito}>Cartão de débito</option>
                             <option value={StatusFormaPagamentoEnum.stsCartaoCredito}>Cartão de crédito</option>

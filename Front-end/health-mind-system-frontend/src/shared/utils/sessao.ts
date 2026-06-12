@@ -63,6 +63,22 @@ export function isDisponibilidadeFutura(disponibilidade: DisponibilidadeDTO): bo
   return getDataHoraDisponibilidade(disponibilidade) > new Date();
 }
 
+// Combina a data com o horário de início para obter o instante real da sessão.
+// Usa a chave de data literal (YYYY-MM-DD) para não sofrer deslocamento de fuso,
+// de forma consistente com formatDateLabel e o filtro de agendamentos.
+export function getDataHoraSessao(sessao: SessaoDTO): Date {
+  const [ano, mes, dia] = extractDateKey(sessao.dataSessao).split("-").map(Number);
+  const [hora, minuto] = formatTimeLabel(sessao.horaInicio).split(":").map(Number);
+
+  return new Date(ano, mes - 1, dia, hora || 0, minuto || 0, 0, 0);
+}
+
+// Indica se a sessão (data + hora) já passou em relação ao momento atual.
+export function isSessaoPassada(sessao: SessaoDTO): boolean {
+  const dataHoraSessao = getDataHoraSessao(sessao);
+  return !Number.isNaN(dataHoraSessao.getTime()) && dataHoraSessao < new Date();
+}
+
 export function groupSessoesByDate(sessoes: SessaoDTO[]): Record<string, SessaoDTO[]> {
   return sessoes.reduce<Record<string, SessaoDTO[]>>((acc, sessao) => {
     const key = extractDateKey(sessao.dataSessao);

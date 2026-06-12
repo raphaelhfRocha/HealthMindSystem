@@ -43,7 +43,16 @@ namespace HealthMindBackend.Domain.ValueObjects.Financeiro.Pagamento
         private void ValidatePagamentoDomain(Decimal valorCoberturaPlano, Decimal valorConsultaFinal, DateTime dataPagamento, StatusFormaPagamentoEnum statusFormaPagamento, StatusPagamentoEnum statusPagamento, StatusParceladoEnum statusParcelado, Int32? totalParcelas)
         {
             DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsNone, "Status do pagamento inválido.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsIsento && statusFormaPagamento == StatusFormaPagamentoEnum.StsDinheiro, "A forma de pagamento não pode ser em dinheiro devido ao status do pagamento ser isento.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsIsento && statusFormaPagamento == StatusFormaPagamentoEnum.StsCartaoCedito, "A forma de pagamento não pode ser em cartão de crédito devido ao status do pagamento ser isento.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsIsento && statusFormaPagamento == StatusFormaPagamentoEnum.StsCartaoDebito, "A forma de pagamento não pode ser em cartão de débito devido ao status do pagamento ser isento.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsIsento && statusFormaPagamento == StatusFormaPagamentoEnum.StsPix, "A forma de pagamento não pode ser PIX devido ao status do pagamento ser isento.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsIsento && statusFormaPagamento == StatusFormaPagamentoEnum.StsNone && statusParcelado == StatusParceladoEnum.StsSim, "O pagamento não pode ser parcelado devido ao status ser isento.");
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsPendente, "O Status do pagamento não pode ser pendente");   
+            DomainExceptionValidation.Validate(statusPagamento == StatusPagamentoEnum.StsPendente, "O Status do pagamento não pode ser pendente");   
             DomainExceptionValidation.Validate(statusParcelado == StatusParceladoEnum.StsNone, "Status parcelado inválido.");
+            DomainExceptionValidation.Validate(statusFormaPagamento == StatusFormaPagamentoEnum.StsDinheiro && statusParcelado == StatusParceladoEnum.StsSim, "O Status não pode ser parcelado devido a sua forma de pagamento ser dinheiro");
+            DomainExceptionValidation.Validate(statusFormaPagamento == StatusFormaPagamentoEnum.StsCartaoDebito && statusParcelado == StatusParceladoEnum.StsSim, "O Status não pode ser parcelado devido a sua forma de pagamento ser cartão de débito");
             DomainExceptionValidation.Validate(statusParcelado == StatusParceladoEnum.StsNao && totalParcelas > 0, "Pagamento não parcelado não pode possuir parcelas.");
             DomainExceptionValidation.Validate(totalParcelas != 0 && statusParcelado == StatusParceladoEnum.StsNao, "O total de parcelas é obrigatório ser 0 devido ao status parcelado ser não");
             DomainExceptionValidation.Validate(totalParcelas < 0, "Total parcelas inválido");

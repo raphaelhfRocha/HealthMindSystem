@@ -46,8 +46,6 @@ namespace HealthMindBackend.Application.HistoricosMedicos.Handlers
 
             if (request.SaudeMentalCommand != null)
             {
-
-
                 var saudeMental = new SaudeMental(
                     historicoMedicoEditado.Id,
                     request.SaudeMentalCommand.DiagnosticoPrevio,

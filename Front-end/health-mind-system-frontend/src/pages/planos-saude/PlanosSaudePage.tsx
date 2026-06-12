@@ -293,7 +293,7 @@ export default function PlanosSaudePage() {
         {/* Table card */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Plano", "Código", "Coberturas", "Contato", "Status", "Ações"].map(h => (
+            {["Plano", "Código", "Coberturas", "Contato", "Status", "Ação"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
             ))}
           </div>
@@ -346,7 +346,7 @@ export default function PlanosSaudePage() {
                     <button
                       onClick={() => plano.id && navigate(`/planos-saude/${plano.id}`)}
                       disabled={!plano.id}
-                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: plano.id ? "pointer" : "not-allowed", whiteSpace: "nowrap", opacity: plano.id ? 1 : 0.5 }}
+                      style={{ display: "flex", alignItems: "center", gap: "5px", padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: plano.id ? "pointer" : "not-allowed", whiteSpace: "nowrap", opacity: plano.id ? 1 : 0.5, marginLeft: "-20px" }}
                       onMouseEnter={e => { if (plano.id) e.currentTarget.style.background = "#d0e4ff"; }}
                       onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
                     >

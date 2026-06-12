@@ -243,6 +243,7 @@ export default function ProntuariosPage() {
                         color: "#1A4FA3",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
+                        marginLeft: "-20px"
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
                       onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}
@@ -266,6 +267,7 @@ export default function ProntuariosPage() {
                         color: "#2A8A55",
                         cursor: "pointer",
                         whiteSpace: "nowrap",
+                        marginLeft: "-20px"
                       }}
                       onMouseEnter={e => e.currentTarget.style.background = "#c8ecd8"}
                       onMouseLeave={e => e.currentTarget.style.background = "#E8F5EE"}

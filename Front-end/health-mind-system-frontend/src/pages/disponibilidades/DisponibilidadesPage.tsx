@@ -298,7 +298,12 @@ export default function DisponibilidadesPage() {
 
       <div style={{ width: "100%", maxWidth: "860px", display: "flex", flexDirection: "column", gap: "16px" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-          <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Disponibilidades dos Psicólogos</h1>
+          {isPsicologo && (
+            <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Disponibilidades</h1>
+          )}
+          {!isPsicologo && (
+            <h1 style={{ fontSize: "20px", fontWeight: "700", color: "#111", margin: 0 }}>Disponibilidades dos Psicólogos</h1>
+          )}
           {podeGerenciar && (
             <button
               onClick={() => { setErroModal(null); setModalAberto(true); }}
@@ -339,7 +344,7 @@ export default function DisponibilidadesPage() {
         ) : (
           <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
             <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-              {["Dia", "Data", "Horário", "Atendimento", "Status", "Ações"].map(h => (
+              {["Dia", "Data", "Horário", "Atendimento", "Status", isPsicologo ? "Ação" : ""].map(h => (
                 <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>{h}</div>
               ))}
             </div>
@@ -369,6 +374,7 @@ export default function DisponibilidadesPage() {
                         fontSize: "12px", fontWeight: "600", borderRadius: "20px", padding: "3px 12px",
                         background: disponivel ? "#E8F5EE" : "#FFF7E6",
                         color: disponivel ? "#2A8A55" : "#B5790B",
+                        marginLeft: "-10px"
                       }}>
                         {statusDisponibilidadeLabel(d.statusDisponibilidade)}
                       </span>
@@ -378,7 +384,7 @@ export default function DisponibilidadesPage() {
                         <button
                           onClick={() => setConfirmTarget(d)}
                           disabled={excluindoId === d.id}
-                          style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === d.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === d.id ? 0.6 : 1 }}
+                          style={{ display: "flex", alignItems: "center", gap: "4px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === d.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === d.id ? 0.6 : 1, marginLeft: "-10px" }}
                           onMouseEnter={e => { if (excluindoId !== d.id) e.currentTarget.style.background = "#ffdede"; }}
                           onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
                         >

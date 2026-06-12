@@ -1,4 +1,4 @@
-import { CSSProperties, useEffect, useState } from "react";
+import { CSSProperties, forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { HistoricoMedicoDTO } from "../../types/dtos/HistoricoMedico.dto";
 import { SaudeMentalDTO } from "../../types/dtos/SaudeMental.dto";
 import ModalConfirm from "../ModalConfirm/ModalConfirm";
@@ -48,23 +48,28 @@ function ViewField({ label, value, labelMini }: { label: string; value?: string;
     );
 }
 
-export default function TabSaudeMental({
-    historico,
-    temProntuario,
-    onSalvar,
-    onExcluir,
-    labelMini = DEFAULT_LABEL_MINI,
-    inputStyle = DEFAULT_INPUT_STYLE,
-    textAreaStyle = DEFAULT_TEXTAREA_STYLE,
-}: {
+type TabHandle = { editar: () => void; excluir: () => void };
+type TabState = { registrado: boolean; editando: boolean; excluindo: boolean };
+
+const TabSaudeMental = forwardRef<TabHandle, {
     historico: HistoricoMedicoDTO | null;
     temProntuario: boolean;
     onSalvar: (dados: SaudeMentalDTO) => Promise<void>;
     onExcluir: () => Promise<void>;
+    onStateChange?: (state: TabState) => void;
     labelMini?: CSSProperties;
     inputStyle?: CSSProperties;
     textAreaStyle?: CSSProperties;
-}) {
+}>(function TabSaudeMental({
+    historico,
+    temProntuario,
+    onSalvar,
+    onExcluir,
+    onStateChange,
+    labelMini = DEFAULT_LABEL_MINI,
+    inputStyle = DEFAULT_INPUT_STYLE,
+    textAreaStyle = DEFAULT_TEXTAREA_STYLE,
+}, ref) {
     const sm = historico?.saudeMentalDTO;
     const registrado = !!(sm && (sm.diagnosticoPrevio?.trim() || sm.acompanhamento?.trim() || sm.statusInternacao?.trim() || sm.antecedentes?.trim()));
 
@@ -85,6 +90,15 @@ export default function TabSaudeMental({
         setAntecedentes(sm?.antecedentes ?? "");
         setEditando(false);
     }, [sm]);
+
+    useImperativeHandle(ref, () => ({
+        editar: abrirEdicao,
+        excluir: () => setConfirmAction("delete"),
+    }), [sm]);
+
+    useEffect(() => {
+        onStateChange?.({ registrado, editando, excluindo });
+    }, [registrado, editando, excluindo, onStateChange]);
 
     function abrirEdicao() {
         setDiagnosticoPrevio(sm?.diagnosticoPrevio ?? "");
@@ -195,24 +209,7 @@ export default function TabSaudeMental({
         return (
             <div style={cardStyle}>
                 {modals}
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px" }}>
-                    <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Saúde Mental</h2>
-                    <div style={{ display: "flex", gap: "8px" }}>
-                        <button onClick={abrirEdicao} style={{ padding: "6px 14px", background: "#EBF3FF", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#1A4FA3", cursor: "pointer" }}>
-                            Editar
-                        </button>
-                        <button onClick={() => setConfirmAction("delete")} disabled={excluindo} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px", background: "#FFF0F0", border: "none", borderRadius: "10px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindo ? "not-allowed" : "pointer", opacity: excluindo ? 0.6 : 1 }}>
-                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none">
-                                <path d="M4 7H20" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
-                                <path d="M9 7V5C9 4.4 9.4 4 10 4H14C14.6 4 15 4.4 15 5V7" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <path d="M6 7L7 20C7 20.6 7.4 21 8 21H16C16.6 21 17 20.6 17 20L18 7" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-                                <line x1="10" y1="11" x2="10" y2="17" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
-                                <line x1="14" y1="11" x2="14" y2="17" stroke="#B03A2E" strokeWidth="2" strokeLinecap="round" />
-                            </svg>
-                            {excluindo ? "Excluindo..." : "Excluir"}
-                        </button>
-                    </div>
-                </div>
+                <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Saúde Mental</h2>
 
                 <ViewField label="Diagnóstico prévio relacionado à saúde mental" value={sm?.diagnosticoPrevio} labelMini={labelMini} />
                 <ViewField label="Acompanhamento psicológico/psiquiátrico anterior" value={sm?.acompanhamento} labelMini={labelMini} />
@@ -254,4 +251,6 @@ export default function TabSaudeMental({
             </div>
         </div>
     );
-}
+});
+
+export default TabSaudeMental;

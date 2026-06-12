@@ -33,7 +33,7 @@ const AuthContext = createContext<AuthContextData>(
 );
 
 function loadStoredUser(): User | null {
-  const stored = localStorage.getItem(STORAGE_KEYS.USER);
+  const stored = sessionStorage.getItem(STORAGE_KEYS.USER);
 
   if (!stored) return null;
 
@@ -45,11 +45,14 @@ function loadStoredUser(): User | null {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  // Inicializa de forma síncrona a partir do localStorage para evitar
+  // Inicializa de forma síncrona a partir do sessionStorage para evitar
   // "flash" de não-autenticado nas rotas protegidas no primeiro render.
+  // Usamos sessionStorage (e não localStorage) para que a sessão fique
+  // vinculada à aba: ao fechar a aba/janela a sessão é encerrada e o
+  // usuário volta para a tela de login ao acessar o projeto novamente.
   const [user, setUser] = useState<User | null>(loadStoredUser);
   const [token, setToken] = useState<string | null>(
-    () => localStorage.getItem(STORAGE_KEYS.TOKEN)
+    () => sessionStorage.getItem(STORAGE_KEYS.TOKEN)
   );
 
   async function signIn(email: string, senha: string) {
@@ -64,8 +67,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       role: claims?.role ?? ''
     };
 
-    localStorage.setItem(STORAGE_KEYS.TOKEN, response.token);
-    localStorage.setItem(
+    sessionStorage.setItem(STORAGE_KEYS.TOKEN, response.token);
+    sessionStorage.setItem(
       STORAGE_KEYS.USER,
       JSON.stringify(authenticatedUser)
     );
@@ -75,8 +78,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }
 
   function signOut() {
-    localStorage.removeItem(STORAGE_KEYS.TOKEN);
-    localStorage.removeItem(STORAGE_KEYS.USER);
+    sessionStorage.removeItem(STORAGE_KEYS.TOKEN);
+    sessionStorage.removeItem(STORAGE_KEYS.USER);
 
     setToken(null);
     setUser(null);

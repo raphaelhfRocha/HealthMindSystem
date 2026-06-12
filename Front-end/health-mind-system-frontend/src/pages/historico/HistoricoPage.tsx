@@ -202,7 +202,7 @@ export default function HistoricoPage() {
         {/* Table card */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
           <div style={{ display: "grid", gridTemplateColumns: COL, background: "#1A4FA3", padding: "10px 20px", gap: "12px" }}>
-            {["Paciente", "Idade", "Psicólogo", "Sessões", "Data Abertura", "Ações"].map(h => (
+            {["Paciente", "Idade", "Psicólogo", "Sessões", "Data Abertura", "Ação"].map(h => (
               <div key={h} style={{ fontSize: "12px", fontWeight: "700", color: "white", textTransform: "uppercase", letterSpacing: "0.04em" }}>
                 {h}
               </div>
@@ -262,10 +262,19 @@ export default function HistoricoPage() {
                   <button
                     onClick={() => navigate(`/historico/${p.id}`)}
                     style={{
-                      display: "inline-flex", alignItems: "center", gap: "6px",
-                      padding: "6px 16px", background: "#EBF3FF", border: "none",
-                      borderRadius: "16px", fontSize: "12px", fontWeight: "600",
-                      color: "#1A4FA3", cursor: "pointer", whiteSpace: "nowrap",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "6px 16px",
+                      background: "#EBF3FF",
+                      border: "none",
+                      borderRadius: "16px",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      color: "#1A4FA3",
+                      cursor: "pointer",
+                      whiteSpace: "nowrap",
+                      marginLeft: "-20px"
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = "#d0e4ff"}
                     onMouseLeave={e => e.currentTarget.style.background = "#EBF3FF"}

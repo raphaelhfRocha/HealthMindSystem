@@ -143,7 +143,7 @@ export default function ConsultarAgendamentoPage() {
           color: "#111",
           marginBottom: "1.5rem",
         }}>
-          Consultar Agendamento
+          {isPsicologo ? "Agendamentos" : "Consultar Agendamentos"}
         </h1>
 
         {/* Month navigation */}

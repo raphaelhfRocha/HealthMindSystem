@@ -4,7 +4,7 @@ import AppLayout from "../../components/AppLayout";
 import { getAllPacientes } from "../../shared/services/paciente.service";
 import { getAllPsicologos, getDisponibilidadesByPsicologoId } from "../../shared/services/psicologo.service";
 import { alterarSessao, excluirSessao, getAllSessoes } from "../../shared/services/sessao.service";
-import { extractDateKey, formatDateLabel, formatTimeLabel, isDisponibilidadeFutura, sortSessoesByDateAndTime } from "../../shared/utils/sessao";
+import { extractDateKey, formatDateLabel, formatTimeLabel, isDisponibilidadeFutura, isSessaoPassada, sortSessoesByDateAndTime } from "../../shared/utils/sessao";
 import { StatusSessaoEnum } from "../../shared/domain/enums/status-sessao.enum";
 import { StatusTipoAtendimentoEnum } from "../../shared/domain/enums/status-tipo-atendimento.enum";
 import { PacienteDTO } from "../../shared/types/dtos/Paciente.dto";
@@ -230,13 +230,49 @@ export default function AgendaDoDiaPage() {
           getAllPsicologos(),
         ]);
 
+        // Sessões pendentes cujo horário já passou são automaticamente marcadas
+        // como "Realizada". Restringe ao escopo do usuário: o psicólogo só
+        // atualiza as próprias sessões; o recepcionista atualiza todas.
+        const meuPsicologoId = isPsicologo
+          ? findPsicologoByEmail(psicologosDados, user?.email)?.id ?? null
+          : null;
+
+        const sessoesParaRealizar = sessoesDados.filter(sessao => {
+          if (!sessao.id || !isSessaoPassada(sessao)) {
+            return false;
+          }
+          // Psicólogo só atualiza as próprias sessões.
+          if (isPsicologo && sessao.psicologoId !== meuPsicologoId) {
+            return false;
+          }
+          // Robusto a status vindo como número, string ("2") ou ausente:
+          // marca toda sessão passada que ainda não foi realizada nem cancelada.
+          const statusAtual = Number(sessao.statusSessao);
+          return statusAtual !== StatusSessaoEnum.stsRealizada &&
+            statusAtual !== StatusSessaoEnum.stsCancelada;
+        });
+
+        const sessoesNormalizadas = sessoesParaRealizar.length === 0
+          ? sessoesDados
+          : sessoesDados.map(sessao =>
+            sessoesParaRealizar.some(item => item.id === sessao.id)
+              ? { ...sessao, statusSessao: StatusSessaoEnum.stsRealizada }
+              : sessao
+          );
+
         if (!isActive) {
           return;
         }
 
-        setSessoes(sortSessoesByDateAndTime(sessoesDados));
+        setSessoes(sortSessoesByDateAndTime(sessoesNormalizadas));
         setPacientes(pacientesDados);
         setPsicologos(psicologosDados);
+
+        // Persiste a mudança no backend sem bloquear a renderização (best-effort).
+        sessoesParaRealizar.forEach(sessao => {
+          void alterarSessao(sessao.id as string, { ...sessao, statusSessao: StatusSessaoEnum.stsRealizada })
+            .catch(() => undefined);
+        });
       } catch {
         if (isActive) {
           setStatus({ type: "error", message: "Não foi possível carregar os agendamentos do dia." });
@@ -253,7 +289,7 @@ export default function AgendaDoDiaPage() {
     return () => {
       isActive = false;
     };
-  }, []);
+  }, [isPsicologo, user?.email]);
 
   const dateKey = date ? extractDateKey(date) : "";
   const dateLabel = dateKey ? formatDateLabel(dateKey) : "Data inválida";
@@ -474,8 +510,7 @@ export default function AgendaDoDiaPage() {
                     {statusSessaoLabel(ag.statusSessao)}
                   </div>
 
-                  {/* Psicólogo possui acesso somente de consulta. */}
-                  {!isPsicologo && (
+                  {!isPsicologo && Number(ag.statusSessao) !== StatusSessaoEnum.stsRealizada && (
                     <div style={{ display: "flex", gap: "6px" }}>
                       <button
                         onClick={() => { setErroEdicao(null); setSessaoEmEdicao(ag); }}
@@ -493,6 +528,7 @@ export default function AgendaDoDiaPage() {
                         style={{ display: "flex", alignItems: "center", gap: "4px", padding: "5px 12px", background: "#FFF0F0", border: "none", borderRadius: "16px", fontSize: "12px", fontWeight: "600", color: "#B03A2E", cursor: excluindoId === ag.id ? "not-allowed" : "pointer", whiteSpace: "nowrap", opacity: excluindoId === ag.id ? 0.6 : 1 }}
                         onMouseEnter={e => { if (excluindoId !== ag.id) e.currentTarget.style.background = "#ffdede"; }}
                         onMouseLeave={e => e.currentTarget.style.background = "#FFF0F0"}
+                        hidden={ag.statusSessao === StatusSessaoEnum.stsRealizada}
                       >
                         {excluindoId === ag.id ? "Cancelando..." : "Cancelar"}
                       </button>
