@@ -17,8 +17,6 @@ namespace HealthMindBackend.Application.Psicologos.Commands
     public abstract class PsicologoCommand : IRequest<Psicologo>
     {
         public String Nome { get; set; }
-        public Email Email { get; set; }
-        public String? Senha { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }
         public StatusRoleEnum StatusRole { get; set; }
         public CpfCnpj CpfCnpj { get; set; }

@@ -6,40 +6,6 @@ import { useAuth } from "../shared/context/AuthContext";
 import { loginValidation, LoginFormData } from "../shared/validations/auth/login.validation";
 import { parseApiError } from "../shared/components/ModalMessagesStatus/ModalMessagesStatus";
 
-const HeartECGIcon = () => (
-  <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="40" cy="40" r="40" fill="url(#headGrad)" />
-    <defs>
-      <linearGradient id="headGrad" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
-        <stop offset="0%" stopColor="#4FC3A1" />
-        <stop offset="100%" stopColor="#1A7A5E" />
-      </linearGradient>
-      <linearGradient id="heartGrad" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stopColor="#6EE7C7" />
-        <stop offset="100%" stopColor="#1D9E75" />
-      </linearGradient>
-    </defs>
-    <ellipse cx="40" cy="32" rx="14" ry="17" fill="white" fillOpacity="0.15" />
-    <rect x="33" y="46" width="14" height="10" rx="3" fill="white" fillOpacity="0.15" />
-    <path
-      d="M40 52 C40 52 26 43 26 34 C26 29 30 26 34 26 C36.5 26 38.5 27.5 40 29 C41.5 27.5 43.5 26 46 26 C50 26 54 29 54 34 C54 43 40 52 40 52Z"
-      fill="url(#heartGrad)"
-      fillOpacity="0.9"
-    />
-    <polyline
-      points="28,35 33,35 35,29 37,41 39,32 41,38 43,35 52,35"
-      stroke="white"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      fill="none"
-    />
-    <circle cx="56" cy="24" r="2" fill="white" fillOpacity="0.8" />
-    <circle cx="60" cy="30" r="1.5" fill="white" fillOpacity="0.6" />
-    <circle cx="52" cy="20" r="1" fill="white" fillOpacity="0.5" />
-  </svg>
-);
-
 export default function LoginPage() {
   const navigate = useNavigate();
   const { signIn, isAuthenticated } = useAuth();
@@ -133,11 +99,11 @@ export default function LoginPage() {
             gap: "16px",
             marginBottom: "2rem",
           }}>
-            <HeartECGIcon />
-            <div>
-              <div style={{ fontSize: "32px", fontWeight: "700", lineHeight: 1.1, color: "#1A4FA3" }}>Health</div>
-              <div style={{ fontSize: "32px", fontWeight: "700", lineHeight: 1.1, color: "#3BB077" }}>Mind</div>
-            </div>
+            <img
+              src="/Logo-Health-Mind.png"
+              alt="Health Mind"
+              style={{ height: "102px", width: "auto", maxWidth: "100%" }}
+            />
           </div>
 
           {/* Form */}

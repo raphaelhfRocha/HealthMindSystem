@@ -10,6 +10,7 @@ export interface PsicologoDTO {
     cpfCnpj: string;
     statusCargo: StatusCargoEnum;
     statusRole: StatusRoleEnum;
+    usuarioId?: string;
     crp: string;
     especialidade: string;
     valorConsulta: number;

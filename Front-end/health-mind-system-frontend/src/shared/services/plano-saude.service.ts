@@ -21,7 +21,6 @@ export async function atualizarPlanoSaude(planoSaudeId: string, planoSaudeDto: P
 }
 
 export async function registrarCoberturaPlano(planoSaudeId: string, coberturaPlanoDto: CoberturaPlanoDTO): Promise<CoberturaPlanoDTO> {
-    console.log('(POST) - coberturaPlanoDto:', coberturaPlanoDto);
     const response = await api.post(`${controller}/${planoSaudeId}/coberturas-plano`, coberturaPlanoDto);
     return response.data;
 }

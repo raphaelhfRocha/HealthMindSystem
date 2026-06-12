@@ -28,8 +28,8 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
 
             var psicologo = new Psicologo(
                 request.Nome,
-                request.Email,
-                request.Senha,
+                null,
+                null,
                 request.StatusCargo,
                 request.StatusRole,
                 request.CpfCnpj,

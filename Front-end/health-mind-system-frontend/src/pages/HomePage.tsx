@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import AppLayout from "../components/AppLayout";
 import { ROLES } from "../shared/constants/roles";
 import { usePermissions } from "../shared/hooks/usePermissions";
+import { useAuth } from "../shared/context/AuthContext";
 
 const CalendarIcon = () => (
   <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
@@ -71,6 +72,37 @@ const FinanceiroIcon = () => (
   </svg>
 );
 
+const RecepcionistaIcon = () => (
+  <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+    <circle cx="26" cy="18" r="9" stroke="white" strokeWidth="3" fill="none"/>
+    <path d="M10 44 C10 34 18 28 26 28 C34 28 42 34 42 44" stroke="white" strokeWidth="3" strokeLinecap="round" fill="none"/>
+    <path d="M15 18 C15 11 20 6 26 6 C32 6 37 11 37 18" stroke="white" strokeWidth="2.5" fill="none"/>
+    <rect x="12" y="16" width="5" height="8" rx="2.5" fill="white"/>
+    <rect x="35" y="16" width="5" height="8" rx="2.5" fill="white"/>
+    <path d="M37 22 L37 27 C37 29 35 30 33 30" stroke="white" strokeWidth="2" strokeLinecap="round" fill="none"/>
+    <circle cx="32" cy="30" r="1.6" fill="white"/>
+  </svg>
+);
+
+const DisponibilidadeIcon = () => (
+  <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+    <circle cx="26" cy="26" r="18" stroke="white" strokeWidth="3" fill="none"/>
+    <line x1="26" y1="9" x2="26" y2="12" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="26" y1="40" x2="26" y2="43" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="9" y1="26" x2="12" y2="26" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <line x1="40" y1="26" x2="43" y2="26" stroke="white" strokeWidth="2.5" strokeLinecap="round"/>
+    <polyline points="26,15 26,26 34,31" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
+  </svg>
+);
+
+const PlanoSaudeIcon = () => (
+  <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+    <path d="M26 44 C26 44 8 32 8 19 C8 13 12 9 18 9 C22 9 24 11 26 14 C28 11 30 9 34 9 C40 9 44 13 44 19 C44 32 26 44 26 44Z" stroke="white" strokeWidth="3" strokeLinejoin="round" fill="none"/>
+    <line x1="26" y1="18" x2="26" y2="30" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+    <line x1="20" y1="24" x2="32" y2="24" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+  </svg>
+);
+
 const AMBOS = [ROLES.PSICOLOGO, ROLES.RECEPCIONISTA];
 
 const menuItems = [
@@ -80,11 +112,16 @@ const menuItems = [
   { label: "Histórico",    Icon: HistoricoIcon,   path: "/historico",    roles: [ROLES.PSICOLOGO] },
   { label: "Pacientes",    Icon: PacientesIcon,   path: "/paciente",     roles: [ROLES.RECEPCIONISTA] },
   { label: "Financeiro",   Icon: FinanceiroIcon,  path: "/financeiro",   roles: AMBOS },
+  { label: "Recepcionista", Icon: RecepcionistaIcon,  path: "/recepcionistas",   roles: [ROLES.PSICOLOGO] },
+  { label: "Disponibilidades", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: [ROLES.PSICOLOGO] },
+  { label: "Disponibilidades Psicólogos", Icon: DisponibilidadeIcon, path: "/disponibilidades", roles: [ROLES.RECEPCIONISTA] },
+  { label: "Plano de Saúde", Icon: PlanoSaudeIcon, path: "/planos-saude",   roles: [ROLES.PSICOLOGO] },
 ];
 
 export default function HomePage() {
   const navigate = useNavigate();
   const { role } = usePermissions();
+  const { user } = useAuth();
 
   const itensVisiveis = menuItems.filter(item => item.roles.includes(role));
 
@@ -102,7 +139,7 @@ export default function HomePage() {
           textAlign: "center", fontSize: "22px", fontWeight: "700",
           color: "#1a1a1a", marginBottom: "1.8rem",
         }}>
-          Bem-vindos(a)
+          Bem-vindo(a){user?.nome ? ` ${user.nome}` : ""}
         </h1>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>

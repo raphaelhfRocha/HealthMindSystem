@@ -10,7 +10,6 @@ const controllerSessaoPaciente = "sessao/paciente"
 
 export async function getAllSessoes(): Promise<SessaoDTO[]> {
     const response = await api.get<SessaoDTO[]>(controller);
-    console.log("getAllSessoes:", response);
     return response.data;
 }
 
@@ -35,13 +34,11 @@ export async function agendarSessao(sessaoDto: SessaoDTO): Promise<SessaoDTO> {
 }
 
 export async function adicionarRegistroSessao(sessaoId: string, registroSessaoDto: RegistroSessaoDTO): Promise<RegistroSessaoDTO> {
-    console.log('RegistroSessaoDTO:', registroSessaoDto);
     const response = await api.post(`${controller}/${sessaoId}/registros-sessoes`, registroSessaoDto);
     return response.data;
 }
 
 export async function adicionarEscalaSessao(sessaoId: string, escalaSessaoDto: EscalaSessaoDTO): Promise<EscalaSessaoDTO> {
-    console.log('escalaSessaoDto:', escalaSessaoDto);
     const response = await api.post(`${controller}/${sessaoId}/escalas-sessoes`, escalaSessaoDto);
     return response.data;
 }
@@ -76,7 +73,6 @@ export async function excluirSessao(sessaoId: string): Promise<void> {
 }
 
 export async function definirPagamento(sessaoId: string, pagamentoDto: PagamentoDTO): Promise<PagamentoDTO> {
-    console.log("pagamentoDto:", pagamentoDto);
     const response = await api.put(`${controller}/pagamento/${sessaoId}`, pagamentoDto);
     return response.data;
 }

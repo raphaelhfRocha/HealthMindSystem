@@ -151,7 +151,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
-            if (sessao == null || sessao.RegistrosSessoes == null)
+            if (sessao == null || sessao.RegistrosSessoes.Count == 0)
                 return null;
 
             return sessao.RegistrosSessoes.ToList();
@@ -161,7 +161,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
-            if (sessao == null || sessao.EscalasSessoes == null)
+            if (sessao == null || sessao.EscalasSessoes.Count == 0)
                 return null;
 
             return sessao.EscalasSessoes.FirstOrDefault();
@@ -171,7 +171,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
-            if (sessao == null || sessao.RegistrosSessoes == null)
+            if (sessao == null || sessao.RegistrosSessoes.Count == 0)
                 return null;
 
             return sessao.RegistrosSessoes.FirstOrDefault(r => r.Id == registroSessaoId);
@@ -181,7 +181,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
-            if (sessao == null || sessao.RegistrosSessoes == null)
+            if (sessao == null || sessao.RegistrosSessoes.Count == 0)
                 return null;
 
             return sessao.EscalasSessoes.FirstOrDefault(r => r.Id == escalaSessaoId);
@@ -212,7 +212,7 @@ namespace HealthMindBackend.Infrastructure.Repositories
         {
             var sessao = await _collection.Find(s => s.Id == sessaoId).FirstOrDefaultAsync();
 
-            if (sessao == null || sessao.EscalasSessoes == null)
+            if (sessao == null || sessao.EscalasSessoes.Count == 0)
                 return null;
 
             return sessao.EscalasSessoes.ToList();

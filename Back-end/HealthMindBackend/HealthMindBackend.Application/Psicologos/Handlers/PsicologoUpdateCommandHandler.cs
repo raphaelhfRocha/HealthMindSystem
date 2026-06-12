@@ -34,7 +34,7 @@ namespace HealthMindBackend.Application.Psicologos.Handlers
 
             psicologoFound.Update(
                 request.Nome,
-                request.Email,
+                null,
                 request.StatusCargo,
                 request.StatusRole,
                 request.CpfCnpj,

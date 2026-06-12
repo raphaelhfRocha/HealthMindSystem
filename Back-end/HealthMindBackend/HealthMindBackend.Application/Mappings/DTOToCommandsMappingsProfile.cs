@@ -131,10 +131,6 @@ namespace HealthMindBackend.Application.Mappings
                 );
             CreateMap<PsicologoDTO, PsicologoCreateCommand>()
                 .ForMember(
-                    dest => dest.Email,
-                    opt => opt.MapFrom(src => new Email(src.Email))
-                )
-                .ForMember(
                     dest => dest.CpfCnpj,
                     opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))
                 )
@@ -143,10 +139,6 @@ namespace HealthMindBackend.Application.Mappings
                     opt => opt.MapFrom(src => new Crp(src.Crp))
                 );
             CreateMap<PsicologoDTO, PsicologoUpdateCommand>()
-                .ForMember(
-                    dest => dest.Email,
-                    opt => opt.MapFrom(src => new Email(src.Email))
-                )
                 .ForMember(
                     dest => dest.CpfCnpj,
                     opt => opt.MapFrom(src => new CpfCnpj(src.CpfCnpj))

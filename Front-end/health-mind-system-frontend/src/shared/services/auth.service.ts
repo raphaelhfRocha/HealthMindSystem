@@ -24,7 +24,6 @@ export async function cadastrarPsicologo(psicologoCadastroDto: PsicologoCadastro
 }
 
 export async function editarPsicologo(psicologoId: string, psicologoEdicaoDto: PsicologoEdicaoDTO): Promise<PsicologoDTO> {
-    console.log('psicologoEdicaoDto:', psicologoEdicaoDto);
     const response = await api.put(`${controllerAuthPsicologo}/${psicologoId}`, psicologoEdicaoDto);
     return response.data;
 }
@@ -35,7 +34,6 @@ export async function cadastrarRecepcionista(recepcionistaCadastroDto: Recepcion
 }
 
 export async function editarRecepcionista(recepcionistaId: string, recepcionistaEdicaoDto: RecepcionistaEdicaoDTO): Promise<RecepcionistaDTO> {
-    console.log('recepcionistaEdicaoDto:', recepcionistaEdicaoDto);
     const response = await api.put(`${controllerAuthRecepcionista}/${recepcionistaId}`, recepcionistaEdicaoDto);
     return response.data;
 }

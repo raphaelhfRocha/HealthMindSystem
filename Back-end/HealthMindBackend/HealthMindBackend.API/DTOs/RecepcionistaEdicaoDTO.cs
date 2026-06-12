@@ -6,7 +6,7 @@ namespace HealthMindBackend.API.DTOs
     {
         public String Id { get; set; }
         public String Nome { get; set; }
-        public String Email { get; set; }
+        public String? Email { get; set; }
         public String? Senha { get; set; }
         public String CpfCnpj { get; set; }
         public StatusCargoEnum StatusCargo { get; set; }

@@ -14,14 +14,11 @@ export async function getHistoricosMedicosByProntuarioId(prontuarioId: string): 
 }
 
 export async function registrarHistoricoMedico(historicoMedicoDto: HistoricoMedicoDTO): Promise<HistoricoMedicoDTO> {
-    console.log('Historico:', historicoMedicoDto);
     const response = await api.post(controller, historicoMedicoDto);
     return response.data;
 }
 
 export async function editarHistoricoMedico(historicoId: string, historicoMedicoDto: HistoricoMedicoDTO): Promise<HistoricoMedicoDTO> {
-    // console.log('(PUT) - historicoMedicoDto:', historicoMedicoDto);
-    console.log('(PUT) - metaTerapêuticaDto:', historicoMedicoDto.metasTerapeuticasDTO);
     const response = await api.put(`${controller}/${historicoId}`, historicoMedicoDto);
     return response.data;
 }

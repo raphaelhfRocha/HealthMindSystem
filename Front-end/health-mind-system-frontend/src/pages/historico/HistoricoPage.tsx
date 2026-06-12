@@ -10,7 +10,8 @@ import { SessaoDTO } from "../../shared/types/dtos/Sessao.dto";
 import { extractDateKey, formatTimeLabel } from "../../shared/utils/sessao";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
 import { useAuth } from "../../shared/context/AuthContext";
-import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
+import { findPsicologoLogado } from "../../shared/hooks/useCurrentPsicologo";
+import { usePermissions } from "../../shared/hooks/usePermissions";
 
 function getInitials(nome: string) {
   const parts = nome.trim().split(" ").filter(Boolean);
@@ -49,13 +50,14 @@ type LinhaHistorico = {
   idade: number | null;
   psicologo: string;
   totalSessoes: number;
-  ultimaSessao: string;
+  dataAbertura: string;
   avatarIndex: number;
 };
 
 export default function HistoricoPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isPsicologo } = usePermissions();
   const [busca, setBusca] = useState("");
   const [pacientes, setPacientes] = useState<PacienteDTO[]>([]);
   const [psicologos, setPsicologos] = useState<PsicologoDTO[]>([]);
@@ -116,15 +118,16 @@ export default function HistoricoPage() {
     return mapa;
   }, [sessoes]);
 
-  // Psicólogo enxerga apenas os pacientes sob sua responsabilidade.
   const psicologoLogadoId = useMemo(
-    () => findPsicologoByEmail(psicologos, user?.email)?.id ?? null,
-    [psicologos, user?.email]
+    () => findPsicologoLogado(psicologos, user)?.id ?? null,
+    [psicologos, user]
   );
 
   const pacientesVisiveis = useMemo(
-    () => (psicologoLogadoId ? pacientes.filter(p => p.psicologoId === psicologoLogadoId) : []),
-    [pacientes, psicologoLogadoId]
+    () => (isPsicologo
+      ? (psicologoLogadoId ? pacientes.filter(p => p.psicologoId === psicologoLogadoId) : [])
+      : pacientes),
+    [pacientes, psicologoLogadoId, isPsicologo]
   );
 
   const linhas = useMemo<LinhaHistorico[]>(() => {
@@ -133,9 +136,9 @@ export default function HistoricoPage() {
       .map((paciente, index) => {
         const sessoesPaciente = sessoesPorPaciente.get(paciente.id as string) ?? [];
 
-        const ultimaKey = sessoesPaciente.reduce<string>((maior, sessao) => {
+        const aberturaKey = sessoesPaciente.reduce<string>((menor, sessao) => {
           const key = extractDateKey(sessao.dataSessao);
-          return key > maior ? key : maior;
+          return !menor || key < menor ? key : menor;
         }, "");
 
         return {
@@ -144,7 +147,7 @@ export default function HistoricoPage() {
           idade: calcularIdade(paciente.dataNascimento),
           psicologo: psicologosPorId.get(paciente.psicologoId) ?? "—",
           totalSessoes: sessoesPaciente.length,
-          ultimaSessao: ultimaKey ? formatDataBR(ultimaKey) : "—",
+          dataAbertura: aberturaKey ? formatDataBR(aberturaKey) : "—",
           avatarIndex: index,
         };
       })
@@ -253,7 +256,7 @@ export default function HistoricoPage() {
                   </span>
                 </div>
 
-                <div style={{ fontSize: "13px", color: "#555" }}>{p.ultimaSessao}</div>
+                <div style={{ fontSize: "13px", color: "#555" }}>{p.dataAbertura}</div>
 
                 <div>
                   <button

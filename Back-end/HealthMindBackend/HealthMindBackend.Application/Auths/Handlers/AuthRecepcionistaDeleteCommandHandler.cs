@@ -24,18 +24,19 @@ namespace HealthMindBackend.Application.Auths.Handlers
 
         public async Task<Usuario> Handle(AuthRecepcionistaDeleteCommand request, CancellationToken cancellationToken)
         {
-            var usuarioFound = await _authRepository.GetUsuarioById(request.Id);
-
-            usuarioFound = usuarioFound ?? 
-                throw new KeyNotFoundException("Usuario/Recepcionista não encontrado");
-
-            var recepcionistaFound = await _recepcionistaRepository.GetRecepcionistaByUsuarioId(request.Id);
-
+            var recepcionistaFound = await _recepcionistaRepository.GetRecepcionistaById(request.Id);
+            
             recepcionistaFound = recepcionistaFound ??
                 throw new KeyNotFoundException("Recepcionista não encontrado");
 
-            await _recepcionistaRepository.ExcluirRecepcionista(recepcionistaFound.Id);
-            await _authRepository.ExcluirUsuario(request.Id);
+            var usuarioFound = await _authRepository.GetUsuarioById(recepcionistaFound.UsuarioId);
+
+            usuarioFound = usuarioFound ?? 
+                throw new KeyNotFoundException("Usuario não encontrado");
+
+            await _recepcionistaRepository.ExcluirRecepcionista(request.Id);
+
+            await _authRepository.ExcluirUsuario(recepcionistaFound.UsuarioId);
 
             return usuarioFound;
         }

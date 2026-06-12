@@ -6,7 +6,8 @@ import { getAllProntuarios } from "../../shared/services/prontuario.service";
 import { getAllPsicologos } from "../../shared/services/psicologo.service";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
 import { useAuth } from "../../shared/context/AuthContext";
-import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
+import { findPsicologoLogado } from "../../shared/hooks/useCurrentPsicologo";
+import { usePermissions } from "../../shared/hooks/usePermissions";
 
 type Row = {
   id: string;
@@ -14,7 +15,7 @@ type Row = {
   nome: string;
   idade: number | string;
   psicologo: string;
-  ultima: string;
+  dataAbertura: string;
   temProntuario: boolean;
 };
 
@@ -31,6 +32,7 @@ const AVATAR_COLORS = [
 export default function ProntuariosPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { isPsicologo } = usePermissions();
   const [busca, setBusca] = useState("");
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
@@ -53,11 +55,12 @@ export default function ProntuariosPage() {
 
         const psicologoMap = new Map(psicologos.map(p => [p.id, p.nome]));
 
-        // Psicólogo enxerga apenas os pacientes sob sua responsabilidade.
-        const psicologoLogadoId = findPsicologoByEmail(psicologos, user?.email)?.id ?? null;
-        const pacientesVisiveis = psicologoLogadoId
-          ? pacientes.filter(p => p.psicologoId === psicologoLogadoId)
-          : [];
+        // Psicólogo enxerga apenas os pacientes sob sua responsabilidade;
+        // recepcionista (e demais papéis) enxergam todos.
+        const psicologoLogadoId = findPsicologoLogado(psicologos, user)?.id ?? null;
+        const pacientesVisiveis = isPsicologo
+          ? (psicologoLogadoId ? pacientes.filter(p => p.psicologoId === psicologoLogadoId) : [])
+          : pacientes;
 
         const prontuariosByPaciente = new Map<string, any[]>();
         prontuarios.forEach((pr: any) => {
@@ -70,6 +73,10 @@ export default function ProntuariosPage() {
           const prList = prontuariosByPaciente.get(p.id ?? "") ?? [];
           const latest = prList.length ? prList.sort((a, b) => new Date(b.dataAbertura).getTime() - new Date(a.dataAbertura).getTime())[0] : null;
 
+          // Data de abertura vinda do prontuário salvo no banco (latest.dataAbertura).
+          const dataAberturaSalva = latest?.dataAbertura;
+          const dataAberturaValida = dataAberturaSalva && !Number.isNaN(new Date(dataAberturaSalva).getTime());
+
           const dataNascimento = typeof p.dataNascimento === "string" ? new Date(p.dataNascimento) : (p.dataNascimento ? new Date(p.dataNascimento) : null);
           const idade = dataNascimento ? Math.max(0, new Date().getFullYear() - dataNascimento.getFullYear()) : "—";
 
@@ -79,7 +86,7 @@ export default function ProntuariosPage() {
             nome: p.nome,
             idade,
             psicologo: psicologoMap.get(p.psicologoId) ?? "—",
-            ultima: latest ? new Date(latest.dataAbertura).toLocaleDateString("pt-BR") : "—",
+            dataAbertura: dataAberturaValida ? new Date(dataAberturaSalva).toLocaleDateString("pt-BR") : "—",
             temProntuario: prList.length > 0,
           };
         });
@@ -94,7 +101,7 @@ export default function ProntuariosPage() {
 
     load();
     return () => { active = false; };
-  }, [user?.email]);
+  }, [user?.id, user?.email, isPsicologo]);
 
   const filtrados = rows.filter(p => p.nome.toLowerCase().includes(busca.toLowerCase()));
 
@@ -215,8 +222,8 @@ export default function ProntuariosPage() {
                 {/* Psicólogo */}
                 <div style={{ fontSize: "13px", color: "#555" }}>{p.psicologo}</div>
 
-                {/* Última consulta */}
-                <div style={{ fontSize: "13px", color: "#555" }}>{p.ultima}</div>
+                {/* Data de abertura do prontuário */}
+                <div style={{ fontSize: "13px", color: "#555" }}>{p.dataAbertura}</div>
 
                 {/* Actions */}
                 <div style={{ display: "flex", gap: "8px" }}>

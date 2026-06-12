@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import AppLayout from "../../components/AppLayout";
-import { adicionarDisponibilidade, excluirDisponibilidade, getAllPsicologos, getDisponibilidadesByPsicologoId } from "../../shared/services/psicologo.service";
+import { adicionarDisponibilidade, editarPsicologo, excluirDisponibilidade, getAllPsicologos, getDisponibilidadesByPsicologoId } from "../../shared/services/psicologo.service";
 import { StatusDisponibilidadeEnum } from "../../shared/domain/enums/status-disponibilidade.enum";
 import { StatusTipoAtendimentoEnum } from "../../shared/domain/enums/status-tipo-atendimento.enum";
 import { PsicologoDTO } from "../../shared/types/dtos/Psicologo.dto";
@@ -173,17 +173,23 @@ export default function DisponibilidadesPage() {
   );
 
   // Psicólogo fica travado nas próprias disponibilidades (seleção automática).
+  // O id do JWT (claim NameIdentifier) é o id do usuário de autenticação, que o
+  // registro do psicólogo guarda em `usuarioId`. Resolvemos por esse vínculo —
+  // confiável — e usamos id direto e e-mail apenas como fallback.
   useEffect(() => {
     if (isPsicologo && psicologos.length > 0 && !psicologoId) {
-      const proprio = findPsicologoByEmail(psicologos, user?.email);
+      const proprio =
+        psicologos.find(item => item.usuarioId === user?.id) ??
+        psicologos.find(item => item.id === user?.id) ??
+        findPsicologoByEmail(psicologos, user?.email);
       if (proprio?.id) {
         setPsicologoId(proprio.id);
       }
     }
-  }, [isPsicologo, psicologos, user?.email, psicologoId]);
+  }, [isPsicologo, psicologos, user?.id, user?.email, psicologoId]);
 
   // Recepcionista acessa esta tela apenas para consulta.
-  const podeGerenciar = !isRecepcionista;
+  const podeGerenciar = isPsicologo;
 
   async function carregarDisponibilidades(id: string) {
     try {
@@ -212,9 +218,9 @@ export default function DisponibilidadesPage() {
       return;
     }
 
-    const nova: DisponibilidadeDTO = {
+    const novaDisponibilidade: DisponibilidadeDTO = {
       psicologoId: psicologoSelecionado.id as string,
-      dataDisponibilidade: dados.dataDisponibilidade as unknown as Date,
+      dataDisponibilidade: `${dados.dataDisponibilidade}T00:00:00` as unknown as Date,
       horaInicio: `${dados.horaInicio}:00`,
       statusTipoAtendimento: dados.statusTipoAtendimento,
       statusDisponibilidade: StatusDisponibilidadeEnum.stsDisponivel,
@@ -223,7 +229,7 @@ export default function DisponibilidadesPage() {
     try {
       setSalvando(true);
       setErroModal(null);
-      await adicionarDisponibilidade(psicologoSelecionado, nova);
+      await adicionarDisponibilidade(psicologoSelecionado.id as string, novaDisponibilidade);
       await carregarDisponibilidades(psicologoSelecionado.id as string);
       setModalAberto(false);
       setStatus({ type: "success", message: MESSAGES.SUCCESS.CREATED });

@@ -27,16 +27,6 @@ namespace HealthMindBackend.Application.Validators.Psicologos
                 .MinimumLength(8).WithMessage("Nome do psicólogo deve ter no mínimo 8 caracteres.")
                 .MaximumLength(120).WithMessage("Nome do psicólogo deve ter no máximo 120 caracteres.");
 
-            RuleFor(p => p.Email.Endereco)
-                .NotEmpty().WithMessage("E-mail Psicólogo Obrigatório")
-                .EmailAddress().WithMessage("E-mail inválido")
-                .MustAsync(async (command, email, cancellationToken) =>
-                {
-                    var dadoExistente = await _psicologoRepository.GetPsicologoByEmail(command.Email);
-                    return dadoExistente == null || dadoExistente.Id == command.Id;
-                })
-                .WithMessage("E-mail já cadastrado");
-
             RuleFor(p => p.StatusCargo)
                 .Equal(StatusCargoEnum.StsPsicologo).WithMessage("Cargo inválido para psicólogo");
 

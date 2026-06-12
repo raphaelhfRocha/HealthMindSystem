@@ -31,13 +31,13 @@ export async function getDisponibilidadesByPsicologoId(psicologoId: string): Pro
 }
 
 
-export async function adicionarDisponibilidade(psicologo: PsicologoDTO, disponibilidade: DisponibilidadeDTO): Promise<void> {
-    // O back-end adiciona novas disponibilidades através do PUT do psicólogo,
-    // recebendo-as no campo disponibilidadesDTO.
-    const response = await api.put<void>(`${controller}/${psicologo.id}`, {
-        ...psicologo,
-        disponibilidadesDTO: [disponibilidade],
-    });
+export async function editarPsicologo(psicologoId: string, psicologoDto: PsicologoDTO): Promise<PsicologoDTO> {
+    const response = await api.put<PsicologoDTO>(`${controller}/${psicologoId}`, psicologoDto);
+    return response.data;
+}
+
+export async function adicionarDisponibilidade(psicologoId: string, disponibilidadeDto: DisponibilidadeDTO): Promise<DisponibilidadeDTO> {
+    const response = await api.post<DisponibilidadeDTO>(`${controller}/${psicologoId}/disponibilidades`, disponibilidadeDto)
     return response.data;
 }
 

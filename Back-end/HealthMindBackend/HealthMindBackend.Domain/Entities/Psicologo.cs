@@ -114,7 +114,7 @@ namespace HealthMindBackend.Domain.Entities
             ValorConsulta = valorConsulta;
         }
 
-        public void Update(String nome, Email email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta)
+        public void Update(String nome, Email? email, StatusCargoEnum cargo, StatusRoleEnum role, CpfCnpj cpfCnpj, Crp crp, String especialidade, Decimal valorConsulta)
         {
             ValidateUserDomain(nome, cargo, role);
             ValidatePsicologoDomain(cargo, especialidade, valorConsulta);

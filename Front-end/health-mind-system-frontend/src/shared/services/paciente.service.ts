@@ -29,7 +29,6 @@ export async function registrarPaciente(pacienteDto: PacienteDTO): Promise<Pacie
 }
 
 export async function editarPaciente(pacienteId: string, pacienteDto: PacienteDTO): Promise<PacienteDTO> {
-    console.log("Dados editados:", pacienteDto);
     const response = await api.put(`${controller}/${pacienteId}`, pacienteDto);
     return response.data;
 }

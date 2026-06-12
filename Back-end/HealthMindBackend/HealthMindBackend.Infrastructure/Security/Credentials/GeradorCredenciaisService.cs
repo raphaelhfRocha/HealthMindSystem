@@ -12,12 +12,19 @@ namespace HealthMindBackend.Infrastructure.Security.Credenciais
         private const String Dominio = "healthmind.com";
         private const String Simbolos = "!@#$%&*";
         private const Int32 QuantidadeDigitos = 5;
+        private const Int32 TamanhoMaximoSlugNumeros = 18;
 
         public String GerarEmail(String nome, StatusCargoEnum cargo)
         {
-            var slug = GerarSlugNome(nome);
             var sufixoCargo = cargo == StatusCargoEnum.StsPsicologo ? "psi" : "rec";
             var numeros = GerarDigitos(QuantidadeDigitos);
+
+            // {slug}{numeros} deve ter no máximo 18 caracteres (vale para ambos os
+            // cargos). Como numeros tem tamanho fixo, truncamos o slug no que sobra.
+            var tamanhoMaximoSlug = Math.Max(0, TamanhoMaximoSlugNumeros - numeros.Length);
+            var slug = GerarSlugNome(nome);
+            if (slug.Length > tamanhoMaximoSlug)
+                slug = slug[..tamanhoMaximoSlug];
 
             return $"{slug}{numeros}.{sufixoCargo}@{Dominio}";
         }

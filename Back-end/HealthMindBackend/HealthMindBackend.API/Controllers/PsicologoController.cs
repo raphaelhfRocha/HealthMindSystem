@@ -184,6 +184,107 @@ namespace HealthMindBackend.API.Controllers
             return Ok(await _psicologoService.GetDisponibilidadesByPsicologoId(psicologoId));
         }
         /// <summary>
+        /// Edição de psicólogo
+        /// </summary>
+        /// <response code="200">Psicólogo editado</response>
+        /// <response code="400">Erro ao enviar dados - Bad Request</response>
+        /// <response code="404">Psicólogo não encontrado</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a edição de psicólogo**
+        /// 
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Digite o Id do psicologo registrado no campo do parâmetro psicologoId**
+        /// **2. Digite os dados que deseja editar seguindo o modelo abaixo:**
+        /// 
+        /// **[PUT] - /api/Psicologo/{psicologoId}**
+        /// ```
+        /// {
+        ///   "Nome": "Nome do psicólogo",
+        ///   "Email": "email@email.com",
+        ///   "CpfCnpj": "12345678903",
+        ///   "StatusCargo": 1,
+        ///   "StatusRole": 2,
+        ///   "Crp": "123456789",
+        ///   "Especialidade": "Especialidade",
+        ///   "disponibilidadesDTO": [
+        ///   { // Nova disponibilidade
+        ///     "dataDisponibilidade": "0000-00-00T00:00:00.000Z",
+        ///     "horaInicio": "00:00:00",
+        ///     "statusDisponibilidade": 1
+        ///   }
+        ///  ]
+        /// }
+        /// ```
+        /// **3. Em seguida clique no botão Execute na sessão Request Body(Corpo da requisição) para enviar os dados**
+        /// </remarks>
+        /// <param name="psicologoId">
+        /// ID Psicólogo
+        /// </param>
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpPut("{psicologoId}")]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(PsicologoDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> EditarPsicologo(String psicologoId, [FromBody] PsicologoDTO psicologoDto)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+
+            psicologoDto.Id = psicologoId;
+            await _psicologoService.AtualizarPsicologo(psicologoDto);
+
+            if (psicologoDto.DisponibilidadesDTO != null)
+            {
+                foreach (var item in psicologoDto.DisponibilidadesDTO)
+                {
+                    item.PsicologoId = psicologoId;
+                    await _psicologoService.AdicionarDisponibilidade(item);
+                }
+            }
+            return Ok(psicologoDto);
+        }
+        /// <summary>
+        /// Exclusão de disponibilidade de psicologo.
+        /// </summary>
+        /// <param name="psicologoId">Id Psicologo</param>
+        /// <param name="disponibilidadeId">Id Disponibilidade</param>
+        /// <response code="204">Disponibilidade excluída</response>
+        /// <response code="400">Dados inválidos</response>
+        /// <response code="404">Dados não encontrados</response>
+        /// <response code="500">Erro interno</response>
+        /// <remarks>
+        /// **Esse endpoint é dedicado a exclusão de disponibilidade de psicologo**
+        /// 
+        /// Como usar:
+        /// 
+        /// **1. Clique no botão Try it out na sessão de Parameters(Parâmetros)**
+        /// 
+        /// **2. Digite os parametros de disponibilidade e psicologo nos campos de Id de Disponibilidade e Id do Psicologo**
+        /// 
+        /// **3. Em seguida clique no botão Execute**
+        /// 
+        /// </remarks>
+        [Authorize(Roles = "StsPsicologo")]
+        [HttpPost("{psicologoId}/disponibilidades")]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(DisponibilidadeDTO), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> AdicionarDisponibilidade(String psicologoId, DisponibilidadeDTO disponibilidadeDto)
+        {
+            if (psicologoId == null)
+                return BadRequest(nameof(psicologoId));
+
+            disponibilidadeDto.PsicologoId = psicologoId;
+            await _psicologoService.AdicionarDisponibilidade(disponibilidadeDto);
+            return NoContent();
+        }
+
+        /// <summary>
         /// Exclusão de disponibilidade de psicologo.
         /// </summary>
         /// <param name="psicologoId">Id Psicologo</param>

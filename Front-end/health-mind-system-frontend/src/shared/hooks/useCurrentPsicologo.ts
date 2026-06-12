@@ -16,6 +16,23 @@ export function findPsicologoByEmail(
     return psicologos.find(p => p.email?.trim().toLowerCase() === alvo);
 }
 
+// Resolve o registro do psicólogo logado de forma robusta. O id do JWT
+// (NameIdentifier) é o id do usuário de autenticação, que o psicólogo guarda em
+// `usuarioId`. Resolvemos por esse vínculo — confiável — e usamos id direto e
+// e-mail apenas como fallback. Casar só por e-mail é frágil (e-mail divergente
+// entre login e cadastro deixa a lista vazia).
+export function findPsicologoLogado(
+    psicologos: PsicologoDTO[],
+    user?: { id?: string | null; email?: string | null } | null
+): PsicologoDTO | undefined {
+    if (!user) return undefined;
+    return (
+        (user.id ? psicologos.find(p => p.usuarioId === user.id) : undefined) ??
+        (user.id ? psicologos.find(p => p.id === user.id) : undefined) ??
+        findPsicologoByEmail(psicologos, user.email)
+    );
+}
+
 export function useCurrentPsicologoId() {
     const { user } = useAuth();
     const isPsicologo = user?.role === ROLES.PSICOLOGO;
