@@ -161,7 +161,7 @@ No front-end, o token e os dados do usuário ficam no **`sessionStorage`**, ou s
 
 | Perfil           | Acesso                                                                       |
 | ---------------- | ---------------------------------------------------------------------------- |
-| **Psicólogo**    | Prontuários, histórico, saúde mental, evolução, consultar sessões, planos de saúde, financeiro, recepcionistas, psicólogos, e disponibilidades       |
+| **Psicólogo**    | Prontuários, histórico, saúde mental, evolução, consultar sessões, planos de saúde, financeiro, recepcionistas, psicólogos e disponibilidades       |
 | **Recepcionista**| Pacientes, agendamentos, psicólogos, disponibilidades dos psicólogos e financeiro            |
 
 #### Exemplo de login
