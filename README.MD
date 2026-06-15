@@ -227,7 +227,3 @@ Os endpoints seguem o padrão `api/[controller]`. A documentação completa (par
 - ✅ Sessão **vinculada à aba** do navegador (`sessionStorage`)
 - ✅ Rotas protegidas no front-end e no back-end
 - ✅ Validação de entrada com **Zod** (front) e regras de domínio (back)
-
----
-
-> 🧩 Projeto em desenvolvimento. Sugestões e contribuições são bem-vindas.
