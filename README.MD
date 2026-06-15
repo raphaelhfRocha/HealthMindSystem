@@ -111,8 +111,6 @@ Antes de rodar, configure em `HealthMindBackend.API/appsettings.json`:
 - a **connection string** do MongoDB;
 - a seção **`JWT`** (`Secret`, `ValidIssuer`, `ValidAudience`).
 
-> ⚠️ **Segurança:** não versione o `JWT:Secret` real no repositório. Prefira variáveis de ambiente ou *user-secrets* (`dotnet user-secrets`) e mantenha o `appsettings.json` apenas com placeholders.
-
 ### 2. Front-end
 
 ```bash
