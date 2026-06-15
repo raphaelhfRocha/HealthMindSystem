@@ -14,6 +14,9 @@ import { RHFTextField } from "../../shared/components/RHFTextField";
 import { Pagination, usePagination } from "../../shared/components/Pagination";
 import { usePermissions } from "../../shared/hooks/usePermissions";
 import ModalSendEmail from "../../shared/components/ModalSendEmail/ModalSendEmail";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared/components/ModalMessagesStatus/ModalMessagesStatus";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 const AVATAR_COLORS = [
   "#1A4FA3", "#3BB077", "#E06B4A", "#7B5EA7",
@@ -121,7 +124,7 @@ export default function PsicologosPage() {
   const [busca, setBusca] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
   const [credenciais, setCredenciais] = useState<{ nome: string; email: string; senha: string } | null>(null);
 
   useEffect(() => {
@@ -130,7 +133,6 @@ export default function PsicologosPage() {
     async function carregarPsicologos() {
       try {
         setLoading(true);
-        setError(null);
 
         const dados = await getAllPsicologos();
         if (!isActive) return;
@@ -138,7 +140,7 @@ export default function PsicologosPage() {
         setPsicologos(ordenarPsicologos(dados));
       } catch {
         if (isActive) {
-          setError("Não foi possível carregar os psicólogos.");
+          setStatus({ type: "error", message: "Não foi possível carregar os psicólogos." });
         }
       } finally {
         if (isActive) {
@@ -166,8 +168,6 @@ export default function PsicologosPage() {
 
   const handleAdd = async (values: PsicologoFormData) => {
     try {
-      setError(null);
-
       const criado = await cadastrarPsicologo({
         ...values,
         cpfCnpj: normalizeCpfCnpj(values.cpfCnpj),
@@ -180,8 +180,9 @@ export default function PsicologosPage() {
       if (criado.senha) {
         setCredenciais({ nome: criado.nome, email: criado.email, senha: criado.senha });
       }
-    } catch {
-      setError("Não foi possível cadastrar o psicólogo.");
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     }
   };
 
@@ -205,6 +206,15 @@ export default function PsicologosPage() {
           loginEmail={credenciais.email}
           senha={credenciais.senha}
           onClose={() => setCredenciais(null)}
+        />
+      )}
+
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
         />
       )}
 
@@ -244,12 +254,6 @@ export default function PsicologosPage() {
             )}
           </div>
         </div>
-
-        {error && (
-          <div style={{ padding: "12px 16px", borderRadius: "12px", background: "#fff5f5", border: "1px solid #ffd0d0", color: "#b03a2e", fontSize: "13px", fontWeight: "600" }}>
-            {error}
-          </div>
-        )}
 
         {/* Table card */}
         <div style={{ background: "white", borderRadius: "14px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", overflow: "hidden" }}>
@@ -332,7 +336,7 @@ export default function PsicologosPage() {
         {/* Footer count + pagination */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
-            {filtrados.length} {filtrados.length === 1 ? "psicólogo encontrado" : "psicólogos encontrados"}
+            {/* {filtrados.length} {filtrados.length === 1 ? "psicólogo encontrado" : "psicólogos encontrados"} */}
           </span>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>

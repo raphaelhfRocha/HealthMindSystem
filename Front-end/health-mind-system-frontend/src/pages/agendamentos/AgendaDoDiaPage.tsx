@@ -17,7 +17,7 @@ import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../../shared
 import { MESSAGES } from "../../shared/constants/messages";
 import { useAuth } from "../../shared/context/AuthContext";
 import { usePermissions } from "../../shared/hooks/usePermissions";
-import { findPsicologoByEmail } from "../../shared/hooks/useCurrentPsicologo";
+import { findPsicologoLogado } from "../../shared/hooks/useCurrentPsicologo";
 
 type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
@@ -234,7 +234,7 @@ export default function AgendaDoDiaPage() {
         // como "Realizada". Restringe ao escopo do usuário: o psicólogo só
         // atualiza as próprias sessões; o recepcionista atualiza todas.
         const meuPsicologoId = isPsicologo
-          ? findPsicologoByEmail(psicologosDados, user?.email)?.id ?? null
+          ? findPsicologoLogado(psicologosDados, user)?.id ?? null
           : null;
 
         const sessoesParaRealizar = sessoesDados.filter(sessao => {
@@ -304,8 +304,8 @@ export default function AgendaDoDiaPage() {
 
   // Id do psicólogo logado (quando aplicável), para restringir a agenda.
   const psicologoLogadoId = useMemo(
-    () => (isPsicologo ? findPsicologoByEmail(psicologos, user?.email)?.id ?? null : null),
-    [isPsicologo, psicologos, user?.email]
+    () => (isPsicologo ? findPsicologoLogado(psicologos, user)?.id ?? null : null),
+    [isPsicologo, psicologos, user?.id, user?.email]
   );
 
   const agendamentos = useMemo(() => {

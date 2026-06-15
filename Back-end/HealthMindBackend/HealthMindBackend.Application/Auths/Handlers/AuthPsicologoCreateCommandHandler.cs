@@ -28,8 +28,10 @@ namespace HealthMindBackend.Application.Auths.Handlers
         {
             await _validatorAuthPsicologoCreateCommand.ValidateAndThrowAsync(request);
 
+            var nome = $"Dr(a). {request.Nome}";
+
             var usuario = new Psicologo(
-                request.Nome,
+                nome,
                 request.Email,
                 request.Senha,
                 request.StatusCargo,
@@ -40,7 +42,7 @@ namespace HealthMindBackend.Application.Auths.Handlers
             var usuarioCadastrado = await _authRepository.CadastrarUsuario(usuario);
 
             var psicologo = new Psicologo(
-                request.Nome,
+                nome,
                 request.Email = null,
                 request.StatusCargo,
                 request.StatusRole,

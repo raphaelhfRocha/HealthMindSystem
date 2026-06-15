@@ -355,7 +355,7 @@ export default function RecepcionistasPage() {
         {/* Footer count + pagination */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
-            {filtrados.length} {filtrados.length === 1 ? "recepcionista encontrado" : "recepcionistas encontrados"}
+            {/* {filtrados.length} {filtrados.length === 1 ? "recepcionista encontrado" : "recepcionistas encontrados"} */}
           </span>
           <Pagination 
             page={page}

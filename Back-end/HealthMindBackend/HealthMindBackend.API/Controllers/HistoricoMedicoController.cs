@@ -119,8 +119,8 @@ namespace HealthMindBackend.API.Controllers
         [ProducesResponseType(typeof(HistoricoMedicoDTO), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> RegistrarHistoricoMedico([FromBody] HistoricoMedicoDTO historicoMedicoDto)
         {
-            await _historicoMedicoService.AdicionarHistoricoMedico(historicoMedicoDto);
-            return Created($"/api/historicoMedico", historicoMedicoDto);
+            var historicoMedicoRegistrado = await _historicoMedicoService.AdicionarHistoricoMedico(historicoMedicoDto);
+            return Created($"/api/historicoMedico", historicoMedicoRegistrado);
         }
 
 

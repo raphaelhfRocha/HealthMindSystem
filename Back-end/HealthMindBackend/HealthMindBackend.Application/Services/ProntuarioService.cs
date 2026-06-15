@@ -89,10 +89,11 @@ namespace HealthMindBackend.Application.Services
             await _mediator.Send(medicamentoCreateCommand);
         }
 
-        public async Task RegistrarProntuario(ProntuarioDTO prontuarioDto)
+        public async Task<ProntuarioDTO> RegistrarProntuario(ProntuarioDTO prontuarioDto)
         {
             var prontuarioCreateCommand = _mapper.Map<ProntuarioCreateCommand>(prontuarioDto);
-            await _mediator.Send(prontuarioCreateCommand);
+            var prontuarioRegistrado = await _mediator.Send(prontuarioCreateCommand);
+            return _mapper.Map<ProntuarioDTO>(prontuarioRegistrado);
         }
     }
 }

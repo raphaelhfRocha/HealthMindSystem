@@ -4,6 +4,10 @@ import { StatusSessaoEnum } from "../../domain/enums/status-sessao.enum";
 import { HistoricoMedicoDTO } from "../../types/dtos/HistoricoMedico.dto";
 import { MetaTerapeuticaDTO } from "../../types/dtos/MetaTerapeutica.dto";
 import { SessaoDTO } from "../../types/dtos/Sessao.dto";
+import ModalMessagesStatus, { ApiErrorDetail, parseApiError } from "../ModalMessagesStatus/ModalMessagesStatus";
+import { MESSAGES } from "../../constants/messages";
+
+type StatusMessage = { type: "success" | "error"; message: string; details?: ApiErrorDetail[] };
 
 type MetaForm = {
   titulo: string;
@@ -73,7 +77,7 @@ export default function SecaoMetas({
   const [mostrarNova, setMostrarNova] = useState(false);
   const [form, setForm] = useState({ ...emptyMeta });
   const [salvando, setSalvando] = useState(false);
-  const [erro, setErro] = useState<string | null>(null);
+  const [status, setStatus] = useState<StatusMessage | null>(null);
 
   // O paciente precisa ter ao menos uma sessão agendada (não cancelada) para registrar metas.
   const temSessaoAgendada = useMemo(
@@ -107,13 +111,15 @@ export default function SecaoMetas({
       observacoes: form.observacoes.trim(),
     };
 
+    const editando = !!editandoId;
     try {
       setSalvando(true);
-      setErro(null);
       await onSalvarMeta(meta);
       cancelar();
-    } catch {
-      setErro("Não foi possível salvar a meta.");
+      setStatus({ type: "success", message: editando ? MESSAGES.SUCCESS.UPDATED : MESSAGES.SUCCESS.CREATED });
+    } catch (err) {
+      const parsed = parseApiError(err);
+      setStatus({ type: "error", message: parsed.message, details: parsed.details });
     } finally {
       setSalvando(false);
     }
@@ -144,8 +150,25 @@ export default function SecaoMetas({
     </div>
   );
 
+  // Sem prontuário não é possível registrar metas (dependem de um histórico vinculado ao prontuário).
+  if (!temProntuario) {
+    return (
+      <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
+        Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar metas terapêuticas.
+      </div>
+    );
+  }
+
   return (
     <div style={{ background: "white", borderRadius: "14px", padding: "24px 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", display: "flex", flexDirection: "column", gap: "16px" }}>
+      {status && (
+        <ModalMessagesStatus
+          type={status.type}
+          message={status.message}
+          details={status.details}
+          onClose={() => setStatus(null)}
+        />
+      )}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "8px" }}>
         <h2 style={{ fontSize: "16px", fontWeight: "700", color: "#111", margin: 0 }}>Metas Terapêuticas</h2>
         <button
@@ -157,10 +180,6 @@ export default function SecaoMetas({
           <span style={{ fontSize: "17px", lineHeight: 1 }}>+</span> Nova Meta
         </button>
       </div>
-
-      {erro && (
-        <div style={{ padding: "10px 12px", borderRadius: "10px", border: "1px solid #ffd0d0", background: "#fff5f5", color: "#b03a2e", fontSize: "12px", fontWeight: "600" }}>{erro}</div>
-      )}
 
       {mostrarNova && FormMeta}
 

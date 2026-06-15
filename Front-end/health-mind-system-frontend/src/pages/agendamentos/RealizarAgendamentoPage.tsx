@@ -431,7 +431,7 @@ export default function RealizarAgendamentoPage() {
                 type="text"
                 value={psicologoResponsavel?.nome ?? ""}
                 placeholder={pacienteId ?
-                  "Sem psicólogo responsável" : "Selecione um paciente..."}
+                  "Sem psicólogo responsável" : "Selecione um(a) psicologo(a) ..."}
                 readOnly
                 style={{
                   ...selectStyle, cursor: psicologoResponsavel ?
@@ -465,7 +465,7 @@ export default function RealizarAgendamentoPage() {
               >
                 <option value="" disabled>
                   {!pacienteId
-                    ? "Selecione um paciente..."
+                    ? "Selecione uma disponibilidade..."
                     : carregandoDisponibilidades
                       ? "Carregando..."
                       : disponibilidadesDisponiveis.length === 0

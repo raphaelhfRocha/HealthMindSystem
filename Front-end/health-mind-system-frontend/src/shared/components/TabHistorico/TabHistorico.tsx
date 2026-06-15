@@ -171,13 +171,14 @@ const TabHistorico = forwardRef<TabHandle, {
         </>
     );
 
-    // if (!temProntuario) {
-    //     return (
-    //         <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
-    //             Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar o histórico.
-    //         </div>
-    //     );
-    // }
+    // Sem prontuário não é possível registrar histórico (o backend exige um prontuarioId válido).
+    if (!temProntuario) {
+        return (
+            <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
+                Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar o histórico.
+            </div>
+        );
+    }
 
     // Estado vazio: nenhum histórico registrado e sem formulário aberto.
     if (!registrado && !editando) {

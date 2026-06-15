@@ -124,8 +124,14 @@ publish/
 
 # Dotenv
 .env
+.env.example
 .env.local
 .env.*.local
+
+# Docker
+.dockerignore
+docker-compose.yml
+Dockerfile
 
 # NCrunch
 _NCrunch_*

@@ -41,7 +41,7 @@ export function useCurrentPsicologoId() {
     const [loading, setLoading] = useState<boolean>(isPsicologo);
 
     useEffect(() => {
-        if (!isPsicologo || !user?.email) {
+        if (!isPsicologo || !user) {
             setPsicologoId(null);
             setLoading(false);
             return;
@@ -53,7 +53,10 @@ export function useCurrentPsicologoId() {
         getAllPsicologos()
             .then(lista => {
                 if (!active) return;
-                setPsicologoId(findPsicologoByEmail(lista, user.email)?.id ?? null);
+                // Resolve por usuarioId (vínculo confiável); e-mail é só fallback.
+                // Psicólogos são cadastrados sem e-mail no registro, então casar
+                // apenas por e-mail deixaria a lista de agendamentos vazia.
+                setPsicologoId(findPsicologoLogado(lista, user)?.id ?? null);
             })
             .catch(() => {
                 if (active) setPsicologoId(null);
@@ -65,7 +68,7 @@ export function useCurrentPsicologoId() {
         return () => {
             active = false;
         };
-    }, [isPsicologo, user?.email]);
+    }, [isPsicologo, user?.id, user?.email]);
 
     return { psicologoId, loading, isPsicologo };
 }

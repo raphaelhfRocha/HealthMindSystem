@@ -404,7 +404,7 @@ export default function DisponibilidadesPage() {
         {psicologoSelecionado && !loadingDisponibilidades && disponibilidades.length > 0 && (
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
             <span style={{ fontSize: "12px", color: "#888" }}>
-              {disponibilidades.length} {disponibilidades.length === 1 ? "disponibilidade encontrada" : "disponibilidades encontradas"}
+              {/* {disponibilidades.length} {disponibilidades.length === 1 ? "disponibilidade encontrada" : "disponibilidades encontradas"} */}
             </span>
             <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
           </div>

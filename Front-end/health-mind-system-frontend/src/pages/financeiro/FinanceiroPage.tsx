@@ -518,12 +518,12 @@ export default function FinanceiroPage() {
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
-            {filtrados.length} {filtrados.length === 1 ? "registro encontrado" : "registros encontrados"}
+            {/* {filtrados.length} {filtrados.length === 1 ? "registro encontrado" : "registros encontrados"} */}
           </span>
 
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
 
-          {filtroStatus === "todos" && (
+          {filtroStatus === "todos" && isPsicologo && (
             <span style={{ fontSize: "12px", color: "#888" }}>
               Total geral: <strong style={{ color: "#111" }}>R$ {formatBRL(totalRecebido + totalPendente)}</strong>
             </span>

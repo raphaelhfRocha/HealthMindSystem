@@ -110,8 +110,8 @@ namespace HealthMindBackend.API.Controllers
             if (!prontuarioDto.DataAbertura.HasValue || prontuarioDto.DataAbertura.Value == DateTime.MinValue)
                 prontuarioDto.DataAbertura = DateTime.UtcNow;
 
-            await _prontuarioService.RegistrarProntuario(prontuarioDto);
-            return Created($"/api/prontuario", prontuarioDto);
+            var prontuarioRegistrado = await _prontuarioService.RegistrarProntuario(prontuarioDto);
+            return Created($"/api/prontuario", prontuarioRegistrado);
         }
 
         /// <summary>

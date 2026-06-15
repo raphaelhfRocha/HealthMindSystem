@@ -284,7 +284,7 @@ export default function ProntuariosPage() {
         {/* Count footer + pagination */}
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
-            {filtrados.length} {filtrados.length === 1 ? "paciente encontrado" : "pacientes encontrados"}
+            {/* {filtrados.length} {filtrados.length === 1 ? "paciente encontrado" : "pacientes encontrados"} */}
           </span>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>

@@ -7,23 +7,57 @@ import { StatusFormaPagamentoEnum } from "../../domain/enums/status-forma-pagame
 import { formatBRL } from "../../utils/formatBRL";
 
 interface ModalEditarPagamentoProps {
-  pacienteNome: string;
-  pagamento?: PagamentoDTO;
-  saving: boolean;
-  error: string | null;
-  onSave: (pagamento: PagamentoDTO) => void;
-  onClose: () => void;
+    pacienteNome: string;
+    pagamento?: PagamentoDTO;
+    saving: boolean;
+    error: string | null;
+    onSave: (pagamento: PagamentoDTO) => void;
+    onClose: () => void;
 };
 
 const pagInputStyle = {
-    height: "38px", border: "1px solid #dde3f0", borderRadius: "8px",
-    padding: "0 12px", fontSize: "13px", outline: "none",
-    boxSizing: "border-box" as const, width: "100%", fontFamily: "inherit", color: "#333", background: "white",
+    height: "38px",
+    border: "1px solid #dde3f0",
+    borderRadius: "8px",
+    padding: "0 12px",
+    fontSize: "13px",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    width: "100%",
+    fontFamily: "inherit",
+    color: "#333",
+    background: "white",
+    cursor: "pointer"
 };
 
+const pagInputValorConsultaDisableStyle = {
+    height: "38px",
+    border: "1px solid #dde3f0",
+    borderRadius: "8px",
+    padding: "0 12px",
+    fontSize: "13px",
+    outline: "none",
+    boxSizing: "border-box" as const,
+    width: "100%",
+    fontFamily: "inherit",
+    color: "#333",
+    background: "white",
+    cursor: "not-allowed",
+}
+
+const pagInputDisableStyle = {
+    cursor: "not-allowed",
+    opacity: 0.5,
+    border: "1px solid #dde3f0"
+}
+
 const pagLabelStyle = {
-    display: "flex", flexDirection: "column" as const, gap: "5px",
-    fontSize: "12px", fontWeight: "600" as const, color: "#222",
+    display: "flex",
+    flexDirection: "column" as const,
+    gap: "5px",
+    fontSize: "12px",
+    fontWeight: "600" as const,
+    color: "#222",
 };
 
 export default function ModalEditarPagamento({ pacienteNome, pagamento, saving, error, onSave, onClose }: ModalEditarPagamentoProps) {
@@ -68,6 +102,7 @@ export default function ModalEditarPagamento({ pacienteNome, pagamento, saving, 
                     <label style={pagLabelStyle}>
                         Valor Consulta
                         <input
+                            style={pagInputValorConsultaDisableStyle}
                             type="text"
                             min="0"
                             step="0.01"
@@ -75,8 +110,8 @@ export default function ModalEditarPagamento({ pacienteNome, pagamento, saving, 
                             onChange={e =>
                                 setValorConsultaFinal(e.target.value)
                             }
-                            style={pagInputStyle}
-                            disabled />
+                            disabled
+                        />
                     </label>
                     <label style={pagLabelStyle}>
                         Status
@@ -110,12 +145,18 @@ export default function ModalEditarPagamento({ pacienteNome, pagamento, saving, 
                 </div>
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-                    {statusParcelado === StatusParceladoEnum.stsSim && (
-                        <label style={pagLabelStyle}>
-                            Total de parcelas
-                            <input type="number" min="1" step="1" value={totalParcelas} onChange={e => setTotalParcelas(e.target.value)} style={pagInputStyle} />
-                        </label>
-                    )}
+                    <label style={pagLabelStyle}>
+                        Total de parcelas
+                        <input
+                            type="number"
+                            min="1"
+                            step="1"
+                            value={statusParcelado === StatusParceladoEnum.stsNao ? "" : totalParcelas}
+                            onChange={e => setTotalParcelas(e.target.value)}
+                            style={{ ...pagInputStyle, ...(statusParcelado === StatusParceladoEnum.stsNao ? pagInputDisableStyle : {}) }}
+                            disabled={statusParcelado === StatusParceladoEnum.stsNao}
+                        />
+                    </label>
                     <label style={pagLabelStyle}>
                         Data do pagamento
                         <input type="date" value={dataPagamento} onChange={e => setDataPagamento(e.target.value)} style={pagInputStyle} />

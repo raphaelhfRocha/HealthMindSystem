@@ -186,13 +186,14 @@ const TabSaudeMental = forwardRef<TabHandle, {
         </>
     );
 
-    // if (!temProntuario) {
-    //     return (
-    //         <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
-    //             Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar a saúde mental.
-    //         </div>
-    //     );
-    // }
+    // Sem prontuário não é possível registrar saúde mental (depende de um histórico vinculado ao prontuário).
+    if (!temProntuario) {
+        return (
+            <div style={{ background: "white", borderRadius: "14px", padding: "3rem 28px", boxShadow: "0 2px 12px rgba(0,0,0,0.07)", textAlign: "center", color: "#999", fontSize: "14px" }}>
+                Este paciente ainda não possui um prontuário. Cadastre um prontuário antes de registrar a saúde mental.
+            </div>
+        );
+    }
 
     // Estado vazio: nenhum dado de saúde mental registrado e sem formulário aberto.
     if (!registrado && !editando) {

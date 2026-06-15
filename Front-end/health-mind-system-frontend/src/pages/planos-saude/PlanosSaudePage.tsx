@@ -365,7 +365,7 @@ export default function PlanosSaudePage() {
 
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "12px", color: "#888" }}>
-            {filtrados.length} {filtrados.length === 1 ? "plano encontrado" : "planos encontrados"}
+            {/* {filtrados.length} {filtrados.length === 1 ? "plano encontrado" : "planos encontrados"} */}
           </span>
           <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
         </div>

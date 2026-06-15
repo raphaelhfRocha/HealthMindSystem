@@ -29,10 +29,11 @@ namespace HealthMindBackend.Application.Services
             _mediator = mediator;
         }
 
-        public async Task AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto)
+        public async Task<HistoricoMedicoDTO> AdicionarHistoricoMedico(HistoricoMedicoDTO historicoMedicoDto)
         {
             var historicoMedicoCreateCommand = _mapper.Map<HistoricoMedicoCreateCommand>(historicoMedicoDto);
-            await _mediator.Send(historicoMedicoCreateCommand);
+            var historicoMedicoRegistrado = await _mediator.Send(historicoMedicoCreateCommand);
+            return _mapper.Map<HistoricoMedicoDTO>(historicoMedicoRegistrado);
         }
 
         public async Task AdicionarMetaTerapeutica(MetaTerapeuticaDTO metaTerapeuticaDto)
